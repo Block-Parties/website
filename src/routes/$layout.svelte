@@ -6,6 +6,10 @@
 
 <style lang="scss">
     nav {
+        position: sticky;
+        top: 0;
+        z-index: 99;
+
         width: 100%;
         height: 56px;
         // background: #371164;

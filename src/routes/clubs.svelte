@@ -47,7 +47,10 @@
 
     .sidebar {
         position: sticky;
-        top: 0;
+        align-self: flex-start;
+        z-index: 99;
+        top: 56px;
+        height: calc(100vh - 2 * 60px); // I'm not sure why but this seems to be pixel perfect
         left: 0;
         bottom: 0;
         min-width: 280px;
