@@ -2,9 +2,15 @@
     import ClubCard from "$lib/components/ClubCard.svelte"
 </script>
 
+<svelte:head>
+    <title>Block Parties | Directory</title>
+    <meta name="og:title" content="Block Parties | Directory" />
+    <meta name="og:description" content="Find a party to invest in digital assets with." />
+</svelte:head>
+
 <div class="outer">
     <div class="sidebar">
-        <h1>Club Directory</h1>
+        <h1>Party Directory</h1>
 
         <p>Investing is done best when effort, knowledge, and resources are effectively pooled together.</p>
         <br />

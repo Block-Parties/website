@@ -4,6 +4,12 @@
     }
 </script>
 
+<svelte:head>
+    <title>Block Parties</title>
+    <meta name="og:title" content="Block Parties" />
+    <meta name="og:description" content="Invest with others safely and securely, powered by blockchain technology." />
+</svelte:head>
+
 <main>
     <h1>Block Parties</h1>
 
