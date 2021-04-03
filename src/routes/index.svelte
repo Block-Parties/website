@@ -1,6 +1,22 @@
 <script lang="ts">
-    async function submitEmail() {
-        console.log("SUBMITTED EMAIL! THANKS!")
+    // import Api from "$lib/api/beta"
+    // import axios from "axios"
+
+    let email: string
+
+    async function signUp() {
+        await fetch("http://3.143.138.224:8000/join-beta", {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email: email,
+                createdAt: new Date(),
+            }),
+        })
+
+        alert("Thank you for registering!")
     }
 </script>
 
@@ -22,8 +38,8 @@
         <h5>Reserve your seat in the limited access beta</h5>
         <br /><br />
         <div class="form-input">
-            <input type="email" placeholder="Enter your email" />
-            <button>Submit</button>
+            <input bind:value={email} type="email" placeholder="Enter your email" />
+            <button on:click={signUp}>Submit</button>
         </div>
         <p>We won't use your email for anything other than letting you know when beta opens.</p>
     </div>

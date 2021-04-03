@@ -20,5 +20,8 @@
 	"type": "module",
 	"engines": {
 		"node": ">= 12.17.0"
+	},
+	"dependencies": {
+		"axios": "^0.21.1"
 	}
 }
