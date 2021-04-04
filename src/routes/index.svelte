@@ -30,8 +30,10 @@
     <h1>Block Parties</h1>
 
     <div>
-        <h3>A <b>Revolution</b> in Investing... coming soon</h3>
-        <p>Leveraging the blockchain to make investing as <b>safe</b>, <b>easy</b>, and <b>social</b> as ever.</p>
+        <h3>An <b>Evolution</b> in Investing... coming soon</h3>
+        <p>
+            Leveraging the blockchain to make group investing as <b>secure</b>, <b>easy</b>, and <b>social</b> as ever.
+        </p>
     </div>
 
     <div class="email-form">
@@ -42,6 +44,8 @@
             <button on:click={signUp}>Submit</button>
         </div>
         <p>We won't use your email for anything other than letting you know when beta opens.</p>
+        <br />
+        <p>Wanna chat? <a href="https://discord.gg/KN4YqV5Hqw"> Join our Discord</a></p>
     </div>
 </main>
 
