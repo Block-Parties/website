@@ -1,6 +1,10 @@
 .DS_Store
 node_modules
-/.svelte
-/build
-/functions
+
+# Vercel local config
 .vercel
+
+# Build output
+/build
+/.svelte
+/.vercel_build_output
