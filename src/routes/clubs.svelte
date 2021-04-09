@@ -1,6 +1,9 @@
 <script context="module" lang="ts">
     export async function load({ page, fetch, session, context }) {
-        let parties = await Api.Parties.getParties()
+        // let parties = await Api.Parties.getParties()
+
+        let parties = await (await fetch("http://3.143.138.224:8000/parties")).json()
+        // return await res.json()
 
         parties = await Promise.all(
             parties.map(async (party) => {
@@ -27,7 +30,7 @@
 </script>
 
 <script lang="ts">
-    import Api from "$lib/api/parties"
+    // import Api from "$lib/api/parties"
     import PartyCard from "$lib/components/PartyCard.svelte"
 
     export let parties
