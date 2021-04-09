@@ -1,11 +1,6 @@
 <script context="module" lang="ts">
-    // import { OpenSeaPort, Network } from "opensea-js"
-
     export async function load({ page, fetch, session, context }) {
         let parties = await Api.Parties.getParties()
-        // console.log(parties)
-
-        // let party = parties[0]
 
         parties = await Promise.all(
             parties.map(async (party) => {
@@ -23,8 +18,6 @@
             })
         )
 
-        console.log(parties)
-
         return {
             props: {
                 parties: parties,
@@ -35,7 +28,6 @@
 
 <script lang="ts">
     import Api from "$lib/api/parties"
-
     import PartyCard from "$lib/components/PartyCard.svelte"
 
     export let parties

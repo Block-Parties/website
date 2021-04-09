@@ -1,15 +1,9 @@
 <script lang="ts">
-    import type { EthHelper } from "$lib/api/eth"
-
     import { onMount } from "svelte"
     import RoundButton from "./common/RoundButton.svelte"
     import Spacer from "./common/Spacer.svelte"
     import ValueInput from "./common/ValueInput.svelte"
-
     import ModalPopup from "./ModalPopup.svelte"
-    import Tag from "./Tag.svelte"
-
-    // import { EthHelper } from "$lib/api/eth"
 
     export let party
 
@@ -23,12 +17,10 @@
     onMount(async () => {
         const module = await import("$lib/api/eth")
         eth = module.EthHelper
-
         console.log(party)
         // opensea.
         const raisedAmount = await eth.fetchPartyContributions(party.id)
-        console.log(raisedAmount)
-
+        console.log("AMOUNT: " + raisedAmount)
         progressBar.style.width = raisedAmount + "%"
     })
 

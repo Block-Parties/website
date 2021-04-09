@@ -1,4 +1,4 @@
-import { URL, URLSearchParams } from 'url';
+import { URL } from 'url';
 
 function read_only_form_data() {
 	/** @type {Map<string, string[]>} */
@@ -246,8 +246,7 @@ function get_buffer(req) {
 }
 
 var entry = async (req, res) => {
-	const host = `${req.headers['x-forwarded-proto']}://${req.headers.host}`;
-	const { pathname, query = '' } = new URL(req.url || '', host);
+	const { pathname, searchParams } = new URL(req.url || '', 'http://localhost');
 
 	const { render } = await import('./server/app.mjs');
 
@@ -255,7 +254,7 @@ var entry = async (req, res) => {
 		method: req.method,
 		headers: req.headers,
 		path: pathname,
-		query: new URLSearchParams(query),
+		query: searchParams,
 		body: await get_body(req)
 	});
 

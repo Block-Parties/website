@@ -24,6 +24,7 @@
 	},
 	"dependencies": {
 		"axios": "^0.21.1",
+		"ethers": "^5.1.0",
 		"opensea-js": "^1.1.11"
 	}
 }

@@ -1,7 +1,9 @@
+// import {
+//     ethers
+// } from "./ethers-5.0.esm.min.js"
 import {
-    BigNumber,
     ethers
-} from "./ethers-5.0.esm.min.js"
+} from "ethers"
 
 const RINKEBY_CONTRACT_ADDRESS = "0xAc833FCcE0140760BbAA54214a47AcCfe42318c8"
 
@@ -118,18 +120,21 @@ const ABI = [{
     },
 ]
 
-const ALCHEMY_RINKEBY = "https://eth-rinkeby.alchemyapi.io/v2/XdSlj6cqpIj9e1W8viD-8dvUIpwy43CU"
-const provider = ethers.getDefaultProvider("rinkeby", {
-    alchemy: ALCHEMY_RINKEBY,
-})
+// const ALCHEMY_RINKEBY = "https://eth-rinkeby.alchemyapi.io/v2/XdSlj6cqpIj9e1W8viD-8dvUIpwy43CU"
+// const provider = ethers.getDefaultProvider("rinkeby", {
+//     alchemy: ALCHEMY_RINKEBY,
+// })
 
 const RINKEBY_MNEMONIC = "travel glory faculty squeeze token census swing exhibit sample whale use safe"
 
-let ANDRES_WALLET = ethers.Wallet.fromMnemonic(RINKEBY_MNEMONIC)
-ANDRES_WALLET = ANDRES_WALLET.connect(provider)
+// let ANDRES_WALLET = ethers.Wallet.fromMnemonic(RINKEBY_MNEMONIC)
+// ANDRES_WALLET = ANDRES_WALLET.connect(provider)
+
+
 
 export class EthHelper {
-    static contract = new ethers.Contract(RINKEBY_CONTRACT_ADDRESS, ABI, ANDRES_WALLET)
+    static intialized = false
+    static contract
 
     /**
      * Create a new party on chain.
@@ -147,26 +152,44 @@ export class EthHelper {
     // }
 
     static async fetchPartyContributions(partyId) {
-        const amount = await EthHelper.contract.getTotalContributions(partyId)
+        await this.init()
+
+        const amount = await this.contract.getTotalContributions(partyId)
         return await amount.toNumber()
     }
 
     static async invest(partyId, amount) {
-        // TODO: Handle no ethereum present
+        // await this.init()
 
-        console.log(window.ethereum)
+
+        // TODO
+
         await window.ethereum.enable()
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
 
         console.log(await signer.getAddress())
-
-        // TODO
         const contract = EthHelper.contract.connect(signer)
 
         const response = await contract.deposit(partyId, {
             value: ethers.utils.parseEther(amount)
         })
         console.log(response)
+    }
+
+    static async init() {
+        if (!this.intialized) {
+            // TODO: Handle no ethereum present
+
+            // console.log(window.ethereum)
+            // await window.ethereum.enable()
+            // const provider = new ethers.providers.Web3Provider(window.ethereum);
+            // const signer = provider.getSigner();
+
+            // console.log(await signer.getAddress())
+            this.contract = new ethers.Contract(RINKEBY_CONTRACT_ADDRESS, ABI, ethers.getDefaultProvider('rinkeby'))
+        }
+
+        this.intialized = true
     }
 }
