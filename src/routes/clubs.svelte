@@ -1,5 +1,44 @@
-<script>
-    import ClubCard from "$lib/components/ClubCard.svelte"
+<script context="module" lang="ts">
+    // import { OpenSeaPort, Network } from "opensea-js"
+
+    export async function load({ page, fetch, session, context }) {
+        let parties = await Api.Parties.getParties()
+        // console.log(parties)
+
+        // let party = parties[0]
+
+        parties = await Promise.all(
+            parties.map(async (party) => {
+                const res = await fetch(
+                    "https://api.opensea.io/api/v1/assets?" +
+                        new URLSearchParams({
+                            token_ids: party.tokenId,
+                            asset_contract_address: party.tokenContract,
+                        })
+                )
+                const assets = (await res.json())["assets"]
+                console.log(assets)
+                party = { ...party, asset: assets[0] }
+                return party
+            })
+        )
+
+        console.log(parties)
+
+        return {
+            props: {
+                parties: parties,
+            },
+        }
+    }
+</script>
+
+<script lang="ts">
+    import Api from "$lib/api/parties"
+
+    import PartyCard from "$lib/components/PartyCard.svelte"
+
+    export let parties
 </script>
 
 <svelte:head>
@@ -20,24 +59,11 @@
     </div>
 
     <main>
-        <div>
-            <ClubCard />
-        </div>
-        <div>
-            <ClubCard />
-        </div>
-        <div>
-            <ClubCard />
-        </div>
-        <div>
-            <ClubCard />
-        </div>
-        <div>
-            <ClubCard />
-        </div>
-        <div>
-            <ClubCard />
-        </div>
+        {#each parties as party}
+            <div>
+                <PartyCard {party} />
+            </div>
+        {/each}
     </main>
 </div>
 
