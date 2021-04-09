@@ -16,6 +16,9 @@
                 )
                 const assets = (await res.json())["assets"]
                 console.log(assets)
+
+                if (assets == undefined) return undefined
+
                 party = { ...party, asset: assets[0] }
                 return party
             })
