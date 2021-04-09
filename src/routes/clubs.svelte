@@ -59,7 +59,7 @@
     <main>
         {#each parties as party}
             <div>
-                <PartyCard {party} />
+                <!-- <PartyCard {party} /> -->
             </div>
         {/each}
     </main>
