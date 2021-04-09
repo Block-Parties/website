@@ -1,12 +1,17 @@
-<script context="module" lang="ts">
-    export async function load({ page, fetch, session, context }) {
-        // let parties = await Api.Parties.getParties()
+<!-- <script context="module" lang="ts" ✂prettier:content✂="CiAgICBleHBvcnQgYXN5bmMgZnVuY3Rpb24gbG9hZCh7IHBhZ2UsIGZldGNoLCBzZXNzaW9uLCBjb250ZXh0IH0pIHsKICAgICAgICAvLyBsZXQgcGFydGllcyA9IGF3YWl0IEFwaS5QYXJ0aWVzLmdldFBhcnRpZXMoKQoKICAgICAgICByZXR1cm4gewogICAgICAgICAgICBwcm9wczogewogICAgICAgICAgICAgICAgcGFydGllczogcGFydGllcywKICAgICAgICAgICAgfSwKICAgICAgICB9CiAgICB9Cg==" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=">{}</script> -->
+<script lang="ts">
+    // import Api from "$lib/api/parties"
+    import PartyCard from "$lib/components/PartyCard.svelte"
+    import { onMount } from "svelte"
 
-        let parties = await (await fetch("http://3.143.138.224:8000/parties")).json()
+    let parties = []
+
+    onMount(async () => {
+        let p = await (await fetch("http://3.143.138.224:8000/parties")).json()
         // return await res.json()
 
         parties = await Promise.all(
-            parties.map(async (party) => {
+            p.map(async (party) => {
                 const res = await fetch(
                     "https://api.opensea.io/api/v1/assets?" +
                         new URLSearchParams({
@@ -23,20 +28,7 @@
                 return party
             })
         )
-
-        return {
-            props: {
-                parties: parties,
-            },
-        }
-    }
-</script>
-
-<script lang="ts">
-    // import Api from "$lib/api/parties"
-    import PartyCard from "$lib/components/PartyCard.svelte"
-
-    export let parties
+    })
 </script>
 
 <svelte:head>
@@ -59,7 +51,7 @@
     <main>
         {#each parties as party}
             <div>
-                <!-- <PartyCard {party} /> -->
+                <PartyCard {party} />
             </div>
         {/each}
     </main>
