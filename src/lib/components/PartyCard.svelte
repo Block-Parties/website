@@ -1,4 +1,6 @@
 <script lang="ts">
+    import type { BigNumber } from "$lib/api/ethers-5.0.esm.min"
+
     import { onMount } from "svelte"
     import RoundButton from "./common/RoundButton.svelte"
     import Spacer from "./common/Spacer.svelte"
@@ -12,14 +14,26 @@
 
     let investmentAmount
 
-    let progressBar: HTMLDivElement
+    let raisedAmount: number = 0
+    let progressBar: HTMLDivElement | undefined
+
+    $: {
+        if (progressBar != undefined) progressBar.style.width = raisedAmount + "%"
+    }
 
     onMount(async () => {
         const module = await import("$lib/api/eth")
         eth = module.EthHelper
         console.log(party)
-        // opensea.
-        const raisedAmount = await eth.fetchPartyContributions(party.id)
+
+        eth.onInvestment((partyId: BigNumber, amount: BigNumber, event) => {
+            if (partyId.toNumber() == party.id) {
+                raisedAmount += amount.toNumber() // TODO: this won't work for large numbers
+                console.log("AMOUNT" + raisedAmount)
+            }
+        })
+
+        raisedAmount = await eth.fetchPartyContributions(party.id)
         console.log("AMOUNT: " + raisedAmount)
         progressBar.style.width = raisedAmount + "%"
     })
