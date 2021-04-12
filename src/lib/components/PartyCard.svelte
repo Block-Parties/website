@@ -26,12 +26,19 @@
         eth = module.EthHelper
         console.log(party)
 
-        eth.onInvestment((partyId: BigNumber, amount: BigNumber, event) => {
-            if (partyId.toNumber() == party.id) {
-                raisedAmount += amount.toNumber() // TODO: this won't work for large numbers
-                console.log("AMOUNT" + raisedAmount)
-            }
-        })
+        // Vercel doesn't support websockets...
+        // eth.onInvestment((partyId: BigNumber, amount: BigNumber, event) => {
+        //     if (partyId.toNumber() == party.id) {
+        //         raisedAmount += amount.toNumber() // TODO: this won't work for large numbers
+        //         console.log("AMOUNT" + raisedAmount)
+        //     }
+        // })
+
+        setInterval(async () => {
+            raisedAmount = await eth.fetchPartyContributions(party.id)
+            console.log("AMOUNT: " + raisedAmount)
+            progressBar.style.width = raisedAmount + "%"
+        }, 5000)
 
         raisedAmount = await eth.fetchPartyContributions(party.id)
         console.log("AMOUNT: " + raisedAmount)

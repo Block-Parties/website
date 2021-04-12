@@ -162,7 +162,7 @@ const ABI = [
 const ALCHEMY_KEY = "XdSlj6cqpIj9e1W8viD-8dvUIpwy43CU"
 // const ALCHEMY_WS_RINKEBY = "wss://eth-rinkeby.ws.alchemyapi.io/v2/XdSlj6cqpIj9e1W8viD-8dvUIpwy43CU"
 // const ALCHEMY_RINKEBY = "https://eth-rinkeby.alchemyapi.io/v2/XdSlj6cqpIj9e1W8viD-8dvUIpwy43CU"
-const provider = new ethers.providers.AlchemyWebSocketProvider("rinkeby", ALCHEMY_KEY)
+const provider = new ethers.providers.AlchemyProvider("rinkeby", ALCHEMY_KEY)
 
 export class EthHelper {
     static intialized = false
