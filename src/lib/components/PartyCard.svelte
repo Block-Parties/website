@@ -37,7 +37,10 @@
         setInterval(async () => {
             raisedAmount = await eth.fetchPartyContributions(party.id)
             console.log("AMOUNT: " + raisedAmount)
-            progressBar.style.width = raisedAmount + "%"
+
+            if (progressBar != null) {
+                progressBar.style.width = raisedAmount + "%"
+            }
         }, 5000)
 
         raisedAmount = await eth.fetchPartyContributions(party.id)
@@ -150,21 +153,11 @@
             font-size: 14px;
             font-weight: 300;
 
+            width: 100%;
+            overflow-y: scroll;
+            max-height: 80px;
+
             margin: 16px 0;
-        }
-
-        .tags {
-            display: flex;
-
-            div {
-                margin-right: 8px;
-            }
-        }
-
-        .tags {
-            position: absolute;
-
-            bottom: 76px;
         }
 
         .footer {
