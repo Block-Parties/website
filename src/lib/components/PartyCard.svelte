@@ -6,6 +6,7 @@
     import Spacer from "./common/Spacer.svelte"
     import ValueInput from "./common/ValueInput.svelte"
     import ModalPopup from "./ModalPopup.svelte"
+    import ProgressBar from "./ProgressBar.svelte"
 
     export let party
 
@@ -14,12 +15,8 @@
 
     let investmentAmount
 
-    let raisedAmount: number = 0
-    let progressBar: HTMLDivElement | undefined
-
-    $: {
-        if (progressBar != undefined) progressBar.style.width = raisedAmount + "%"
-    }
+    let raisedAmount: BigNumber
+    let totalAmount: BigNumber
 
     onMount(async () => {
         const module = await import("$lib/api/eth")
@@ -37,35 +34,42 @@
         setInterval(async () => {
             raisedAmount = await eth.fetchPartyContributions(party.id)
             console.log("AMOUNT: " + raisedAmount)
-
-            if (progressBar != null) {
-                progressBar.style.width = raisedAmount + "%"
-            }
-        }, 5000)
+        }, 10000)
 
         raisedAmount = await eth.fetchPartyContributions(party.id)
+        raisedAmount = raisedAmount
+        totalAmount = party.targetAmount
         console.log("AMOUNT: " + raisedAmount)
-        progressBar.style.width = raisedAmount + "%"
     })
 
     async function invest() {
+        // const amt = eth.newBigNumber(investmentAmount * 1e18).toString()
         eth.invest(party.id, investmentAmount)
+    }
+
+    function openOpenSea() {
+        window.open(party.url, "_blank")
     }
 </script>
 
 <!-- SET TO TRUE TO ENABLE -->
 <div class="outer" on:click={() => (showPopup = false)}>
-    <div class="chart">
+    <div class="header">
         <img src={party.asset.image_preview_url} alt="token" />
-    </div>
 
+        <button on:click={openOpenSea}>View on OpenSea</button>
+    </div>
+    <!-- 
     <div class="progress-bar">
         <div class="progress-bar-fill" bind:this={progressBar} />
-    </div>
+    </div> -->
+
+    <!-- TODO: Figure out how to handle bignumbers... -->
+    <ProgressBar value={raisedAmount} total={totalAmount} />
 
     <div class="bottom-half">
         <div class="title-row">
-            <h4>{party.asset.name}</h4>
+            <h4>{party.asset.name ? party.asset.name : "Unnamed Asset"}</h4>
             <!-- <Tag text="HIGH" color={"red"} /> -->
         </div>
 
@@ -93,7 +97,7 @@
 <style lang="scss">
     .outer {
         transition: all 0.25s;
-        cursor: pointer;
+        // cursor: pointer;
         position: relative;
         background: blue;
         width: 400px;
@@ -111,7 +115,7 @@
         }
     }
 
-    .chart {
+    .header {
         height: 40%;
         background: #eeeeee;
         border-radius: 4px 4px 0 0;
@@ -121,19 +125,24 @@
             height: 100%;
             object-fit: contain;
         }
-    }
 
-    .progress-bar {
-        height: 24px;
-        width: 100%;
-        background: #161616cc;
+        button {
+            cursor: pointer;
+            transition: 250ms all;
+            position: absolute;
+            right: 16px;
+            top: calc(40% - 52px);
 
-        .progress-bar-fill {
-            transition: 0.5s all;
+            border: 1px solid rgb(155, 155, 155);
+            border-radius: 4px;
+            background: rgba(34, 34, 34, 0.6);
+            padding: 8px 12px;
 
-            height: 100%;
-            width: 0%;
-            background: green;
+            font-weight: 600;
+
+            &:hover {
+                background: rgba(20, 98, 170, 1);
+            }
         }
     }
 

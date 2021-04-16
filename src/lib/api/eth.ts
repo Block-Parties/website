@@ -183,11 +183,11 @@ export class EthHelper {
     //     return await newId.toNumber()
     // }
 
-    static async fetchPartyContributions(partyId) {
+    static async fetchPartyContributions(partyId): Promise<BigNumber> {
         await this.init()
 
         const amount = await this.contract.getTotalContributions(partyId)
-        return await amount.toNumber()
+        return await amount
     }
 
     static async invest(partyId, amount) {
@@ -201,6 +201,8 @@ export class EthHelper {
 
         console.log(await signer.getAddress())
         const contract = EthHelper.contract.connect(signer)
+
+        // console.log(ethers.utils.formatEther(amount))
 
         const response = await contract.deposit(partyId, {
             value: ethers.utils.parseEther(amount),
@@ -228,4 +230,10 @@ export class EthHelper {
         console.log("ADD LISTENER")
         this.contract.on("Deposited", callback)
     }
+
+    static newBigNumber(value: any) {
+        return BigNumber.from(value)
+    }
+
+    static utils = ethers.utils
 }
