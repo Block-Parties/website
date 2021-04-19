@@ -3,7 +3,7 @@
 // } from "./ethers-5.0.esm.min.js"
 import { BigNumber, ethers, Event } from "ethers"
 
-const RINKEBY_CONTRACT_ADDRESS = "0x28870c0f106793b69a2a4f58203df4a8538ba6cc"
+const RINKEBY_CONTRACT_ADDRESS = "0x01061ca4f1F13f69da0C3AAa45A03e1a40FCA473"
 
 const ABI = [
     {
