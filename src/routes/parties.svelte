@@ -1,4 +1,4 @@
-<!-- <script context="module" lang="ts" ✂prettier:content✂="CiAgICBleHBvcnQgYXN5bmMgZnVuY3Rpb24gbG9hZCh7IHBhZ2UsIGZldGNoLCBzZXNzaW9uLCBjb250ZXh0IH0pIHsKICAgICAgICAvLyBsZXQgcGFydGllcyA9IGF3YWl0IEFwaS5QYXJ0aWVzLmdldFBhcnRpZXMoKQoKICAgICAgICByZXR1cm4gewogICAgICAgICAgICBwcm9wczogewogICAgICAgICAgICAgICAgcGFydGllczogcGFydGllcywKICAgICAgICAgICAgfSwKICAgICAgICB9CiAgICB9Cg==" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=">{}</script> -->
+<!-- <script context="module" lang="ts" ✂prettier:content✂="CiAgICBleHBvcnQgYXN5bmMgZnVuY3Rpb24gbG9hZCh7IHBhZ2UsIGZldGNoLCBzZXNzaW9uLCBjb250ZXh0IH0pIHsKICAgICAgICAvLyBsZXQgcGFydGllcyA9IGF3YWl0IEFwaS5QYXJ0aWVzLmdldFBhcnRpZXMoKQoKICAgICAgICByZXR1cm4gewogICAgICAgICAgICBwcm9wczogewogICAgICAgICAgICAgICAgcGFydGllczogcGFydGllcywKICAgICAgICAgICAgfSwKICAgICAgICB9CiAgICB9Cg==" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=" ✂prettier:content✂="e30=">{}</script> -->
 <script lang="ts">
     // import Api from "$lib/api/parties"
     import PartyCard from "$lib/components/PartyCard.svelte"
@@ -70,7 +70,7 @@
 </svelte:head>
 
 <div class="outer">
-    <div class="sidebar">
+    <!-- <div class="sidebar">
         <h1>Party Directory</h1>
 
         <p>Investing is done best when effort, knowledge, and resources are effectively pooled together.</p>
@@ -78,7 +78,7 @@
         <p>
             To get started, look for clubs with similar interests as you and a risk tolerance you're comfortable with.
         </p>
-    </div>
+    </div> -->
 
     <main>
         {#each parties as party}
