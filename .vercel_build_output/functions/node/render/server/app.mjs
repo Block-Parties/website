@@ -1,15 +1,8 @@
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key2, value) => key2 in obj ? __defProp(obj, key2, {enumerable: true, configurable: true, writable: true, value}) : obj[key2] = value;
-var __publicField = (obj, key2, value) => {
-  __defNormalProp(obj, typeof key2 !== "symbol" ? key2 + "" : key2, value);
-  return value;
-};
-import {randomBytes, createHash} from "crypto";
+import {randomBytes as randomBytes$1, createHash} from "crypto";
 import http from "http";
 import https from "https";
 import zlib from "zlib";
 import Stream, {PassThrough, pipeline} from "stream";
-import fetch$2 from "cross-fetch";
 var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
 function getAugmentedNamespace(n) {
   if (n.__esModule)
@@ -205,9 +198,9 @@ var util$1 = createCommonjsModule$1(function(module, exports) {
     regexp: "red"
   };
   function stylizeWithColor(str, styleType) {
-    var style = inspect4.styles[styleType];
-    if (style) {
-      return "[" + inspect4.colors[style][0] + "m" + str + "[" + inspect4.colors[style][1] + "m";
+    var style2 = inspect4.styles[styleType];
+    if (style2) {
+      return "[" + inspect4.colors[style2][0] + "m" + str + "[" + inspect4.colors[style2][1] + "m";
     } else {
       return str;
     }
@@ -829,7 +822,7 @@ var util = {
 function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
-var decode$2 = function(qs, sep, eq4, options) {
+var decode$3 = function(qs, sep, eq4, options) {
   sep = sep || "&";
   eq4 = eq4 || "=";
   var obj = {};
@@ -902,7 +895,7 @@ var encode$3 = function(obj, sep, eq4, name2) {
   return encodeURIComponent(stringifyPrimitive$1(name2)) + eq4 + encodeURIComponent(stringifyPrimitive$1(obj));
 };
 var querystring = createCommonjsModule$1(function(module, exports) {
-  exports.decode = exports.parse = decode$2;
+  exports.decode = exports.parse = decode$3;
   exports.encode = exports.stringify = encode$3;
 });
 var parse$1 = urlParse;
@@ -1633,8 +1626,8 @@ function dataUriToBuffer(uri) {
     charset = "US-ASCII";
   }
   const encoding = base64 ? "base64" : "ascii";
-  const data = unescape(uri.substring(firstComma + 1));
-  const buffer = Buffer.from(data, encoding);
+  const data2 = unescape(uri.substring(firstComma + 1));
+  const buffer = Buffer.from(data2, encoding);
   buffer.type = type;
   buffer.typeFull = typeFull;
   buffer.charset = charset;
@@ -1688,13 +1681,13 @@ class Blob {
     return Buffer.from(await this.arrayBuffer()).toString();
   }
   async arrayBuffer() {
-    const data = new Uint8Array(this.size);
+    const data2 = new Uint8Array(this.size);
     let offset = 0;
     for await (const chunk of this.stream()) {
-      data.set(chunk, offset);
+      data2.set(chunk, offset);
       offset += chunk.length;
     }
-    return data.buffer;
+    return data2.buffer;
   }
   stream() {
     return Readable.from(read(wm.get(this).parts));
@@ -1788,7 +1781,7 @@ function getHeader(boundary, name2, field) {
   }
   return `${header}${carriage.repeat(2)}`;
 }
-const getBoundary = () => randomBytes(8).toString("hex");
+const getBoundary = () => randomBytes$1(8).toString("hex");
 async function* formDataIterator(form, boundary) {
   for (const [name2, value] of form) {
     yield getHeader(boundary, name2, value);
@@ -1892,15 +1885,15 @@ Object.defineProperties(Body.prototype, {
   json: {enumerable: true},
   text: {enumerable: true}
 });
-async function consumeBody(data) {
-  if (data[INTERNALS$2].disturbed) {
-    throw new TypeError(`body used already for: ${data.url}`);
+async function consumeBody(data2) {
+  if (data2[INTERNALS$2].disturbed) {
+    throw new TypeError(`body used already for: ${data2.url}`);
   }
-  data[INTERNALS$2].disturbed = true;
-  if (data[INTERNALS$2].error) {
-    throw data[INTERNALS$2].error;
+  data2[INTERNALS$2].disturbed = true;
+  if (data2[INTERNALS$2].error) {
+    throw data2[INTERNALS$2].error;
   }
-  let {body} = data;
+  let {body} = data2;
   if (body === null) {
     return Buffer.alloc(0);
   }
@@ -1917,8 +1910,8 @@ async function consumeBody(data) {
   let accumBytes = 0;
   try {
     for await (const chunk of body) {
-      if (data.size > 0 && accumBytes + chunk.length > data.size) {
-        const err = new FetchError(`content size at ${data.url} over limit: ${data.size}`, "max-size");
+      if (data2.size > 0 && accumBytes + chunk.length > data2.size) {
+        const err = new FetchError(`content size at ${data2.url} over limit: ${data2.size}`, "max-size");
         body.destroy(err);
         throw err;
       }
@@ -1929,7 +1922,7 @@ async function consumeBody(data) {
     if (error2 instanceof FetchBaseError) {
       throw error2;
     } else {
-      throw new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error2.message}`, "system", error2);
+      throw new FetchError(`Invalid response body while trying to fetch ${data2.url}: ${error2.message}`, "system", error2);
     }
   }
   if (body.readableEnded === true || body._readableState.ended === true) {
@@ -1939,10 +1932,10 @@ async function consumeBody(data) {
       }
       return Buffer.concat(accum, accumBytes);
     } catch (error2) {
-      throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error2.message}`, "system", error2);
+      throw new FetchError(`Could not create Buffer from response body for ${data2.url}: ${error2.message}`, "system", error2);
     }
   } else {
-    throw new FetchError(`Premature close of server response while trying to fetch ${data.url}`);
+    throw new FetchError(`Premature close of server response while trying to fetch ${data2.url}`);
   }
 }
 const clone = (instance, highWaterMark) => {
@@ -2407,8 +2400,8 @@ async function fetch$1(url2, options_) {
       throw new TypeError(`node-fetch cannot load ${url2}. URL scheme "${options.protocol.replace(/:$/, "")}" is not supported.`);
     }
     if (options.protocol === "data:") {
-      const data = src(request.url);
-      const response2 = new Response(data, {headers: {"Content-Type": data.typeFull}});
+      const data2 = src(request.url);
+      const response2 = new Response(data2, {headers: {"Content-Type": data2.typeFull}});
       resolve2(response2);
       return;
     }
@@ -2930,9 +2923,9 @@ async function respond({request, options, $session, route, status = 200, error: 
   }
   const js_deps = route && page_config.ssr ? route.js : [];
   const css_deps = route && page_config.ssr ? route.css : [];
-  const style = route && page_config.ssr ? route.style : "";
+  const style2 = route && page_config.ssr ? route.style : "";
   const prefix = `${options.paths.assets}/${options.app_dir}`;
-  const links = options.amp ? `<style amp-custom>${style || (await Promise.all(css_deps.map((dep) => options.get_amp_css(dep)))).join("\n")}</style>` : [
+  const links = options.amp ? `<style amp-custom>${style2 || (await Promise.all(css_deps.map((dep) => options.get_amp_css(dep)))).join("\n")}</style>` : [
     ...js_deps.map((dep) => `<link rel="modulepreload" href="${prefix}/${dep}">`),
     ...css_deps.map((dep) => `<link rel="stylesheet" href="${prefix}/${dep}">`)
   ].join("\n			");
@@ -2970,7 +2963,7 @@ async function respond({request, options, $session, route, status = 200, error: 
   }
   const head = [
     rendered.head,
-    style && !options.amp ? `<style data-svelte>${style}</style>` : "",
+    style2 && !options.amp ? `<style data-svelte>${style2}</style>` : "",
     links,
     init5
   ].join("\n\n");
@@ -3018,9 +3011,9 @@ async function render_page(request, route, options) {
     };
   }
 }
-function try_serialize(data, fail) {
+function try_serialize(data2, fail) {
   try {
-    return devalue(data);
+    return devalue(data2);
   } catch (err) {
     if (fail)
       fail(err);
@@ -3279,7 +3272,7 @@ var error = /* @__PURE__ */ Object.freeze({
   default: Error$1
 });
 var root_svelte_svelte_type_style_lang = "#svelte-announcer.svelte-1j55zn5{position:absolute;left:0;top:0;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap;width:1px;height:1px}";
-const css$6 = {
+const css$9 = {
   code: "#svelte-announcer.svelte-1j55zn5{position:absolute;left:0;top:0;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap;width:1px;height:1px}",
   map: `{"version":3,"file":"root.svelte","sources":["root.svelte"],"sourcesContent":["<!-- This file is generated by @sveltejs/kit \u2014 do not edit it! -->\\n<script>\\n\\timport { setContext, afterUpdate, onMount } from 'svelte';\\n\\timport ErrorComponent from \\"../components/error.svelte\\";\\n\\n\\t// error handling\\n\\texport let status = undefined;\\n\\texport let error = undefined;\\n\\n\\t// stores\\n\\texport let stores;\\n\\texport let page;\\n\\n\\texport let components;\\n\\texport let props_0 = null;\\n\\texport let props_1 = null;\\n\\n\\tconst Layout = components[0];\\n\\n\\tsetContext('__svelte__', stores);\\n\\n\\t$: stores.page.set(page);\\n\\tafterUpdate(stores.page.notify);\\n\\n\\tlet mounted = false;\\n\\tlet navigated = false;\\n\\tlet title = null;\\n\\n\\tonMount(() => {\\n\\t\\tconst unsubscribe = stores.page.subscribe(() => {\\n\\t\\t\\tif (mounted) {\\n\\t\\t\\t\\tnavigated = true;\\n\\t\\t\\t\\ttitle = document.title;\\n\\t\\t\\t}\\n\\t\\t});\\n\\n\\t\\tmounted = true;\\n\\t\\treturn unsubscribe;\\n\\t});\\n</script>\\n\\n<Layout {...(props_0 || {})}>\\n\\t{#if error}\\n\\t\\t<ErrorComponent {status} {error}/>\\n\\t{:else}\\n\\t\\t<svelte:component this={components[1]} {...(props_1 || {})}/>\\n\\t{/if}\\n</Layout>\\n\\n{#if mounted}\\n\\t<div id=\\"svelte-announcer\\" aria-live=\\"assertive\\" aria-atomic=\\"true\\">\\n\\t\\t{#if navigated}\\n\\t\\t\\tNavigated to {title}\\n\\t\\t{/if}\\n\\t</div>\\n{/if}\\n\\n<style>\\n\\t#svelte-announcer {\\n\\t\\tposition: absolute;\\n\\t\\tleft: 0;\\n\\t\\ttop: 0;\\n\\t\\tclip: rect(0 0 0 0);\\n\\t\\tclip-path: inset(50%);\\n\\t\\toverflow: hidden;\\n\\t\\twhite-space: nowrap;\\n\\t\\twidth: 1px;\\n\\t\\theight: 1px;\\n\\t}\\n</style>"],"names":[],"mappings":"AA0DC,iBAAiB,eAAC,CAAC,AAClB,QAAQ,CAAE,QAAQ,CAClB,IAAI,CAAE,CAAC,CACP,GAAG,CAAE,CAAC,CACN,IAAI,CAAE,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CACnB,SAAS,CAAE,MAAM,GAAG,CAAC,CACrB,QAAQ,CAAE,MAAM,CAChB,WAAW,CAAE,MAAM,CACnB,KAAK,CAAE,GAAG,CACV,MAAM,CAAE,GAAG,AACZ,CAAC"}`
 };
@@ -3321,7 +3314,7 @@ const Root = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     $$bindings.props_0(props_0);
   if ($$props.props_1 === void 0 && $$bindings.props_1 && props_1 !== void 0)
     $$bindings.props_1(props_1);
-  $$result.css.add(css$6);
+  $$result.css.add(css$9);
   {
     stores.page.set(page);
   }
@@ -3368,15 +3361,18 @@ function init({paths, prerendering}) {
 const empty = () => ({});
 const components = [
   () => Promise.resolve().then(function() {
-    return index;
+    return index$2;
   }),
   () => Promise.resolve().then(function() {
-    return clubs;
+    return index_OLD;
+  }),
+  () => Promise.resolve().then(function() {
+    return parties;
   })
 ];
-const client_component_lookup = {".svelte/build/runtime/internal/start.js": "start-34aef2eb.js", "src/routes/index.svelte": "pages/index.svelte-4b6ec3cb.js", "src/routes/clubs.svelte": "pages/clubs.svelte-f9724ef8.js"};
+const client_component_lookup = {".svelte/build/runtime/internal/start.js": "start-13ce0e79.js", "src/routes/index.svelte": "pages/index.svelte-74425e70.js", "src/routes/index_OLD.svelte": "pages/index_OLD.svelte-61377031.js", "src/routes/parties.svelte": "pages/parties.svelte-7a239f5a.js"};
 const manifest = {
-  assets: [{file: "favicon.ico", size: 1150, type: "image/vnd.microsoft.icon"}, {file: "robots.txt", size: 67, type: "text/plain"}],
+  assets: [{file: "favicon.ico", size: 1150, type: "image/vnd.microsoft.icon"}, {file: "images/arrow-down.png", size: 471, type: "image/png"}, {file: "images/full_logo.svg", size: 10193, type: "image/svg+xml"}, {file: "robots.txt", size: 67, type: "text/plain"}],
   layout: () => Promise.resolve().then(function() {
     return $layout$1;
   }),
@@ -3389,16 +3385,24 @@ const manifest = {
       pattern: /^\/$/,
       params: empty,
       parts: [{id: "src/routes/index.svelte", load: components[0]}],
-      css: ["assets/start-1b5e1f57.css", "assets/pages/index.svelte-a00e5b17.css"],
-      js: ["start-34aef2eb.js", "chunks/vendor-e88cc22c.js", "chunks/preload-helper-9f12a5fd.js", "pages/index.svelte-4b6ec3cb.js"]
+      css: ["assets/start-1b5e1f57.css", "assets/pages/index.svelte-66d5624b.css", "assets/ScrollButton-f2af9a65.css"],
+      js: ["start-13ce0e79.js", "chunks/vendor-16f0a912.js", "chunks/preload-helper-9f12a5fd.js", "pages/index.svelte-74425e70.js", "chunks/ScrollButton-40746043.js"]
     },
     {
       type: "page",
-      pattern: /^\/clubs\/?$/,
+      pattern: /^\/index_OLD\/?$/,
       params: empty,
-      parts: [{id: "src/routes/clubs.svelte", load: components[1]}],
-      css: ["assets/start-1b5e1f57.css", "assets/clubs-ae2eec07.css"],
-      js: ["start-34aef2eb.js", "chunks/vendor-e88cc22c.js", "chunks/preload-helper-9f12a5fd.js", "pages/clubs.svelte-f9724ef8.js", "chunks/clubs-90ba221c.js"]
+      parts: [{id: "src/routes/index_OLD.svelte", load: components[1]}],
+      css: ["assets/start-1b5e1f57.css", "assets/pages/index_OLD.svelte-abaca502.css", "assets/ScrollButton-f2af9a65.css"],
+      js: ["start-13ce0e79.js", "chunks/vendor-16f0a912.js", "chunks/preload-helper-9f12a5fd.js", "pages/index_OLD.svelte-61377031.js", "chunks/ScrollButton-40746043.js"]
+    },
+    {
+      type: "page",
+      pattern: /^\/parties\/?$/,
+      params: empty,
+      parts: [{id: "src/routes/parties.svelte", load: components[2]}],
+      css: ["assets/start-1b5e1f57.css", "assets/pages/parties.svelte-9b0b875a.css"],
+      js: ["start-13ce0e79.js", "chunks/vendor-16f0a912.js", "chunks/preload-helper-9f12a5fd.js", "pages/parties.svelte-7a239f5a.js"]
     }
   ]
 };
@@ -3424,7 +3428,7 @@ function render(request, {
     template,
     manifest,
     target: "#svelte",
-    entry: "/./_app/start-34aef2eb.js",
+    entry: "/./_app/start-13ce0e79.js",
     root: Root,
     hooks,
     dev: false,
@@ -3441,10 +3445,21 @@ function render(request, {
     hydrate: true
   });
 }
-var index_svelte_svelte_type_style_lang = "nav{display:none}body{margin:0;height:100vh;background:linear-gradient(235.71deg, #400a84 7.8%, #1b0a30 92.44%)}main.svelte-qgj3c0.svelte-qgj3c0{padding:1em;width:480px;margin:auto;position:absolute;top:calc(50% - 200px);left:calc(50% - 240px)}main.svelte-qgj3c0 h3.svelte-qgj3c0{margin-top:16px;margin-bottom:8px}.email-form.svelte-qgj3c0.svelte-qgj3c0{width:480px;margin:32px auto;display:flex;flex-direction:column;align-items:flex-start;padding:24px;background:linear-gradient(0deg, #040a11, #040a11), #0352af;box-shadow:0px 4px 4px rgba(0, 0, 0, 0.25);border-radius:8px}.email-form.svelte-qgj3c0 .form-input.svelte-qgj3c0{width:100%;display:flex}.email-form.svelte-qgj3c0 .form-input input.svelte-qgj3c0{flex:1;height:48px;border:none;background:rgba(142, 145, 148, 0.1);border-radius:4px;color:white;margin-right:16px;padding:0 16px}.email-form.svelte-qgj3c0 .form-input button.svelte-qgj3c0{height:48px;width:80px;border:none;background:#400a84;border-radius:4px;padding:8px;color:white;font-weight:600;font-size:14px}.email-form.svelte-qgj3c0 h5.svelte-qgj3c0{margin:0}.email-form.svelte-qgj3c0 p.svelte-qgj3c0{font-size:12px;font-weight:300;text-align:start;margin-top:8px;color:#aaa}";
-const css$5 = {
-  code: "nav{display:none}body{margin:0;height:100vh;background:linear-gradient(235.71deg, #400a84 7.8%, #1b0a30 92.44%)}main.svelte-qgj3c0.svelte-qgj3c0{padding:1em;width:480px;margin:auto;position:absolute;top:calc(50% - 200px);left:calc(50% - 240px)}main.svelte-qgj3c0 h3.svelte-qgj3c0{margin-top:16px;margin-bottom:8px}.email-form.svelte-qgj3c0.svelte-qgj3c0{width:480px;margin:32px auto;display:flex;flex-direction:column;align-items:flex-start;padding:24px;background:linear-gradient(0deg, #040a11, #040a11), #0352af;box-shadow:0px 4px 4px rgba(0, 0, 0, 0.25);border-radius:8px}.email-form.svelte-qgj3c0 .form-input.svelte-qgj3c0{width:100%;display:flex}.email-form.svelte-qgj3c0 .form-input input.svelte-qgj3c0{flex:1;height:48px;border:none;background:rgba(142, 145, 148, 0.1);border-radius:4px;color:white;margin-right:16px;padding:0 16px}.email-form.svelte-qgj3c0 .form-input button.svelte-qgj3c0{height:48px;width:80px;border:none;background:#400a84;border-radius:4px;padding:8px;color:white;font-weight:600;font-size:14px}.email-form.svelte-qgj3c0 h5.svelte-qgj3c0{margin:0}.email-form.svelte-qgj3c0 p.svelte-qgj3c0{font-size:12px;font-weight:300;text-align:start;margin-top:8px;color:#aaa}",
-  map: `{"version":3,"file":"index.svelte","sources":["index.svelte"],"sourcesContent":["<script lang=\\"ts\\">// import Api from \\"$lib/api/beta\\"\\n// import axios from \\"axios\\"\\nvar __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\nlet email;\\nfunction signUp() {\\n    return __awaiter(this, void 0, void 0, function* () {\\n        yield fetch(\\"http://3.143.138.224:8000/join-beta\\", {\\n            method: \\"post\\",\\n            headers: {\\n                \\"Content-Type\\": \\"application/json\\",\\n            },\\n            body: JSON.stringify({\\n                email: email,\\n                createdAt: new Date(),\\n            }),\\n        });\\n        alert(\\"Thank you for registering!\\");\\n    });\\n}\\n</script>\\n\\n<svelte:head>\\n    <title>Block Parties</title>\\n    <meta name=\\"og:title\\" content=\\"Block Parties\\" />\\n    <meta name=\\"og:description\\" content=\\"Invest with others safely and securely, powered by blockchain technology.\\" />\\n</svelte:head>\\n\\n<main>\\n    <h1>Block Parties</h1>\\n\\n    <div>\\n        <h3>An <b>Evolution</b> in Investing... coming soon</h3>\\n        <p>\\n            Leveraging the blockchain to make group investing as <b>secure</b>, <b>easy</b>, and <b>social</b> as ever.\\n        </p>\\n    </div>\\n\\n    <div class=\\"email-form\\">\\n        <h5>Reserve your seat in the limited access beta</h5>\\n        <br /><br />\\n        <div class=\\"form-input\\">\\n            <input bind:value={email} type=\\"email\\" placeholder=\\"Enter your email\\" />\\n            <button on:click={signUp}>Submit</button>\\n        </div>\\n        <p>We won't use your email for anything other than letting you know when beta opens.</p>\\n        <br />\\n        <p>Wanna chat? <a href=\\"https://discord.gg/TNGQuuazez\\"> Join our Discord</a></p>\\n    </div>\\n</main>\\n\\n<style lang=\\"scss\\">:global(nav) {\\n  display: none;\\n}\\n\\n:global(body) {\\n  margin: 0;\\n  height: 100vh;\\n  background: linear-gradient(235.71deg, #400a84 7.8%, #1b0a30 92.44%);\\n}\\n\\nmain {\\n  padding: 1em;\\n  width: 480px;\\n  margin: auto;\\n  position: absolute;\\n  top: calc(50% - 200px);\\n  left: calc(50% - 240px);\\n}\\nmain h3 {\\n  margin-top: 16px;\\n  margin-bottom: 8px;\\n}\\n\\n.email-form {\\n  width: 480px;\\n  margin: 32px auto;\\n  display: flex;\\n  flex-direction: column;\\n  align-items: flex-start;\\n  padding: 24px;\\n  background: linear-gradient(0deg, #040a11, #040a11), #0352af;\\n  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);\\n  border-radius: 8px;\\n}\\n.email-form .form-input {\\n  width: 100%;\\n  display: flex;\\n}\\n.email-form .form-input input {\\n  flex: 1;\\n  height: 48px;\\n  border: none;\\n  background: rgba(142, 145, 148, 0.1);\\n  border-radius: 4px;\\n  color: white;\\n  margin-right: 16px;\\n  padding: 0 16px;\\n}\\n.email-form .form-input button {\\n  height: 48px;\\n  width: 80px;\\n  border: none;\\n  background: #400a84;\\n  border-radius: 4px;\\n  padding: 8px;\\n  color: white;\\n  font-weight: 600;\\n  font-size: 14px;\\n}\\n.email-form h5 {\\n  margin: 0;\\n}\\n.email-form p {\\n  font-size: 12px;\\n  font-weight: 300;\\n  text-align: start;\\n  margin-top: 8px;\\n  color: #aaa;\\n}</style>\\n"],"names":[],"mappings":"AA0D2B,GAAG,AAAE,CAAC,AAC/B,OAAO,CAAE,IAAI,AACf,CAAC,AAEO,IAAI,AAAE,CAAC,AACb,MAAM,CAAE,CAAC,CACT,MAAM,CAAE,KAAK,CACb,UAAU,CAAE,gBAAgB,SAAS,CAAC,CAAC,OAAO,CAAC,IAAI,CAAC,CAAC,OAAO,CAAC,MAAM,CAAC,AACtE,CAAC,AAED,IAAI,4BAAC,CAAC,AACJ,OAAO,CAAE,GAAG,CACZ,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,IAAI,CACZ,QAAQ,CAAE,QAAQ,CAClB,GAAG,CAAE,KAAK,GAAG,CAAC,CAAC,CAAC,KAAK,CAAC,CACtB,IAAI,CAAE,KAAK,GAAG,CAAC,CAAC,CAAC,KAAK,CAAC,AACzB,CAAC,AACD,kBAAI,CAAC,EAAE,cAAC,CAAC,AACP,UAAU,CAAE,IAAI,CAChB,aAAa,CAAE,GAAG,AACpB,CAAC,AAED,WAAW,4BAAC,CAAC,AACX,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,IAAI,CAAC,IAAI,CACjB,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,MAAM,CACtB,WAAW,CAAE,UAAU,CACvB,OAAO,CAAE,IAAI,CACb,UAAU,CAAE,gBAAgB,IAAI,CAAC,CAAC,OAAO,CAAC,CAAC,OAAO,CAAC,CAAC,CAAC,OAAO,CAC5D,UAAU,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAC3C,aAAa,CAAE,GAAG,AACpB,CAAC,AACD,yBAAW,CAAC,WAAW,cAAC,CAAC,AACvB,KAAK,CAAE,IAAI,CACX,OAAO,CAAE,IAAI,AACf,CAAC,AACD,yBAAW,CAAC,WAAW,CAAC,KAAK,cAAC,CAAC,AAC7B,IAAI,CAAE,CAAC,CACP,MAAM,CAAE,IAAI,CACZ,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CACpC,aAAa,CAAE,GAAG,CAClB,KAAK,CAAE,KAAK,CACZ,YAAY,CAAE,IAAI,CAClB,OAAO,CAAE,CAAC,CAAC,IAAI,AACjB,CAAC,AACD,yBAAW,CAAC,WAAW,CAAC,MAAM,cAAC,CAAC,AAC9B,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAClB,OAAO,CAAE,GAAG,CACZ,KAAK,CAAE,KAAK,CACZ,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,AACjB,CAAC,AACD,yBAAW,CAAC,EAAE,cAAC,CAAC,AACd,MAAM,CAAE,CAAC,AACX,CAAC,AACD,yBAAW,CAAC,CAAC,cAAC,CAAC,AACb,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,GAAG,CAChB,UAAU,CAAE,KAAK,CACjB,UAAU,CAAE,GAAG,CACf,KAAK,CAAE,IAAI,AACb,CAAC"}`
+var ScrollButton_svelte_svelte_type_style_lang = "div.svelte-1hpzauj{cursor:pointer;transition:all 0.5s;width:fit-content;background:#ffffffaa;padding:16px;border-radius:50%}div.svelte-1hpzauj:hover{background:#ffffffdd}img.svelte-1hpzauj{width:32px;height:32px;margin:0 0 -8px 0}";
+const css$8 = {
+  code: "div.svelte-1hpzauj{cursor:pointer;transition:all 0.5s;width:fit-content;background:#ffffffaa;padding:16px;border-radius:50%}div.svelte-1hpzauj:hover{background:#ffffffdd}img.svelte-1hpzauj{width:32px;height:32px;margin:0 0 -8px 0}",
+  map: '{"version":3,"file":"ScrollButton.svelte","sources":["ScrollButton.svelte"],"sourcesContent":["<script>\\n</script>\\n\\n<div>\\n    <img src=\\"./images/arrow-down.png\\" alt=\\"scroll down\\" />\\n    <!-- <h1>ASDASD</h1> -->\\n</div>\\n\\n<style lang=\\"scss\\">div {\\n  cursor: pointer;\\n  transition: all 0.5s;\\n  width: fit-content;\\n  background: #ffffffaa;\\n  padding: 16px;\\n  border-radius: 50%;\\n}\\ndiv:hover {\\n  background: #ffffffdd;\\n}\\n\\nimg {\\n  width: 32px;\\n  height: 32px;\\n  margin: 0 0 -8px 0;\\n}</style>\\n"],"names":[],"mappings":"AAQmB,GAAG,eAAC,CAAC,AACtB,MAAM,CAAE,OAAO,CACf,UAAU,CAAE,GAAG,CAAC,IAAI,CACpB,KAAK,CAAE,WAAW,CAClB,UAAU,CAAE,SAAS,CACrB,OAAO,CAAE,IAAI,CACb,aAAa,CAAE,GAAG,AACpB,CAAC,AACD,kBAAG,MAAM,AAAC,CAAC,AACT,UAAU,CAAE,SAAS,AACvB,CAAC,AAED,GAAG,eAAC,CAAC,AACH,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,MAAM,CAAE,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAAC,AACpB,CAAC"}'
+};
+const ScrollButton = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+  $$result.css.add(css$8);
+  return `<div class="${"svelte-1hpzauj"}"><img src="${"./images/arrow-down.png"}" alt="${"scroll down"}" class="${"svelte-1hpzauj"}">
+    
+</div>`;
+});
+var index_svelte_svelte_type_style_lang = "body{margin:0}nav{display:none}.content.svelte-1ggmcc.svelte-1ggmcc{max-width:1200px;margin:auto;padding:0 32px}ol.svelte-1ggmcc.svelte-1ggmcc{margin:0}button.svelte-1ggmcc.svelte-1ggmcc{cursor:pointer;background:#0352af;box-shadow:0px 2px 4px 2px rgba(0, 0, 0, 0.25);border-radius:4px;border:none;padding:12px;font-weight:600;font-size:16px}.logo.svelte-1ggmcc.svelte-1ggmcc{filter:brightness(0) saturate(100%) invert(0%) sepia(7%) saturate(349%) hue-rotate(75deg) brightness(100%) contrast(100%) invert(100%)}.divider.svelte-1ggmcc.svelte-1ggmcc{width:4px;height:100%;background:white}.button-row.svelte-1ggmcc.svelte-1ggmcc{display:flex;flex-flow:row wrap;justify-content:center;margin:16px}.button-row.svelte-1ggmcc button.svelte-1ggmcc{margin:8px}.card.svelte-1ggmcc.svelte-1ggmcc{background:#0e0606;box-shadow:0px 4px 4px 4px rgba(32, 32, 32, 0.25);border-radius:24px;overflow:hidden}.full-height.svelte-1ggmcc.svelte-1ggmcc{height:100vh}.section.svelte-1ggmcc.svelte-1ggmcc{width:100%;background:linear-gradient(180deg, #5c329f 0%, #13053e 100%)}.one.svelte-1ggmcc.svelte-1ggmcc{display:flex;flex-direction:column;align-items:center}.one.svelte-1ggmcc button.svelte-1ggmcc{width:240px}.two.svelte-1ggmcc.svelte-1ggmcc{display:flex;flex-direction:row;height:50vh;background:lightgray}.three.svelte-1ggmcc.svelte-1ggmcc{background:#161616;padding:64px 0}.three.svelte-1ggmcc .question.svelte-1ggmcc{font-weight:600;font-size:18px;margin-bottom:4px}.three.svelte-1ggmcc .answer.svelte-1ggmcc{margin:8px 0}.three.svelte-1ggmcc h1.svelte-1ggmcc{padding:0 0 48px 0}.three.svelte-1ggmcc hr.svelte-1ggmcc{border:none;border-bottom:1px solid rgba(255, 255, 255, 0.75);margin:32px 0}.email-form.svelte-1ggmcc.svelte-1ggmcc{width:480px;margin:32px auto;display:flex;flex-direction:column;align-items:flex-start;padding:24px;background:linear-gradient(0deg, #040a11, #040a11), #0352af;box-shadow:0px 4px 4px rgba(0, 0, 0, 0.25);border-radius:8px}.email-form.svelte-1ggmcc .form-input.svelte-1ggmcc{width:100%;display:flex}.email-form.svelte-1ggmcc .form-input input.svelte-1ggmcc{flex:1;height:48px;border:none;background:rgba(142, 145, 148, 0.1);border-radius:4px;color:white;margin-right:16px;padding:0 16px}.email-form.svelte-1ggmcc .form-input button.svelte-1ggmcc{height:48px;width:80px;border:none;background:#400a84;border-radius:4px;padding:8px;color:white;font-weight:600;font-size:14px}.email-form.svelte-1ggmcc h5.svelte-1ggmcc{margin:0}.email-form.svelte-1ggmcc p.svelte-1ggmcc{font-size:12px;font-weight:300;text-align:start;margin-top:8px;color:#aaa}.scroll-button.svelte-1ggmcc.svelte-1ggmcc{position:absolute;bottom:32px;left:calc(50% - 32px)}";
+const css$7 = {
+  code: "body{margin:0}nav{display:none}.content.svelte-1ggmcc.svelte-1ggmcc{max-width:1200px;margin:auto;padding:0 32px}ol.svelte-1ggmcc.svelte-1ggmcc{margin:0}button.svelte-1ggmcc.svelte-1ggmcc{cursor:pointer;background:#0352af;box-shadow:0px 2px 4px 2px rgba(0, 0, 0, 0.25);border-radius:4px;border:none;padding:12px;font-weight:600;font-size:16px}.logo.svelte-1ggmcc.svelte-1ggmcc{filter:brightness(0) saturate(100%) invert(0%) sepia(7%) saturate(349%) hue-rotate(75deg) brightness(100%) contrast(100%) invert(100%)}.divider.svelte-1ggmcc.svelte-1ggmcc{width:4px;height:100%;background:white}.button-row.svelte-1ggmcc.svelte-1ggmcc{display:flex;flex-flow:row wrap;justify-content:center;margin:16px}.button-row.svelte-1ggmcc button.svelte-1ggmcc{margin:8px}.card.svelte-1ggmcc.svelte-1ggmcc{background:#0e0606;box-shadow:0px 4px 4px 4px rgba(32, 32, 32, 0.25);border-radius:24px;overflow:hidden}.full-height.svelte-1ggmcc.svelte-1ggmcc{height:100vh}.section.svelte-1ggmcc.svelte-1ggmcc{width:100%;background:linear-gradient(180deg, #5c329f 0%, #13053e 100%)}.one.svelte-1ggmcc.svelte-1ggmcc{display:flex;flex-direction:column;align-items:center}.one.svelte-1ggmcc button.svelte-1ggmcc{width:240px}.two.svelte-1ggmcc.svelte-1ggmcc{display:flex;flex-direction:row;height:50vh;background:lightgray}.three.svelte-1ggmcc.svelte-1ggmcc{background:#161616;padding:64px 0}.three.svelte-1ggmcc .question.svelte-1ggmcc{font-weight:600;font-size:18px;margin-bottom:4px}.three.svelte-1ggmcc .answer.svelte-1ggmcc{margin:8px 0}.three.svelte-1ggmcc h1.svelte-1ggmcc{padding:0 0 48px 0}.three.svelte-1ggmcc hr.svelte-1ggmcc{border:none;border-bottom:1px solid rgba(255, 255, 255, 0.75);margin:32px 0}.email-form.svelte-1ggmcc.svelte-1ggmcc{width:480px;margin:32px auto;display:flex;flex-direction:column;align-items:flex-start;padding:24px;background:linear-gradient(0deg, #040a11, #040a11), #0352af;box-shadow:0px 4px 4px rgba(0, 0, 0, 0.25);border-radius:8px}.email-form.svelte-1ggmcc .form-input.svelte-1ggmcc{width:100%;display:flex}.email-form.svelte-1ggmcc .form-input input.svelte-1ggmcc{flex:1;height:48px;border:none;background:rgba(142, 145, 148, 0.1);border-radius:4px;color:white;margin-right:16px;padding:0 16px}.email-form.svelte-1ggmcc .form-input button.svelte-1ggmcc{height:48px;width:80px;border:none;background:#400a84;border-radius:4px;padding:8px;color:white;font-weight:600;font-size:14px}.email-form.svelte-1ggmcc h5.svelte-1ggmcc{margin:0}.email-form.svelte-1ggmcc p.svelte-1ggmcc{font-size:12px;font-weight:300;text-align:start;margin-top:8px;color:#aaa}.scroll-button.svelte-1ggmcc.svelte-1ggmcc{position:absolute;bottom:32px;left:calc(50% - 32px)}",
+  map: `{"version":3,"file":"index.svelte","sources":["index.svelte"],"sourcesContent":["<script context=\\"module\\">\\n    // export const prerender = true\\n</script>\\n\\n<script lang=\\"ts\\">var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\nimport ScrollButton from \\"$lib/components/splash/ScrollButton.svelte\\";\\nfunction browse() {\\n    // location.href = \\"/parties\\"\\n    alert(\\"Coming Soon!\\");\\n}\\nfunction installExtension() {\\n    // location.href = \\"https://google.com\\"\\n    alert(\\"Coming Soon!\\");\\n}\\nlet email;\\nfunction signUp() {\\n    return __awaiter(this, void 0, void 0, function* () {\\n        yield fetch(\\"http://3.143.138.224:8000/join-beta\\", {\\n            method: \\"post\\",\\n            headers: {\\n                \\"Content-Type\\": \\"application/json\\",\\n            },\\n            body: JSON.stringify({\\n                email: email,\\n                createdAt: new Date(),\\n            }),\\n        });\\n        alert(\\"Thank you for registering!\\");\\n    });\\n}\\nfunction scroll() {\\n    const elem = document.getElementsByClassName(\\"two\\")[0];\\n    scrollTo({\\n        top: elem.getBoundingClientRect().top,\\n        behavior: \\"smooth\\",\\n    });\\n}\\n</script>\\n\\n<div class=\\"section one full-height\\">\\n    <div class=\\"content\\">\\n        <img src=\\"images/full_logo.svg\\" class=\\"logo\\" alt=\\"Block Parties\\" />\\n\\n        <!-- <p>Block Parties</p> -->\\n\\n        <!-- <p>\\n            Block Parties lets you buy and sell fractional NFTs. We leverage Ethereum smart contracts to enable\\n            trustless group investing.\\n        </p> -->\\n\\n        <div class=\\"button-row\\">\\n            <button on:click={browse}>Browse</button>\\n            <button on:click={installExtension}>Install the Extension</button>\\n        </div>\\n\\n        <div class=\\"email-form\\">\\n            <h5>Reserve your seat in the limited access beta</h5>\\n            <br /><br />\\n            <div class=\\"form-input\\">\\n                <input bind:value={email} type=\\"email\\" placeholder=\\"Enter your email\\" />\\n                <button on:click={signUp}>Submit</button>\\n            </div>\\n            <p>We won't use your email for anything other than letting you know when beta opens.</p>\\n            <br />\\n            <p>Wanna chat? <a href=\\"https://discord.gg/TNGQuuazez\\"> Join our Discord</a></p>\\n        </div>\\n\\n        <div class=\\"scroll-button\\" on:click={scroll}>\\n            <ScrollButton />\\n        </div>\\n\\n        <!-- \\n        <div class=\\"card\\">\\n            <div style=\\"height: 65vh;\\">\\n                <iframe\\n                    width=\\"100%\\"\\n                    height=\\"100%\\"\\n                    src=\\"https://www.youtube.com/embed/4LwXiQ1Zxig\\"\\n                    title=\\"YouTube video player\\"\\n                    frameborder=\\"0\\"\\n                    allow=\\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\\"\\n                    allowfullscreen\\n                />\\n            </div>\\n        </div> -->\\n    </div>\\n</div>\\n\\n<div class=\\"section two\\">\\n    <div class=\\"content\\">\\n        <div class=\\"row\\">\\n            <div class=\\"card\\">\\n                <ol>\\n                    <li>Find an NFT you want to flip.</li>\\n                    <li>Choose a party, or create a new one.</li>\\n                    <li>Invest!</li>\\n                    <li>Share the party with friends and others, and watch investments roll in.</li>\\n                    <li>Block Parties buys the NFT on your behalf, and lists it for sale.</li>\\n                    <li>Your NFT gets sold - profit!</li>\\n                </ol>\\n            </div>\\n\\n            <div class=\\"divider\\" />\\n\\n            <div class=\\"card\\">\\n                <ol>\\n                    <li>Find an NFT you want to flip.</li>\\n                    <li>Choose a party, or create a new one.</li>\\n                    <li>Invest!</li>\\n                    <li>Share the party with friends and others, and watch investments roll in.</li>\\n                    <li>Block Parties buys the NFT on your behalf, and lists it for sale.</li>\\n                    <li>Your NFT gets sold - profit!</li>\\n                </ol>\\n            </div>\\n        </div>\\n    </div>\\n</div>\\n\\n<div class=\\"section three\\">\\n    <div class=\\"content\\">\\n        <h1>Frequently Asked Questions</h1>\\n\\n        <p class=\\"question\\">What do I need to get started investing?</p>\\n        <p class=\\"answer\\">\\n            To invest, all you need is a web compatible Ethereum wallet. We recommend the popular wallet + extension\\n            MetaMask. (include link). To create new parties, you'll need to install our Chrome Extension.\\n        </p>\\n        <hr />\\n\\n        <p class=\\"question\\">Can I withdraw money invested in a party?</p>\\n        <p class=\\"answer\\">\\n            Yes, you can withdraw your investment in any party at any time, up to the point the NFT is purchased.\\n        </p>\\n        <hr />\\n\\n        <p class=\\"question\\">Where is my invested money stored?</p>\\n        <p class=\\"answer\\">\\n            While a party is still collectings funds, your investment is stored securely on a proprietary smart contract\\n            in the Ethereum blockchain. At no point do your funds enter a wallet that\u2019s not yours or, after a successful\\n            purchase, the person(s) selling the NFT, fees excluded.\\n        </p>\\n        <hr />\\n\\n        <p class=\\"question\\">My party\u2019s NFT doesn\u2019t seem to be selling. What can I do?</p>\\n        <p class=\\"answer\\">\\n            The NFT market is still young and somewhat exotic. Many NFTs will naturally take some time to sell, but if\\n            you're still concerned after some time, reach out to us directly, and we'll do our best to help you sell.\\n        </p>\\n        <hr />\\n\\n        <p class=\\"question\\">I have some feedback, concerns, or additional questions.</p>\\n        <p class=\\"answer\\">\\n            If you'd like to get in touch with us, we've setup a public Discord server where our team is available to\\n            talk to.\\n        </p>\\n    </div>\\n</div>\\n\\n<style lang=\\"scss\\">:global(body) {\\n  margin: 0;\\n}\\n\\n:global(nav) {\\n  display: none;\\n}\\n\\n.content {\\n  max-width: 1200px;\\n  margin: auto;\\n  padding: 0 32px;\\n}\\n\\nol {\\n  margin: 0;\\n}\\n\\nbutton {\\n  cursor: pointer;\\n  background: #0352af;\\n  box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.25);\\n  border-radius: 4px;\\n  border: none;\\n  padding: 12px;\\n  font-weight: 600;\\n  font-size: 16px;\\n}\\n\\n.logo {\\n  filter: brightness(0) saturate(100%) invert(0%) sepia(7%) saturate(349%) hue-rotate(75deg) brightness(100%) contrast(100%) invert(100%);\\n}\\n\\n.divider {\\n  width: 4px;\\n  height: 100%;\\n  background: white;\\n}\\n\\n.button-row {\\n  display: flex;\\n  flex-flow: row wrap;\\n  justify-content: center;\\n  margin: 16px;\\n}\\n.button-row button {\\n  margin: 8px;\\n}\\n\\n.card {\\n  background: #0e0606;\\n  box-shadow: 0px 4px 4px 4px rgba(32, 32, 32, 0.25);\\n  border-radius: 24px;\\n  overflow: hidden;\\n}\\n\\n.full-height {\\n  height: 100vh;\\n}\\n\\n.section {\\n  width: 100%;\\n  background: linear-gradient(180deg, #5c329f 0%, #13053e 100%);\\n}\\n\\n.one {\\n  display: flex;\\n  flex-direction: column;\\n  align-items: center;\\n}\\n.one button {\\n  width: 240px;\\n}\\n\\n.two {\\n  display: flex;\\n  flex-direction: row;\\n  height: 50vh;\\n  background: lightgray;\\n}\\n\\n.three {\\n  background: #161616;\\n  padding: 64px 0;\\n}\\n.three .question {\\n  font-weight: 600;\\n  font-size: 18px;\\n  margin-bottom: 4px;\\n}\\n.three .answer {\\n  margin: 8px 0;\\n}\\n.three h1 {\\n  padding: 0 0 48px 0;\\n}\\n.three hr {\\n  border: none;\\n  border-bottom: 1px solid rgba(255, 255, 255, 0.75);\\n  margin: 32px 0;\\n}\\n\\n.email-form {\\n  width: 480px;\\n  margin: 32px auto;\\n  display: flex;\\n  flex-direction: column;\\n  align-items: flex-start;\\n  padding: 24px;\\n  background: linear-gradient(0deg, #040a11, #040a11), #0352af;\\n  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);\\n  border-radius: 8px;\\n}\\n.email-form .form-input {\\n  width: 100%;\\n  display: flex;\\n}\\n.email-form .form-input input {\\n  flex: 1;\\n  height: 48px;\\n  border: none;\\n  background: rgba(142, 145, 148, 0.1);\\n  border-radius: 4px;\\n  color: white;\\n  margin-right: 16px;\\n  padding: 0 16px;\\n}\\n.email-form .form-input button {\\n  height: 48px;\\n  width: 80px;\\n  border: none;\\n  background: #400a84;\\n  border-radius: 4px;\\n  padding: 8px;\\n  color: white;\\n  font-weight: 600;\\n  font-size: 14px;\\n}\\n.email-form h5 {\\n  margin: 0;\\n}\\n.email-form p {\\n  font-size: 12px;\\n  font-weight: 300;\\n  text-align: start;\\n  margin-top: 8px;\\n  color: #aaa;\\n}\\n\\n.scroll-button {\\n  position: absolute;\\n  bottom: 32px;\\n  left: calc(50% - 32px);\\n}</style>\\n"],"names":[],"mappings":"AAsK2B,IAAI,AAAE,CAAC,AAChC,MAAM,CAAE,CAAC,AACX,CAAC,AAEO,GAAG,AAAE,CAAC,AACZ,OAAO,CAAE,IAAI,AACf,CAAC,AAED,QAAQ,4BAAC,CAAC,AACR,SAAS,CAAE,MAAM,CACjB,MAAM,CAAE,IAAI,CACZ,OAAO,CAAE,CAAC,CAAC,IAAI,AACjB,CAAC,AAED,EAAE,4BAAC,CAAC,AACF,MAAM,CAAE,CAAC,AACX,CAAC,AAED,MAAM,4BAAC,CAAC,AACN,MAAM,CAAE,OAAO,CACf,UAAU,CAAE,OAAO,CACnB,UAAU,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAC/C,aAAa,CAAE,GAAG,CAClB,MAAM,CAAE,IAAI,CACZ,OAAO,CAAE,IAAI,CACb,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,AACjB,CAAC,AAED,KAAK,4BAAC,CAAC,AACL,MAAM,CAAE,WAAW,CAAC,CAAC,CAAC,SAAS,IAAI,CAAC,CAAC,OAAO,EAAE,CAAC,CAAC,MAAM,EAAE,CAAC,CAAC,SAAS,IAAI,CAAC,CAAC,WAAW,KAAK,CAAC,CAAC,WAAW,IAAI,CAAC,CAAC,SAAS,IAAI,CAAC,CAAC,OAAO,IAAI,CAAC,AACzI,CAAC,AAED,QAAQ,4BAAC,CAAC,AACR,KAAK,CAAE,GAAG,CACV,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,KAAK,AACnB,CAAC,AAED,WAAW,4BAAC,CAAC,AACX,OAAO,CAAE,IAAI,CACb,SAAS,CAAE,GAAG,CAAC,IAAI,CACnB,eAAe,CAAE,MAAM,CACvB,MAAM,CAAE,IAAI,AACd,CAAC,AACD,yBAAW,CAAC,MAAM,cAAC,CAAC,AAClB,MAAM,CAAE,GAAG,AACb,CAAC,AAED,KAAK,4BAAC,CAAC,AACL,UAAU,CAAE,OAAO,CACnB,UAAU,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,KAAK,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,IAAI,CAAC,CAClD,aAAa,CAAE,IAAI,CACnB,QAAQ,CAAE,MAAM,AAClB,CAAC,AAED,YAAY,4BAAC,CAAC,AACZ,MAAM,CAAE,KAAK,AACf,CAAC,AAED,QAAQ,4BAAC,CAAC,AACR,KAAK,CAAE,IAAI,CACX,UAAU,CAAE,gBAAgB,MAAM,CAAC,CAAC,OAAO,CAAC,EAAE,CAAC,CAAC,OAAO,CAAC,IAAI,CAAC,AAC/D,CAAC,AAED,IAAI,4BAAC,CAAC,AACJ,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,MAAM,CACtB,WAAW,CAAE,MAAM,AACrB,CAAC,AACD,kBAAI,CAAC,MAAM,cAAC,CAAC,AACX,KAAK,CAAE,KAAK,AACd,CAAC,AAED,IAAI,4BAAC,CAAC,AACJ,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,GAAG,CACnB,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,SAAS,AACvB,CAAC,AAED,MAAM,4BAAC,CAAC,AACN,UAAU,CAAE,OAAO,CACnB,OAAO,CAAE,IAAI,CAAC,CAAC,AACjB,CAAC,AACD,oBAAM,CAAC,SAAS,cAAC,CAAC,AAChB,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,CACf,aAAa,CAAE,GAAG,AACpB,CAAC,AACD,oBAAM,CAAC,OAAO,cAAC,CAAC,AACd,MAAM,CAAE,GAAG,CAAC,CAAC,AACf,CAAC,AACD,oBAAM,CAAC,EAAE,cAAC,CAAC,AACT,OAAO,CAAE,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAAC,AACrB,CAAC,AACD,oBAAM,CAAC,EAAE,cAAC,CAAC,AACT,MAAM,CAAE,IAAI,CACZ,aAAa,CAAE,GAAG,CAAC,KAAK,CAAC,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,CAClD,MAAM,CAAE,IAAI,CAAC,CAAC,AAChB,CAAC,AAED,WAAW,4BAAC,CAAC,AACX,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,IAAI,CAAC,IAAI,CACjB,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,MAAM,CACtB,WAAW,CAAE,UAAU,CACvB,OAAO,CAAE,IAAI,CACb,UAAU,CAAE,gBAAgB,IAAI,CAAC,CAAC,OAAO,CAAC,CAAC,OAAO,CAAC,CAAC,CAAC,OAAO,CAC5D,UAAU,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAC3C,aAAa,CAAE,GAAG,AACpB,CAAC,AACD,yBAAW,CAAC,WAAW,cAAC,CAAC,AACvB,KAAK,CAAE,IAAI,CACX,OAAO,CAAE,IAAI,AACf,CAAC,AACD,yBAAW,CAAC,WAAW,CAAC,KAAK,cAAC,CAAC,AAC7B,IAAI,CAAE,CAAC,CACP,MAAM,CAAE,IAAI,CACZ,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CACpC,aAAa,CAAE,GAAG,CAClB,KAAK,CAAE,KAAK,CACZ,YAAY,CAAE,IAAI,CAClB,OAAO,CAAE,CAAC,CAAC,IAAI,AACjB,CAAC,AACD,yBAAW,CAAC,WAAW,CAAC,MAAM,cAAC,CAAC,AAC9B,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAClB,OAAO,CAAE,GAAG,CACZ,KAAK,CAAE,KAAK,CACZ,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,AACjB,CAAC,AACD,yBAAW,CAAC,EAAE,cAAC,CAAC,AACd,MAAM,CAAE,CAAC,AACX,CAAC,AACD,yBAAW,CAAC,CAAC,cAAC,CAAC,AACb,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,GAAG,CAChB,UAAU,CAAE,KAAK,CACjB,UAAU,CAAE,GAAG,CACf,KAAK,CAAE,IAAI,AACb,CAAC,AAED,cAAc,4BAAC,CAAC,AACd,QAAQ,CAAE,QAAQ,CAClB,MAAM,CAAE,IAAI,CACZ,IAAI,CAAE,KAAK,GAAG,CAAC,CAAC,CAAC,IAAI,CAAC,AACxB,CAAC"}`
 };
 const Routes = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   (function(thisArg, _arguments, P, generator) {
@@ -3475,7 +3490,116 @@ const Routes = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     });
   });
   let email;
-  $$result.css.add(css$5);
+  $$result.css.add(css$7);
+  return `<div class="${"section one full-height svelte-1ggmcc"}"><div class="${"content svelte-1ggmcc"}"><img src="${"images/full_logo.svg"}" class="${"logo svelte-1ggmcc"}" alt="${"Block Parties"}">
+
+        
+
+        
+
+        <div class="${"button-row svelte-1ggmcc"}"><button class="${"svelte-1ggmcc"}">Browse</button>
+            <button class="${"svelte-1ggmcc"}">Install the Extension</button></div>
+
+        <div class="${"email-form svelte-1ggmcc"}"><h5 class="${"svelte-1ggmcc"}">Reserve your seat in the limited access beta</h5>
+            <br><br>
+            <div class="${"form-input svelte-1ggmcc"}"><input type="${"email"}" placeholder="${"Enter your email"}" class="${"svelte-1ggmcc"}"${add_attribute("value", email, 1)}>
+                <button class="${"svelte-1ggmcc"}">Submit</button></div>
+            <p class="${"svelte-1ggmcc"}">We won&#39;t use your email for anything other than letting you know when beta opens.</p>
+            <br>
+            <p class="${"svelte-1ggmcc"}">Wanna chat? <a href="${"https://discord.gg/TNGQuuazez"}">Join our Discord</a></p></div>
+
+        <div class="${"scroll-button svelte-1ggmcc"}">${validate_component(ScrollButton, "ScrollButton").$$render($$result, {}, {}, {})}</div>
+
+        </div></div>
+
+<div class="${"section two svelte-1ggmcc"}"><div class="${"content svelte-1ggmcc"}"><div class="${"row"}"><div class="${"card svelte-1ggmcc"}"><ol class="${"svelte-1ggmcc"}"><li>Find an NFT you want to flip.</li>
+                    <li>Choose a party, or create a new one.</li>
+                    <li>Invest!</li>
+                    <li>Share the party with friends and others, and watch investments roll in.</li>
+                    <li>Block Parties buys the NFT on your behalf, and lists it for sale.</li>
+                    <li>Your NFT gets sold - profit!</li></ol></div>
+
+            <div class="${"divider svelte-1ggmcc"}"></div>
+
+            <div class="${"card svelte-1ggmcc"}"><ol class="${"svelte-1ggmcc"}"><li>Find an NFT you want to flip.</li>
+                    <li>Choose a party, or create a new one.</li>
+                    <li>Invest!</li>
+                    <li>Share the party with friends and others, and watch investments roll in.</li>
+                    <li>Block Parties buys the NFT on your behalf, and lists it for sale.</li>
+                    <li>Your NFT gets sold - profit!</li></ol></div></div></div></div>
+
+<div class="${"section three svelte-1ggmcc"}"><div class="${"content svelte-1ggmcc"}"><h1 class="${"svelte-1ggmcc"}">Frequently Asked Questions</h1>
+
+        <p class="${"question svelte-1ggmcc"}">What do I need to get started investing?</p>
+        <p class="${"answer svelte-1ggmcc"}">To invest, all you need is a web compatible Ethereum wallet. We recommend the popular wallet + extension
+            MetaMask. (include link). To create new parties, you&#39;ll need to install our Chrome Extension.
+        </p>
+        <hr class="${"svelte-1ggmcc"}">
+
+        <p class="${"question svelte-1ggmcc"}">Can I withdraw money invested in a party?</p>
+        <p class="${"answer svelte-1ggmcc"}">Yes, you can withdraw your investment in any party at any time, up to the point the NFT is purchased.
+        </p>
+        <hr class="${"svelte-1ggmcc"}">
+
+        <p class="${"question svelte-1ggmcc"}">Where is my invested money stored?</p>
+        <p class="${"answer svelte-1ggmcc"}">While a party is still collectings funds, your investment is stored securely on a proprietary smart contract
+            in the Ethereum blockchain. At no point do your funds enter a wallet that\u2019s not yours or, after a successful
+            purchase, the person(s) selling the NFT, fees excluded.
+        </p>
+        <hr class="${"svelte-1ggmcc"}">
+
+        <p class="${"question svelte-1ggmcc"}">My party\u2019s NFT doesn\u2019t seem to be selling. What can I do?</p>
+        <p class="${"answer svelte-1ggmcc"}">The NFT market is still young and somewhat exotic. Many NFTs will naturally take some time to sell, but if
+            you&#39;re still concerned after some time, reach out to us directly, and we&#39;ll do our best to help you sell.
+        </p>
+        <hr class="${"svelte-1ggmcc"}">
+
+        <p class="${"question svelte-1ggmcc"}">I have some feedback, concerns, or additional questions.</p>
+        <p class="${"answer svelte-1ggmcc"}">If you&#39;d like to get in touch with us, we&#39;ve setup a public Discord server where our team is available to
+            talk to.
+        </p></div>
+</div>`;
+});
+var index$2 = /* @__PURE__ */ Object.freeze({
+  __proto__: null,
+  [Symbol.toStringTag]: "Module",
+  default: Routes
+});
+var index_OLD_svelte_svelte_type_style_lang = "nav{display:none}body{margin:0;height:100vh;background:linear-gradient(235.71deg, #400a84 7.8%, #1b0a30 92.44%)}main.svelte-qgj3c0.svelte-qgj3c0{padding:1em;width:480px;margin:auto;position:absolute;top:calc(50% - 200px);left:calc(50% - 240px)}main.svelte-qgj3c0 h3.svelte-qgj3c0{margin-top:16px;margin-bottom:8px}.email-form.svelte-qgj3c0.svelte-qgj3c0{width:480px;margin:32px auto;display:flex;flex-direction:column;align-items:flex-start;padding:24px;background:linear-gradient(0deg, #040a11, #040a11), #0352af;box-shadow:0px 4px 4px rgba(0, 0, 0, 0.25);border-radius:8px}.email-form.svelte-qgj3c0 .form-input.svelte-qgj3c0{width:100%;display:flex}.email-form.svelte-qgj3c0 .form-input input.svelte-qgj3c0{flex:1;height:48px;border:none;background:rgba(142, 145, 148, 0.1);border-radius:4px;color:white;margin-right:16px;padding:0 16px}.email-form.svelte-qgj3c0 .form-input button.svelte-qgj3c0{height:48px;width:80px;border:none;background:#400a84;border-radius:4px;padding:8px;color:white;font-weight:600;font-size:14px}.email-form.svelte-qgj3c0 h5.svelte-qgj3c0{margin:0}.email-form.svelte-qgj3c0 p.svelte-qgj3c0{font-size:12px;font-weight:300;text-align:start;margin-top:8px;color:#aaa}";
+const css$6 = {
+  code: "nav{display:none}body{margin:0;height:100vh;background:linear-gradient(235.71deg, #400a84 7.8%, #1b0a30 92.44%)}main.svelte-qgj3c0.svelte-qgj3c0{padding:1em;width:480px;margin:auto;position:absolute;top:calc(50% - 200px);left:calc(50% - 240px)}main.svelte-qgj3c0 h3.svelte-qgj3c0{margin-top:16px;margin-bottom:8px}.email-form.svelte-qgj3c0.svelte-qgj3c0{width:480px;margin:32px auto;display:flex;flex-direction:column;align-items:flex-start;padding:24px;background:linear-gradient(0deg, #040a11, #040a11), #0352af;box-shadow:0px 4px 4px rgba(0, 0, 0, 0.25);border-radius:8px}.email-form.svelte-qgj3c0 .form-input.svelte-qgj3c0{width:100%;display:flex}.email-form.svelte-qgj3c0 .form-input input.svelte-qgj3c0{flex:1;height:48px;border:none;background:rgba(142, 145, 148, 0.1);border-radius:4px;color:white;margin-right:16px;padding:0 16px}.email-form.svelte-qgj3c0 .form-input button.svelte-qgj3c0{height:48px;width:80px;border:none;background:#400a84;border-radius:4px;padding:8px;color:white;font-weight:600;font-size:14px}.email-form.svelte-qgj3c0 h5.svelte-qgj3c0{margin:0}.email-form.svelte-qgj3c0 p.svelte-qgj3c0{font-size:12px;font-weight:300;text-align:start;margin-top:8px;color:#aaa}",
+  map: `{"version":3,"file":"index_OLD.svelte","sources":["index_OLD.svelte"],"sourcesContent":["<script lang=\\"ts\\">// import Api from \\"$lib/api/beta\\"\\n// import axios from \\"axios\\"\\nvar __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\nimport ScrollButton from \\"$lib/components/splash/ScrollButton.svelte\\";\\nlet email;\\nfunction signUp() {\\n    return __awaiter(this, void 0, void 0, function* () {\\n        yield fetch(\\"http://3.143.138.224:8000/join-beta\\", {\\n            method: \\"post\\",\\n            headers: {\\n                \\"Content-Type\\": \\"application/json\\",\\n            },\\n            body: JSON.stringify({\\n                email: email,\\n                createdAt: new Date(),\\n            }),\\n        });\\n        alert(\\"Thank you for registering!\\");\\n    });\\n}\\n</script>\\n\\n<svelte:head>\\n    <title>Block Parties</title>\\n    <meta name=\\"og:title\\" content=\\"Block Parties\\" />\\n    <meta name=\\"og:description\\" content=\\"Invest with others safely and securely, powered by blockchain technology.\\" />\\n</svelte:head>\\n\\n<main>\\n    <h1>Block Parties</h1>\\n\\n    <div>\\n        <h3>An <b>Evolution</b> in Investing... coming soon</h3>\\n        <p>\\n            Leveraging the blockchain to make group investing as <b>secure</b>, <b>easy</b>, and <b>social</b> as ever.\\n        </p>\\n    </div>\\n\\n    <div class=\\"email-form\\">\\n        <h5>Reserve your seat in the limited access beta</h5>\\n        <br /><br />\\n        <div class=\\"form-input\\">\\n            <input bind:value={email} type=\\"email\\" placeholder=\\"Enter your email\\" />\\n            <button on:click={signUp}>Submit</button>\\n        </div>\\n        <p>We won't use your email for anything other than letting you know when beta opens.</p>\\n        <br />\\n        <p>Wanna chat? <a href=\\"https://discord.gg/TNGQuuazez\\"> Join our Discord</a></p>\\n    </div>\\n\\n    <div class=\\"scroll-button\\">\\n        <ScrollButton />\\n    </div>\\n</main>\\n\\n<style lang=\\"scss\\">:global(nav) {\\n  display: none;\\n}\\n\\n:global(body) {\\n  margin: 0;\\n  height: 100vh;\\n  background: linear-gradient(235.71deg, #400a84 7.8%, #1b0a30 92.44%);\\n}\\n\\nmain {\\n  padding: 1em;\\n  width: 480px;\\n  margin: auto;\\n  position: absolute;\\n  top: calc(50% - 200px);\\n  left: calc(50% - 240px);\\n}\\nmain h3 {\\n  margin-top: 16px;\\n  margin-bottom: 8px;\\n}\\n\\n.email-form {\\n  width: 480px;\\n  margin: 32px auto;\\n  display: flex;\\n  flex-direction: column;\\n  align-items: flex-start;\\n  padding: 24px;\\n  background: linear-gradient(0deg, #040a11, #040a11), #0352af;\\n  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);\\n  border-radius: 8px;\\n}\\n.email-form .form-input {\\n  width: 100%;\\n  display: flex;\\n}\\n.email-form .form-input input {\\n  flex: 1;\\n  height: 48px;\\n  border: none;\\n  background: rgba(142, 145, 148, 0.1);\\n  border-radius: 4px;\\n  color: white;\\n  margin-right: 16px;\\n  padding: 0 16px;\\n}\\n.email-form .form-input button {\\n  height: 48px;\\n  width: 80px;\\n  border: none;\\n  background: #400a84;\\n  border-radius: 4px;\\n  padding: 8px;\\n  color: white;\\n  font-weight: 600;\\n  font-size: 14px;\\n}\\n.email-form h5 {\\n  margin: 0;\\n}\\n.email-form p {\\n  font-size: 12px;\\n  font-weight: 300;\\n  text-align: start;\\n  margin-top: 8px;\\n  color: #aaa;\\n}</style>\\n"],"names":[],"mappings":"AA+D2B,GAAG,AAAE,CAAC,AAC/B,OAAO,CAAE,IAAI,AACf,CAAC,AAEO,IAAI,AAAE,CAAC,AACb,MAAM,CAAE,CAAC,CACT,MAAM,CAAE,KAAK,CACb,UAAU,CAAE,gBAAgB,SAAS,CAAC,CAAC,OAAO,CAAC,IAAI,CAAC,CAAC,OAAO,CAAC,MAAM,CAAC,AACtE,CAAC,AAED,IAAI,4BAAC,CAAC,AACJ,OAAO,CAAE,GAAG,CACZ,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,IAAI,CACZ,QAAQ,CAAE,QAAQ,CAClB,GAAG,CAAE,KAAK,GAAG,CAAC,CAAC,CAAC,KAAK,CAAC,CACtB,IAAI,CAAE,KAAK,GAAG,CAAC,CAAC,CAAC,KAAK,CAAC,AACzB,CAAC,AACD,kBAAI,CAAC,EAAE,cAAC,CAAC,AACP,UAAU,CAAE,IAAI,CAChB,aAAa,CAAE,GAAG,AACpB,CAAC,AAED,WAAW,4BAAC,CAAC,AACX,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,IAAI,CAAC,IAAI,CACjB,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,MAAM,CACtB,WAAW,CAAE,UAAU,CACvB,OAAO,CAAE,IAAI,CACb,UAAU,CAAE,gBAAgB,IAAI,CAAC,CAAC,OAAO,CAAC,CAAC,OAAO,CAAC,CAAC,CAAC,OAAO,CAC5D,UAAU,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAC3C,aAAa,CAAE,GAAG,AACpB,CAAC,AACD,yBAAW,CAAC,WAAW,cAAC,CAAC,AACvB,KAAK,CAAE,IAAI,CACX,OAAO,CAAE,IAAI,AACf,CAAC,AACD,yBAAW,CAAC,WAAW,CAAC,KAAK,cAAC,CAAC,AAC7B,IAAI,CAAE,CAAC,CACP,MAAM,CAAE,IAAI,CACZ,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CACpC,aAAa,CAAE,GAAG,CAClB,KAAK,CAAE,KAAK,CACZ,YAAY,CAAE,IAAI,CAClB,OAAO,CAAE,CAAC,CAAC,IAAI,AACjB,CAAC,AACD,yBAAW,CAAC,WAAW,CAAC,MAAM,cAAC,CAAC,AAC9B,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAClB,OAAO,CAAE,GAAG,CACZ,KAAK,CAAE,KAAK,CACZ,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,AACjB,CAAC,AACD,yBAAW,CAAC,EAAE,cAAC,CAAC,AACd,MAAM,CAAE,CAAC,AACX,CAAC,AACD,yBAAW,CAAC,CAAC,cAAC,CAAC,AACb,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,GAAG,CAChB,UAAU,CAAE,KAAK,CACjB,UAAU,CAAE,GAAG,CACf,KAAK,CAAE,IAAI,AACb,CAAC"}`
+};
+const Index_OLD = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+  (function(thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P ? value : new P(function(resolve2) {
+        resolve2(value);
+      });
+    }
+    return new (P || (P = Promise))(function(resolve2, reject) {
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+  });
+  let email;
+  $$result.css.add(css$6);
   return `${$$result.head += `${$$result.title = `<title>Block Parties</title>`, ""}<meta name="${"og:title"}" content="${"Block Parties"}" data-svelte="svelte-wfknh5"><meta name="${"og:description"}" content="${"Invest with others safely and securely, powered by blockchain technology."}" data-svelte="svelte-wfknh5">`, ""}
 
 <main class="${"svelte-qgj3c0"}"><h1>Block Parties</h1>
@@ -3491,26 +3615,17 @@ const Routes = create_ssr_component(($$result, $$props, $$bindings, slots) => {
         <p class="${"svelte-qgj3c0"}">We won&#39;t use your email for anything other than letting you know when beta opens.</p>
         <br>
         <p class="${"svelte-qgj3c0"}">Wanna chat? <a href="${"https://discord.gg/TNGQuuazez"}">Join our Discord</a></p></div>
+
+    <div class="${"scroll-button"}">${validate_component(ScrollButton, "ScrollButton").$$render($$result, {}, {}, {})}</div>
 </main>`;
 });
-var index = /* @__PURE__ */ Object.freeze({
+var index_OLD = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   [Symbol.toStringTag]: "Module",
-  default: Routes
+  default: Index_OLD
 });
-var Api;
-(function(Api2) {
-  (function(Parties2) {
-    async function getParties() {
-      const res = await fetch$2("http://3.143.138.224:8000/parties");
-      return await res.json();
-    }
-    Parties2.getParties = getParties;
-  })(Api2.Parties || (Api2.Parties = {}));
-})(Api || (Api = {}));
-var Api$1 = Api;
 var RoundButton_svelte_svelte_type_style_lang = "button.svelte-kiycwk{flex:1;height:40px;background:#0352af;border-radius:4px;border:none;color:white;font-weight:600}";
-const css$4 = {
+const css$5 = {
   code: "button.svelte-kiycwk{flex:1;height:40px;background:#0352af;border-radius:4px;border:none;color:white;font-weight:600}",
   map: '{"version":3,"file":"RoundButton.svelte","sources":["RoundButton.svelte"],"sourcesContent":["<script lang=\\"ts\\">export let text;\\n</script>\\n\\n<button on:click>{text}</button>\\n\\n<style lang=\\"scss\\">button {\\n  flex: 1;\\n  height: 40px;\\n  background: #0352af;\\n  border-radius: 4px;\\n  border: none;\\n  color: white;\\n  font-weight: 600;\\n}</style>\\n"],"names":[],"mappings":"AAKmB,MAAM,cAAC,CAAC,AACzB,IAAI,CAAE,CAAC,CACP,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAClB,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,KAAK,CACZ,WAAW,CAAE,GAAG,AAClB,CAAC"}'
 };
@@ -3518,7 +3633,7 @@ const RoundButton = create_ssr_component(($$result, $$props, $$bindings, slots) 
   let {text} = $$props;
   if ($$props.text === void 0 && $$bindings.text && text !== void 0)
     $$bindings.text(text);
-  $$result.css.add(css$4);
+  $$result.css.add(css$5);
   return `<button class="${"svelte-kiycwk"}">${escape$1(text)}</button>`;
 });
 const Spacer = create_ssr_component(($$result, $$props, $$bindings, slots) => {
@@ -3531,7 +3646,7 @@ const Spacer = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   return `<div style="${"height: " + escape$1(height) + "; width: " + escape$1(width)}"></div>`;
 });
 var ValueInput_svelte_svelte_type_style_lang = ".outer.svelte-1y1u3h3{width:100%;display:flex;align-items:center;justify-content:space-between}input.svelte-1y1u3h3{background:rgba(15, 15, 15, 0.5);border-radius:4px;border:none;height:24px;padding:8px 16px}p.svelte-1y1u3h3{font-weight:600}";
-const css$3 = {
+const css$4 = {
   code: ".outer.svelte-1y1u3h3{width:100%;display:flex;align-items:center;justify-content:space-between}input.svelte-1y1u3h3{background:rgba(15, 15, 15, 0.5);border-radius:4px;border:none;height:24px;padding:8px 16px}p.svelte-1y1u3h3{font-weight:600}",
   map: '{"version":3,"file":"ValueInput.svelte","sources":["ValueInput.svelte"],"sourcesContent":["<script lang=\\"ts\\">// TODO: OBTAIN UPDATED SOMEHOW\\nlet conversionRate = 2080;\\nexport let value;\\n</script>\\n\\n<div class=\\"outer\\">\\n    <input type=\\"text\\" bind:value placeholder=\\"Amount (in ETH)\\" />\\n    <p>\u2248 ${value * conversionRate}</p>\\n</div>\\n\\n<style lang=\\"scss\\">.outer {\\n  width: 100%;\\n  display: flex;\\n  align-items: center;\\n  justify-content: space-between;\\n}\\n\\ninput {\\n  background: rgba(15, 15, 15, 0.5);\\n  border-radius: 4px;\\n  border: none;\\n  height: 24px;\\n  padding: 8px 16px;\\n}\\n\\np {\\n  font-weight: 600;\\n}</style>\\n"],"names":[],"mappings":"AAUmB,MAAM,eAAC,CAAC,AACzB,KAAK,CAAE,IAAI,CACX,OAAO,CAAE,IAAI,CACb,WAAW,CAAE,MAAM,CACnB,eAAe,CAAE,aAAa,AAChC,CAAC,AAED,KAAK,eAAC,CAAC,AACL,UAAU,CAAE,KAAK,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,GAAG,CAAC,CACjC,aAAa,CAAE,GAAG,CAClB,MAAM,CAAE,IAAI,CACZ,MAAM,CAAE,IAAI,CACZ,OAAO,CAAE,GAAG,CAAC,IAAI,AACnB,CAAC,AAED,CAAC,eAAC,CAAC,AACD,WAAW,CAAE,GAAG,AAClB,CAAC"}'
 };
@@ -3540,16 +3655,72 @@ const ValueInput = create_ssr_component(($$result, $$props, $$bindings, slots) =
   let {value} = $$props;
   if ($$props.value === void 0 && $$bindings.value && value !== void 0)
     $$bindings.value(value);
-  $$result.css.add(css$3);
+  $$result.css.add(css$4);
   return `<div class="${"outer svelte-1y1u3h3"}"><input type="${"text"}" placeholder="${"Amount (in ETH)"}" class="${"svelte-1y1u3h3"}"${add_attribute("value", value, 1)}>
     <p class="${"svelte-1y1u3h3"}">\u2248 $${escape$1(value * conversionRate)}</p>
 </div>`;
 });
 var ModalPopup_svelte_svelte_type_style_lang = "div.svelte-qox25m{z-index:100;position:fixed;top:0;left:0;right:0;bottom:0;background:#000000aa}";
-var PartyCard_svelte_svelte_type_style_lang = ".outer.svelte-7gu6br.svelte-7gu6br{transition:all 0.25s;cursor:pointer;position:relative;background:blue;width:400px;height:500px;border-radius:4px;background:#023b70;box-shadow:0 0 1px 2px #00000066}.outer.svelte-7gu6br.svelte-7gu6br:hover{box-shadow:0 2px 2px 4px #00000066;background:#023b70dd}.chart.svelte-7gu6br.svelte-7gu6br{height:40%;background:#eeeeee;border-radius:4px 4px 0 0}.chart.svelte-7gu6br img.svelte-7gu6br{width:100%;height:100%;object-fit:contain}.progress-bar.svelte-7gu6br.svelte-7gu6br{height:24px;width:100%;background:#161616cc}.progress-bar.svelte-7gu6br .progress-bar-fill.svelte-7gu6br{transition:0.5s all;height:100%;width:0%;background:green}.bottom-half.svelte-7gu6br.svelte-7gu6br{padding:16px}.bottom-half.svelte-7gu6br .title-row.svelte-7gu6br{display:flex;justify-content:space-between}.bottom-half.svelte-7gu6br .title-row h4.svelte-7gu6br{color:white}.bottom-half.svelte-7gu6br .description.svelte-7gu6br{font-size:14px;font-weight:300;margin:16px 0}.bottom-half.svelte-7gu6br .tags div.svelte-7gu6br{margin-right:8px}.bottom-half.svelte-7gu6br .footer.svelte-7gu6br{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 4px 4px;display:flex;flex-direction:column;justify-content:space-between;padding:16px 16px;background:rgba(0, 0, 0, 0.25)}.bottom-half.svelte-7gu6br .footer p.svelte-7gu6br{font-weight:600}";
+var ProgressBar_svelte_svelte_type_style_lang = ".progress-bar.svelte-xnha8o.svelte-xnha8o{height:24px;width:100%;background:#161616cc}.progress-bar.svelte-xnha8o .progress-bar-fill.svelte-xnha8o{transition:0.5s all;height:100%;width:0%;background:green}.progress-bar.svelte-xnha8o p.svelte-xnha8o{position:relative;top:-22px;left:16px;font-size:14px;font-weight:600}";
+const css$3 = {
+  code: ".progress-bar.svelte-xnha8o.svelte-xnha8o{height:24px;width:100%;background:#161616cc}.progress-bar.svelte-xnha8o .progress-bar-fill.svelte-xnha8o{transition:0.5s all;height:100%;width:0%;background:green}.progress-bar.svelte-xnha8o p.svelte-xnha8o{position:relative;top:-22px;left:16px;font-size:14px;font-weight:600}",
+  map: '{"version":3,"file":"ProgressBar.svelte","sources":["ProgressBar.svelte"],"sourcesContent":["<script lang=\\"ts\\">var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\n;\\nimport { onMount } from \\"svelte\\";\\nexport let value;\\nexport let total;\\nlet bar;\\nlet eth;\\n$: {\\n    if (bar != undefined && value != undefined && total != undefined) {\\n        console.log(\\"v: \\" + eth.utils.formatEther(value) + \\" t: \\" + total.toString() + \\" w: \\" + value.div(total));\\n        // console.log(\\"TOTAL\\" + total.toString())\\n        // console.log(\\"WOAH \\" + value.div(total))\\n        bar.style.width = fraction(value, total) + \\"%\\";\\n    }\\n}\\n$: console.log(\\"VALUE: \\" + (value === null || value === void 0 ? void 0 : value.toString()));\\nonMount(() => __awaiter(void 0, void 0, void 0, function* () {\\n    const module = yield import(\\"$lib/api/eth\\");\\n    eth = module.EthHelper;\\n}));\\nfunction fraction(num, den) {\\n    let digitsDen = den.toString().length;\\n    let digitsNum = num.toString().length;\\n    let digitsDiff = digitsDen - digitsNum;\\n    if (digitsDiff > 4) {\\n        return 0;\\n    }\\n    else {\\n        let d = Number.parseInt(den.toString().substring(0, 4).padEnd(4, \\"0\\"));\\n        let n = Number.parseInt(num.toString().substring(0, 4).padEnd(4, \\"0\\")) / Math.pow(10, (digitsDen - digitsNum));\\n        return (n / d) * 100;\\n    }\\n}\\n</script>\\n\\n<div class=\\"progress-bar\\">\\n    <div class=\\"progress-bar-fill\\" bind:this={bar} />\\n\\n    {#if value && total}\\n        <p>{eth.utils.formatEther(value)} / {eth.utils.formatEther(total)} ETH</p>\\n    {/if}\\n</div>\\n\\n<style lang=\\"scss\\">.progress-bar {\\n  height: 24px;\\n  width: 100%;\\n  background: #161616cc;\\n}\\n.progress-bar .progress-bar-fill {\\n  transition: 0.5s all;\\n  height: 100%;\\n  width: 0%;\\n  background: green;\\n}\\n.progress-bar p {\\n  position: relative;\\n  top: -22px;\\n  left: 16px;\\n  font-size: 14px;\\n  font-weight: 600;\\n}</style>\\n"],"names":[],"mappings":"AAmDmB,aAAa,4BAAC,CAAC,AAChC,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,CACX,UAAU,CAAE,SAAS,AACvB,CAAC,AACD,2BAAa,CAAC,kBAAkB,cAAC,CAAC,AAChC,UAAU,CAAE,IAAI,CAAC,GAAG,CACpB,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,EAAE,CACT,UAAU,CAAE,KAAK,AACnB,CAAC,AACD,2BAAa,CAAC,CAAC,cAAC,CAAC,AACf,QAAQ,CAAE,QAAQ,CAClB,GAAG,CAAE,KAAK,CACV,IAAI,CAAE,IAAI,CACV,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,GAAG,AAClB,CAAC"}'
+};
+const ProgressBar = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+  var __awaiter2 = function(thisArg, _arguments, P, generator) {
+    function adopt(value2) {
+      return value2 instanceof P ? value2 : new P(function(resolve2) {
+        resolve2(value2);
+      });
+    }
+    return new (P || (P = Promise))(function(resolve2, reject) {
+      function fulfilled(value2) {
+        try {
+          step(generator.next(value2));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value2) {
+        try {
+          step(generator["throw"](value2));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+  };
+  let {value} = $$props;
+  let {total} = $$props;
+  let bar;
+  let eth$1;
+  onMount(() => __awaiter2(void 0, void 0, void 0, function* () {
+    const module = yield Promise.resolve().then(function() {
+      return eth;
+    });
+    eth$1 = module.EthHelper;
+  }));
+  if ($$props.value === void 0 && $$bindings.value && value !== void 0)
+    $$bindings.value(value);
+  if ($$props.total === void 0 && $$bindings.total && total !== void 0)
+    $$bindings.total(total);
+  $$result.css.add(css$3);
+  {
+    console.log("VALUE: " + (value === null || value === void 0 ? void 0 : value.toString()));
+  }
+  return `<div class="${"progress-bar svelte-xnha8o"}"><div class="${"progress-bar-fill svelte-xnha8o"}"${add_attribute("this", bar, 1)}></div>
+
+    ${value && total ? `<p class="${"svelte-xnha8o"}">${escape$1(eth$1.utils.formatEther(value))} / ${escape$1(eth$1.utils.formatEther(total))} ETH</p>` : ``}
+</div>`;
+});
+var PartyCard_svelte_svelte_type_style_lang = ".outer.svelte-haj4xh.svelte-haj4xh{transition:all 0.25s;position:relative;background:blue;width:400px;height:500px;border-radius:4px;background:#023b70;box-shadow:0 0 1px 2px #00000066}.outer.svelte-haj4xh.svelte-haj4xh:hover{box-shadow:0 2px 2px 4px #00000066;background:#023b70dd}.header.svelte-haj4xh.svelte-haj4xh{height:40%;background:#eeeeee;border-radius:4px 4px 0 0}.header.svelte-haj4xh img.svelte-haj4xh{width:100%;height:100%;object-fit:contain}.header.svelte-haj4xh button.svelte-haj4xh{cursor:pointer;transition:250ms all;position:absolute;right:16px;top:calc(40% - 52px);border:1px solid #9b9b9b;border-radius:4px;background:rgba(34, 34, 34, 0.6);padding:8px 12px;font-weight:600}.header.svelte-haj4xh button.svelte-haj4xh:hover{background:#1462aa}.bottom-half.svelte-haj4xh.svelte-haj4xh{padding:16px}.bottom-half.svelte-haj4xh .title-row.svelte-haj4xh{display:flex;justify-content:space-between}.bottom-half.svelte-haj4xh .title-row h4.svelte-haj4xh{color:white}.bottom-half.svelte-haj4xh .description.svelte-haj4xh{font-size:14px;font-weight:300;width:100%;overflow-y:scroll;max-height:80px;margin:16px 0}.bottom-half.svelte-haj4xh .footer.svelte-haj4xh{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 4px 4px;display:flex;flex-direction:column;justify-content:space-between;padding:16px 16px;background:rgba(0, 0, 0, 0.25)}.bottom-half.svelte-haj4xh .footer p.svelte-haj4xh{font-weight:600}";
 const css$2 = {
-  code: ".outer.svelte-7gu6br.svelte-7gu6br{transition:all 0.25s;cursor:pointer;position:relative;background:blue;width:400px;height:500px;border-radius:4px;background:#023b70;box-shadow:0 0 1px 2px #00000066}.outer.svelte-7gu6br.svelte-7gu6br:hover{box-shadow:0 2px 2px 4px #00000066;background:#023b70dd}.chart.svelte-7gu6br.svelte-7gu6br{height:40%;background:#eeeeee;border-radius:4px 4px 0 0}.chart.svelte-7gu6br img.svelte-7gu6br{width:100%;height:100%;object-fit:contain}.progress-bar.svelte-7gu6br.svelte-7gu6br{height:24px;width:100%;background:#161616cc}.progress-bar.svelte-7gu6br .progress-bar-fill.svelte-7gu6br{transition:0.5s all;height:100%;width:0%;background:green}.bottom-half.svelte-7gu6br.svelte-7gu6br{padding:16px}.bottom-half.svelte-7gu6br .title-row.svelte-7gu6br{display:flex;justify-content:space-between}.bottom-half.svelte-7gu6br .title-row h4.svelte-7gu6br{color:white}.bottom-half.svelte-7gu6br .description.svelte-7gu6br{font-size:14px;font-weight:300;margin:16px 0}.bottom-half.svelte-7gu6br .tags div.svelte-7gu6br{margin-right:8px}.bottom-half.svelte-7gu6br .footer.svelte-7gu6br{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 4px 4px;display:flex;flex-direction:column;justify-content:space-between;padding:16px 16px;background:rgba(0, 0, 0, 0.25)}.bottom-half.svelte-7gu6br .footer p.svelte-7gu6br{font-weight:600}",
-  map: '{"version":3,"file":"PartyCard.svelte","sources":["PartyCard.svelte"],"sourcesContent":["<script lang=\\"ts\\">var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\nimport { onMount } from \\"svelte\\";\\nimport RoundButton from \\"./common/RoundButton.svelte\\";\\nimport Spacer from \\"./common/Spacer.svelte\\";\\nimport ValueInput from \\"./common/ValueInput.svelte\\";\\nimport ModalPopup from \\"./ModalPopup.svelte\\";\\nexport let party;\\nlet showPopup = false;\\nlet eth;\\nlet investmentAmount;\\nlet progressBar;\\nonMount(() => __awaiter(void 0, void 0, void 0, function* () {\\n    const module = yield import(\\"$lib/api/eth\\");\\n    eth = module.EthHelper;\\n    console.log(party);\\n    // opensea.\\n    const raisedAmount = yield eth.fetchPartyContributions(party.id);\\n    console.log(\\"AMOUNT: \\" + raisedAmount);\\n    progressBar.style.width = raisedAmount + \\"%\\";\\n}));\\nfunction invest() {\\n    return __awaiter(this, void 0, void 0, function* () {\\n        eth.invest(party.id, investmentAmount);\\n    });\\n}\\n</script>\\n\\n<!-- SET TO TRUE TO ENABLE -->\\n<div class=\\"outer\\" on:click={() => (showPopup = false)}>\\n    <div class=\\"chart\\">\\n        <img src={party.asset.image_preview_url} alt=\\"token\\" />\\n    </div>\\n\\n    <div class=\\"progress-bar\\">\\n        <div class=\\"progress-bar-fill\\" bind:this={progressBar} />\\n    </div>\\n\\n    <div class=\\"bottom-half\\">\\n        <div class=\\"title-row\\">\\n            <h4>{party.asset.name}</h4>\\n            <!-- <Tag text=\\"HIGH\\" color={\\"red\\"} /> -->\\n        </div>\\n\\n        <p class=\\"description\\">{party.asset.description ? party.asset.description : \\"No description available.\\"}</p>\\n\\n        <div class=\\"footer\\">\\n            <!-- <div>O O O O</div>\\n            <p>$15k - $50k invested</p> -->\\n\\n            <ValueInput bind:value={investmentAmount} />\\n            <Spacer height={\\"16px\\"} />\\n\\n            <div class=\\"row\\">\\n                <RoundButton text={\\"Invest\\"} on:click={invest} />\\n                <!-- <RoundButton text={\\"Withdraw\\"} /> -->\\n            </div>\\n        </div>\\n    </div>\\n</div>\\n\\n{#if showPopup}\\n    <ModalPopup dismiss={() => (showPopup = false)} />\\n{/if}\\n\\n<style lang=\\"scss\\">.outer {\\n  transition: all 0.25s;\\n  cursor: pointer;\\n  position: relative;\\n  background: blue;\\n  width: 400px;\\n  height: 500px;\\n  border-radius: 4px;\\n  background: #023b70;\\n  box-shadow: 0 0 1px 2px #00000066;\\n}\\n.outer:hover {\\n  box-shadow: 0 2px 2px 4px #00000066;\\n  background: #023b70dd;\\n}\\n\\n.chart {\\n  height: 40%;\\n  background: #eeeeee;\\n  border-radius: 4px 4px 0 0;\\n}\\n.chart img {\\n  width: 100%;\\n  height: 100%;\\n  object-fit: contain;\\n}\\n\\n.progress-bar {\\n  height: 24px;\\n  width: 100%;\\n  background: #161616cc;\\n}\\n.progress-bar .progress-bar-fill {\\n  transition: 0.5s all;\\n  height: 100%;\\n  width: 0%;\\n  background: green;\\n}\\n\\n.bottom-half {\\n  padding: 16px;\\n}\\n.bottom-half .title-row {\\n  display: flex;\\n  justify-content: space-between;\\n}\\n.bottom-half .title-row h4 {\\n  color: white;\\n}\\n.bottom-half .description {\\n  font-size: 14px;\\n  font-weight: 300;\\n  margin: 16px 0;\\n}\\n.bottom-half .tags {\\n  display: flex;\\n}\\n.bottom-half .tags div {\\n  margin-right: 8px;\\n}\\n.bottom-half .tags {\\n  position: absolute;\\n  bottom: 76px;\\n}\\n.bottom-half .footer {\\n  position: absolute;\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  border-radius: 0 0 4px 4px;\\n  display: flex;\\n  flex-direction: column;\\n  justify-content: space-between;\\n  padding: 16px 16px;\\n  background: rgba(0, 0, 0, 0.25);\\n}\\n.bottom-half .footer p {\\n  font-weight: 600;\\n}</style>\\n"],"names":[],"mappings":"AAwEmB,MAAM,4BAAC,CAAC,AACzB,UAAU,CAAE,GAAG,CAAC,KAAK,CACrB,MAAM,CAAE,OAAO,CACf,QAAQ,CAAE,QAAQ,CAClB,UAAU,CAAE,IAAI,CAChB,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,KAAK,CACb,aAAa,CAAE,GAAG,CAClB,UAAU,CAAE,OAAO,CACnB,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,AACnC,CAAC,AACD,kCAAM,MAAM,AAAC,CAAC,AACZ,UAAU,CAAE,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,CACnC,UAAU,CAAE,SAAS,AACvB,CAAC,AAED,MAAM,4BAAC,CAAC,AACN,MAAM,CAAE,GAAG,CACX,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAAC,GAAG,CAAC,CAAC,CAAC,CAAC,AAC5B,CAAC,AACD,oBAAM,CAAC,GAAG,cAAC,CAAC,AACV,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,AACrB,CAAC,AAED,aAAa,4BAAC,CAAC,AACb,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,CACX,UAAU,CAAE,SAAS,AACvB,CAAC,AACD,2BAAa,CAAC,kBAAkB,cAAC,CAAC,AAChC,UAAU,CAAE,IAAI,CAAC,GAAG,CACpB,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,EAAE,CACT,UAAU,CAAE,KAAK,AACnB,CAAC,AAED,YAAY,4BAAC,CAAC,AACZ,OAAO,CAAE,IAAI,AACf,CAAC,AACD,0BAAY,CAAC,UAAU,cAAC,CAAC,AACvB,OAAO,CAAE,IAAI,CACb,eAAe,CAAE,aAAa,AAChC,CAAC,AACD,0BAAY,CAAC,UAAU,CAAC,EAAE,cAAC,CAAC,AAC1B,KAAK,CAAE,KAAK,AACd,CAAC,AACD,0BAAY,CAAC,YAAY,cAAC,CAAC,AACzB,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,GAAG,CAChB,MAAM,CAAE,IAAI,CAAC,CAAC,AAChB,CAAC,AAID,0BAAY,CAAC,KAAK,CAAC,GAAG,cAAC,CAAC,AACtB,YAAY,CAAE,GAAG,AACnB,CAAC,AAKD,0BAAY,CAAC,OAAO,cAAC,CAAC,AACpB,QAAQ,CAAE,QAAQ,CAClB,MAAM,CAAE,CAAC,CACT,IAAI,CAAE,CAAC,CACP,KAAK,CAAE,CAAC,CACR,aAAa,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAC1B,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,MAAM,CACtB,eAAe,CAAE,aAAa,CAC9B,OAAO,CAAE,IAAI,CAAC,IAAI,CAClB,UAAU,CAAE,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,AACjC,CAAC,AACD,0BAAY,CAAC,OAAO,CAAC,CAAC,cAAC,CAAC,AACtB,WAAW,CAAE,GAAG,AAClB,CAAC"}'
+  code: ".outer.svelte-haj4xh.svelte-haj4xh{transition:all 0.25s;position:relative;background:blue;width:400px;height:500px;border-radius:4px;background:#023b70;box-shadow:0 0 1px 2px #00000066}.outer.svelte-haj4xh.svelte-haj4xh:hover{box-shadow:0 2px 2px 4px #00000066;background:#023b70dd}.header.svelte-haj4xh.svelte-haj4xh{height:40%;background:#eeeeee;border-radius:4px 4px 0 0}.header.svelte-haj4xh img.svelte-haj4xh{width:100%;height:100%;object-fit:contain}.header.svelte-haj4xh button.svelte-haj4xh{cursor:pointer;transition:250ms all;position:absolute;right:16px;top:calc(40% - 52px);border:1px solid #9b9b9b;border-radius:4px;background:rgba(34, 34, 34, 0.6);padding:8px 12px;font-weight:600}.header.svelte-haj4xh button.svelte-haj4xh:hover{background:#1462aa}.bottom-half.svelte-haj4xh.svelte-haj4xh{padding:16px}.bottom-half.svelte-haj4xh .title-row.svelte-haj4xh{display:flex;justify-content:space-between}.bottom-half.svelte-haj4xh .title-row h4.svelte-haj4xh{color:white}.bottom-half.svelte-haj4xh .description.svelte-haj4xh{font-size:14px;font-weight:300;width:100%;overflow-y:scroll;max-height:80px;margin:16px 0}.bottom-half.svelte-haj4xh .footer.svelte-haj4xh{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 4px 4px;display:flex;flex-direction:column;justify-content:space-between;padding:16px 16px;background:rgba(0, 0, 0, 0.25)}.bottom-half.svelte-haj4xh .footer p.svelte-haj4xh{font-weight:600}",
+  map: `{"version":3,"file":"PartyCard.svelte","sources":["PartyCard.svelte"],"sourcesContent":["<script lang=\\"ts\\">var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\n;\\nimport { onMount } from \\"svelte\\";\\nimport RoundButton from \\"./common/RoundButton.svelte\\";\\nimport Spacer from \\"./common/Spacer.svelte\\";\\nimport ValueInput from \\"./common/ValueInput.svelte\\";\\nimport ModalPopup from \\"./ModalPopup.svelte\\";\\nimport ProgressBar from \\"./ProgressBar.svelte\\";\\nexport let party;\\nlet showPopup = false;\\nlet eth;\\nlet investmentAmount;\\nlet raisedAmount;\\nlet totalAmount;\\nonMount(() => __awaiter(void 0, void 0, void 0, function* () {\\n    const module = yield import(\\"$lib/api/eth\\");\\n    eth = module.EthHelper;\\n    console.log(party);\\n    // Vercel doesn't support websockets...\\n    // eth.onInvestment((partyId: BigNumber, amount: BigNumber, event) => {\\n    //     if (partyId.toNumber() == party.id) {\\n    //         raisedAmount += amount.toNumber() // TODO: this won't work for large numbers\\n    //         console.log(\\"AMOUNT\\" + raisedAmount)\\n    //     }\\n    // })\\n    setInterval(() => __awaiter(void 0, void 0, void 0, function* () {\\n        raisedAmount = yield eth.fetchPartyContributions(party.id);\\n        console.log(\\"AMOUNT: \\" + raisedAmount);\\n    }), 10000);\\n    raisedAmount = yield eth.fetchPartyContributions(party.id);\\n    raisedAmount = raisedAmount;\\n    totalAmount = party.targetAmount;\\n    console.log(\\"AMOUNT: \\" + raisedAmount);\\n}));\\nfunction invest() {\\n    return __awaiter(this, void 0, void 0, function* () {\\n        // const amt = eth.newBigNumber(investmentAmount * 1e18).toString()\\n        eth.invest(party.id, investmentAmount);\\n    });\\n}\\nfunction openOpenSea() {\\n    window.open(party.url, \\"_blank\\");\\n}\\n</script>\\n\\n<!-- SET TO TRUE TO ENABLE -->\\n<div class=\\"outer\\" on:click={() => (showPopup = false)}>\\n    <div class=\\"header\\">\\n        <img src={party.asset.image_preview_url} alt=\\"token\\" />\\n\\n        <button on:click={openOpenSea}>View on OpenSea</button>\\n    </div>\\n    <!-- \\n    <div class=\\"progress-bar\\">\\n        <div class=\\"progress-bar-fill\\" bind:this={progressBar} />\\n    </div> -->\\n\\n    <!-- TODO: Figure out how to handle bignumbers... -->\\n    <ProgressBar value={raisedAmount} total={totalAmount} />\\n\\n    <div class=\\"bottom-half\\">\\n        <div class=\\"title-row\\">\\n            <h4>{party.asset.name ? party.asset.name : \\"Unnamed Asset\\"}</h4>\\n            <!-- <Tag text=\\"HIGH\\" color={\\"red\\"} /> -->\\n        </div>\\n\\n        <p class=\\"description\\">{party.asset.description ? party.asset.description : \\"No description available.\\"}</p>\\n\\n        <div class=\\"footer\\">\\n            <!-- <div>O O O O</div>\\n            <p>$15k - $50k invested</p> -->\\n\\n            <ValueInput bind:value={investmentAmount} />\\n            <Spacer height={\\"16px\\"} />\\n\\n            <div class=\\"row\\">\\n                <RoundButton text={\\"Invest\\"} on:click={invest} />\\n                <!-- <RoundButton text={\\"Withdraw\\"} /> -->\\n            </div>\\n        </div>\\n    </div>\\n</div>\\n\\n{#if showPopup}\\n    <ModalPopup dismiss={() => (showPopup = false)} />\\n{/if}\\n\\n<style lang=\\"scss\\">.outer {\\n  transition: all 0.25s;\\n  position: relative;\\n  background: blue;\\n  width: 400px;\\n  height: 500px;\\n  border-radius: 4px;\\n  background: #023b70;\\n  box-shadow: 0 0 1px 2px #00000066;\\n}\\n.outer:hover {\\n  box-shadow: 0 2px 2px 4px #00000066;\\n  background: #023b70dd;\\n}\\n\\n.header {\\n  height: 40%;\\n  background: #eeeeee;\\n  border-radius: 4px 4px 0 0;\\n}\\n.header img {\\n  width: 100%;\\n  height: 100%;\\n  object-fit: contain;\\n}\\n.header button {\\n  cursor: pointer;\\n  transition: 250ms all;\\n  position: absolute;\\n  right: 16px;\\n  top: calc(40% - 52px);\\n  border: 1px solid #9b9b9b;\\n  border-radius: 4px;\\n  background: rgba(34, 34, 34, 0.6);\\n  padding: 8px 12px;\\n  font-weight: 600;\\n}\\n.header button:hover {\\n  background: #1462aa;\\n}\\n\\n.bottom-half {\\n  padding: 16px;\\n}\\n.bottom-half .title-row {\\n  display: flex;\\n  justify-content: space-between;\\n}\\n.bottom-half .title-row h4 {\\n  color: white;\\n}\\n.bottom-half .description {\\n  font-size: 14px;\\n  font-weight: 300;\\n  width: 100%;\\n  overflow-y: scroll;\\n  max-height: 80px;\\n  margin: 16px 0;\\n}\\n.bottom-half .footer {\\n  position: absolute;\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  border-radius: 0 0 4px 4px;\\n  display: flex;\\n  flex-direction: column;\\n  justify-content: space-between;\\n  padding: 16px 16px;\\n  background: rgba(0, 0, 0, 0.25);\\n}\\n.bottom-half .footer p {\\n  font-weight: 600;\\n}</style>\\n"],"names":[],"mappings":"AA+FmB,MAAM,4BAAC,CAAC,AACzB,UAAU,CAAE,GAAG,CAAC,KAAK,CACrB,QAAQ,CAAE,QAAQ,CAClB,UAAU,CAAE,IAAI,CAChB,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,KAAK,CACb,aAAa,CAAE,GAAG,CAClB,UAAU,CAAE,OAAO,CACnB,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,AACnC,CAAC,AACD,kCAAM,MAAM,AAAC,CAAC,AACZ,UAAU,CAAE,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,CACnC,UAAU,CAAE,SAAS,AACvB,CAAC,AAED,OAAO,4BAAC,CAAC,AACP,MAAM,CAAE,GAAG,CACX,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAAC,GAAG,CAAC,CAAC,CAAC,CAAC,AAC5B,CAAC,AACD,qBAAO,CAAC,GAAG,cAAC,CAAC,AACX,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,AACrB,CAAC,AACD,qBAAO,CAAC,MAAM,cAAC,CAAC,AACd,MAAM,CAAE,OAAO,CACf,UAAU,CAAE,KAAK,CAAC,GAAG,CACrB,QAAQ,CAAE,QAAQ,CAClB,KAAK,CAAE,IAAI,CACX,GAAG,CAAE,KAAK,GAAG,CAAC,CAAC,CAAC,IAAI,CAAC,CACrB,MAAM,CAAE,GAAG,CAAC,KAAK,CAAC,OAAO,CACzB,aAAa,CAAE,GAAG,CAClB,UAAU,CAAE,KAAK,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,GAAG,CAAC,CACjC,OAAO,CAAE,GAAG,CAAC,IAAI,CACjB,WAAW,CAAE,GAAG,AAClB,CAAC,AACD,qBAAO,CAAC,oBAAM,MAAM,AAAC,CAAC,AACpB,UAAU,CAAE,OAAO,AACrB,CAAC,AAED,YAAY,4BAAC,CAAC,AACZ,OAAO,CAAE,IAAI,AACf,CAAC,AACD,0BAAY,CAAC,UAAU,cAAC,CAAC,AACvB,OAAO,CAAE,IAAI,CACb,eAAe,CAAE,aAAa,AAChC,CAAC,AACD,0BAAY,CAAC,UAAU,CAAC,EAAE,cAAC,CAAC,AAC1B,KAAK,CAAE,KAAK,AACd,CAAC,AACD,0BAAY,CAAC,YAAY,cAAC,CAAC,AACzB,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,GAAG,CAChB,KAAK,CAAE,IAAI,CACX,UAAU,CAAE,MAAM,CAClB,UAAU,CAAE,IAAI,CAChB,MAAM,CAAE,IAAI,CAAC,CAAC,AAChB,CAAC,AACD,0BAAY,CAAC,OAAO,cAAC,CAAC,AACpB,QAAQ,CAAE,QAAQ,CAClB,MAAM,CAAE,CAAC,CACT,IAAI,CAAE,CAAC,CACP,KAAK,CAAE,CAAC,CACR,aAAa,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAC1B,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,MAAM,CACtB,eAAe,CAAE,aAAa,CAC9B,OAAO,CAAE,IAAI,CAAC,IAAI,CAClB,UAAU,CAAE,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,AACjC,CAAC,AACD,0BAAY,CAAC,OAAO,CAAC,CAAC,cAAC,CAAC,AACtB,WAAW,CAAE,GAAG,AAClB,CAAC"}`
 };
 const PartyCard = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   var __awaiter2 = function(thisArg, _arguments, P, generator) {
@@ -3582,16 +3753,22 @@ const PartyCard = create_ssr_component(($$result, $$props, $$bindings, slots) =>
   let {party} = $$props;
   let eth$1;
   let investmentAmount;
-  let progressBar;
+  let raisedAmount;
+  let totalAmount;
   onMount(() => __awaiter2(void 0, void 0, void 0, function* () {
     const module = yield Promise.resolve().then(function() {
       return eth;
     });
     eth$1 = module.EthHelper;
     console.log(party);
-    const raisedAmount = yield eth$1.fetchPartyContributions(party.id);
+    setInterval(() => __awaiter2(void 0, void 0, void 0, function* () {
+      raisedAmount = yield eth$1.fetchPartyContributions(party.id);
+      console.log("AMOUNT: " + raisedAmount);
+    }), 1e4);
+    raisedAmount = yield eth$1.fetchPartyContributions(party.id);
+    raisedAmount = raisedAmount;
+    totalAmount = party.targetAmount;
     console.log("AMOUNT: " + raisedAmount);
-    progressBar.style.width = raisedAmount + "%";
   }));
   if ($$props.party === void 0 && $$bindings.party && party !== void 0)
     $$bindings.party(party);
@@ -3601,16 +3778,20 @@ const PartyCard = create_ssr_component(($$result, $$props, $$bindings, slots) =>
   do {
     $$settled = true;
     $$rendered = `
-<div class="${"outer svelte-7gu6br"}"><div class="${"chart svelte-7gu6br"}"><img${add_attribute("src", party.asset.image_preview_url, 0)} alt="${"token"}" class="${"svelte-7gu6br"}"></div>
+<div class="${"outer svelte-haj4xh"}"><div class="${"header svelte-haj4xh"}"><img${add_attribute("src", party.asset.image_preview_url, 0)} alt="${"token"}" class="${"svelte-haj4xh"}">
 
-    <div class="${"progress-bar svelte-7gu6br"}"><div class="${"progress-bar-fill svelte-7gu6br"}"${add_attribute("this", progressBar, 1)}></div></div>
+        <button class="${"svelte-haj4xh"}">View on OpenSea</button></div>
+    
 
-    <div class="${"bottom-half svelte-7gu6br"}"><div class="${"title-row svelte-7gu6br"}"><h4 class="${"svelte-7gu6br"}">${escape$1(party.asset.name)}</h4>
+    
+    ${validate_component(ProgressBar, "ProgressBar").$$render($$result, {value: raisedAmount, total: totalAmount}, {}, {})}
+
+    <div class="${"bottom-half svelte-haj4xh"}"><div class="${"title-row svelte-haj4xh"}"><h4 class="${"svelte-haj4xh"}">${escape$1(party.asset.name ? party.asset.name : "Unnamed Asset")}</h4>
             </div>
 
-        <p class="${"description svelte-7gu6br"}">${escape$1(party.asset.description ? party.asset.description : "No description available.")}</p>
+        <p class="${"description svelte-haj4xh"}">${escape$1(party.asset.description ? party.asset.description : "No description available.")}</p>
 
-        <div class="${"footer svelte-7gu6br"}">
+        <div class="${"footer svelte-haj4xh"}">
 
             ${validate_component(ValueInput, "ValueInput").$$render($$result, {value: investmentAmount}, {
       value: ($$value) => {
@@ -3620,84 +3801,87 @@ const PartyCard = create_ssr_component(($$result, $$props, $$bindings, slots) =>
     }, {})}
             ${validate_component(Spacer, "Spacer").$$render($$result, {height: "16px"}, {}, {})}
 
-            <div class="${"row svelte-7gu6br"}">${validate_component(RoundButton, "RoundButton").$$render($$result, {text: "Invest"}, {}, {})}
+            <div class="${"row"}">${validate_component(RoundButton, "RoundButton").$$render($$result, {text: "Invest"}, {}, {})}
                 </div></div></div></div>
 
 ${``}`;
   } while (!$$settled);
   return $$rendered;
 });
-var clubs_svelte_svelte_type_style_lang = "body{margin:0;background:#0c0218}.outer.svelte-1iwtxv7.svelte-1iwtxv7{display:flex}.sidebar.svelte-1iwtxv7.svelte-1iwtxv7{position:sticky;align-self:flex-start;z-index:99;top:56px;height:calc(100vh - 2 * 60px);left:0;bottom:0;min-width:280px;background:#1b0a30;padding:32px 16px}.sidebar.svelte-1iwtxv7 h1.svelte-1iwtxv7{margin-bottom:16px}.sidebar.svelte-1iwtxv7 p.svelte-1iwtxv7{font-weight:400;font-size:14px;line-height:19px;color:#eeeeee}main.svelte-1iwtxv7.svelte-1iwtxv7{display:flex;flex-flow:row wrap;justify-content:space-around;padding:32px}main.svelte-1iwtxv7 div.svelte-1iwtxv7{padding:24px 16px}";
+var parties_svelte_svelte_type_style_lang = "body{margin:0;background:#0c0218}.outer.svelte-1iwtxv7.svelte-1iwtxv7{display:flex}main.svelte-1iwtxv7.svelte-1iwtxv7{display:flex;flex-flow:row wrap;justify-content:space-around;padding:32px}main.svelte-1iwtxv7 div.svelte-1iwtxv7{padding:24px 16px}";
 const css$1 = {
-  code: "body{margin:0;background:#0c0218}.outer.svelte-1iwtxv7.svelte-1iwtxv7{display:flex}.sidebar.svelte-1iwtxv7.svelte-1iwtxv7{position:sticky;align-self:flex-start;z-index:99;top:56px;height:calc(100vh - 2 * 60px);left:0;bottom:0;min-width:280px;background:#1b0a30;padding:32px 16px}.sidebar.svelte-1iwtxv7 h1.svelte-1iwtxv7{margin-bottom:16px}.sidebar.svelte-1iwtxv7 p.svelte-1iwtxv7{font-weight:400;font-size:14px;line-height:19px;color:#eeeeee}main.svelte-1iwtxv7.svelte-1iwtxv7{display:flex;flex-flow:row wrap;justify-content:space-around;padding:32px}main.svelte-1iwtxv7 div.svelte-1iwtxv7{padding:24px 16px}",
-  map: `{"version":3,"file":"clubs.svelte","sources":["clubs.svelte"],"sourcesContent":["<script context=\\"module\\" lang=\\"ts\\">var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\nexport function load({ page, fetch, session, context }) {\\n    return __awaiter(this, void 0, void 0, function* () {\\n        let parties = yield Api.Parties.getParties();\\n        parties = yield Promise.all(parties.map((party) => __awaiter(this, void 0, void 0, function* () {\\n            const res = yield fetch(\\"https://api.opensea.io/api/v1/assets?\\" +\\n                new URLSearchParams({\\n                    token_ids: party.tokenId,\\n                    asset_contract_address: party.tokenContract,\\n                }));\\n            const assets = (yield res.json())[\\"assets\\"];\\n            console.log(assets);\\n            party = Object.assign(Object.assign({}, party), { asset: assets[0] });\\n            return party;\\n        })));\\n        return {\\n            props: {\\n                parties: parties,\\n            },\\n        };\\n    });\\n}\\n</script>\\n\\n<script lang=\\"ts\\">import Api from \\"$lib/api/parties\\";\\nimport PartyCard from \\"$lib/components/PartyCard.svelte\\";\\nexport let parties;\\n</script>\\n\\n<svelte:head>\\n    <title>Block Parties | Directory</title>\\n    <meta name=\\"og:title\\" content=\\"Block Parties | Directory\\" />\\n    <meta name=\\"og:description\\" content=\\"Find a party to invest in digital assets with.\\" />\\n</svelte:head>\\n\\n<div class=\\"outer\\">\\n    <div class=\\"sidebar\\">\\n        <h1>Party Directory</h1>\\n\\n        <p>Investing is done best when effort, knowledge, and resources are effectively pooled together.</p>\\n        <br />\\n        <p>\\n            To get started, look for clubs with similar interests as you and a risk tolerance you're comfortable with.\\n        </p>\\n    </div>\\n\\n    <main>\\n        {#each parties as party}\\n            <div>\\n                <PartyCard {party} />\\n            </div>\\n        {/each}\\n    </main>\\n</div>\\n\\n<style lang=\\"scss\\">:global(body) {\\n  margin: 0;\\n  background: #0c0218;\\n}\\n\\n.outer {\\n  display: flex;\\n}\\n\\n.sidebar {\\n  position: sticky;\\n  align-self: flex-start;\\n  z-index: 99;\\n  top: 56px;\\n  height: calc(100vh - 2 * 60px);\\n  left: 0;\\n  bottom: 0;\\n  min-width: 280px;\\n  background: #1b0a30;\\n  padding: 32px 16px;\\n}\\n.sidebar h1 {\\n  margin-bottom: 16px;\\n}\\n.sidebar p {\\n  font-weight: 400;\\n  font-size: 14px;\\n  line-height: 19px;\\n  color: #eeeeee;\\n}\\n\\nmain {\\n  display: flex;\\n  flex-flow: row wrap;\\n  justify-content: space-around;\\n  padding: 32px;\\n}\\nmain div {\\n  padding: 24px 16px;\\n}</style>\\n"],"names":[],"mappings":"AA+D2B,IAAI,AAAE,CAAC,AAChC,MAAM,CAAE,CAAC,CACT,UAAU,CAAE,OAAO,AACrB,CAAC,AAED,MAAM,8BAAC,CAAC,AACN,OAAO,CAAE,IAAI,AACf,CAAC,AAED,QAAQ,8BAAC,CAAC,AACR,QAAQ,CAAE,MAAM,CAChB,UAAU,CAAE,UAAU,CACtB,OAAO,CAAE,EAAE,CACX,GAAG,CAAE,IAAI,CACT,MAAM,CAAE,KAAK,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAC9B,IAAI,CAAE,CAAC,CACP,MAAM,CAAE,CAAC,CACT,SAAS,CAAE,KAAK,CAChB,UAAU,CAAE,OAAO,CACnB,OAAO,CAAE,IAAI,CAAC,IAAI,AACpB,CAAC,AACD,uBAAQ,CAAC,EAAE,eAAC,CAAC,AACX,aAAa,CAAE,IAAI,AACrB,CAAC,AACD,uBAAQ,CAAC,CAAC,eAAC,CAAC,AACV,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,IAAI,CACjB,KAAK,CAAE,OAAO,AAChB,CAAC,AAED,IAAI,8BAAC,CAAC,AACJ,OAAO,CAAE,IAAI,CACb,SAAS,CAAE,GAAG,CAAC,IAAI,CACnB,eAAe,CAAE,YAAY,CAC7B,OAAO,CAAE,IAAI,AACf,CAAC,AACD,mBAAI,CAAC,GAAG,eAAC,CAAC,AACR,OAAO,CAAE,IAAI,CAAC,IAAI,AACpB,CAAC"}`
+  code: "body{margin:0;background:#0c0218}.outer.svelte-1iwtxv7.svelte-1iwtxv7{display:flex}main.svelte-1iwtxv7.svelte-1iwtxv7{display:flex;flex-flow:row wrap;justify-content:space-around;padding:32px}main.svelte-1iwtxv7 div.svelte-1iwtxv7{padding:24px 16px}",
+  map: `{"version":3,"file":"parties.svelte","sources":["parties.svelte"],"sourcesContent":["<!-- <script context=\\"module\\" lang=\\"ts\\" \u2702prettier:content\u2702=\\"CiAgICBleHBvcnQgYXN5bmMgZnVuY3Rpb24gbG9hZCh7IHBhZ2UsIGZldGNoLCBzZXNzaW9uLCBjb250ZXh0IH0pIHsKICAgICAgICAvLyBsZXQgcGFydGllcyA9IGF3YWl0IEFwaS5QYXJ0aWVzLmdldFBhcnRpZXMoKQoKICAgICAgICByZXR1cm4gewogICAgICAgICAgICBwcm9wczogewogICAgICAgICAgICAgICAgcGFydGllczogcGFydGllcywKICAgICAgICAgICAgfSwKICAgICAgICB9CiAgICB9Cg==\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\">{}</script> -->\\n<script lang=\\"ts\\">var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\nimport PartyCard from \\"$lib/components/PartyCard.svelte\\";\\nimport { onMount } from \\"svelte\\";\\nlet parties = [];\\nonMount(() => __awaiter(void 0, void 0, void 0, function* () {\\n    let p = yield (yield fetch(\\"http://3.143.138.224:8000/parties\\")).json();\\n    p = p.slice(-20);\\n    // p = p.slice(5, )\\n    let tokenPairs = p.map((item) => [item.tokenContract, item.tokenId]);\\n    console.log(tokenPairs);\\n    let searchParams = new URLSearchParams({});\\n    tokenPairs.forEach((item) => {\\n        if (item[0] != undefined && item[1] != undefined) {\\n            searchParams.append(\\"asset_contract_addresses\\", item[0]);\\n            searchParams.append(\\"token_ids\\", item[1]);\\n        }\\n    });\\n    console.log(searchParams.toString());\\n    // return await res.json()\\n    const response = yield (yield fetch(\\"https://rinkeby-api.opensea.io/api/v1/assets?\\" + searchParams)).json();\\n    const assets = response[\\"assets\\"];\\n    console.log(assets);\\n    parties = p\\n        .map((p) => {\\n        p = Object.assign(Object.assign({}, p), { asset: assets.find((asset) => p.tokenId == asset.token_id && p.tokenContract == asset.asset_contract[\\"address\\"]) });\\n        return p;\\n    })\\n        .filter((p) => p.asset != null);\\n    console.log(parties);\\n    // parties = await Promise.all(\\n    //     p.map(async (party) => {\\n    //         const res = await fetch(\\n    //             \\"https://api.opensea.io/api/v1/assets?\\" +\\n    //                 new URLSearchParams({\\n    //                     token_ids: party.tokenId,\\n    //                     asset_contract_address: party.tokenContract,\\n    //                 })\\n    //         )\\n    //         const assets = (await res.json())[\\"assets\\"]\\n    //         console.log(assets)\\n    //         if (assets == undefined) return undefined\\n    //         party = { ...party, asset: assets[0] }\\n    //         return party\\n    //     })\\n    // )\\n}));\\n</script>\\n\\n<svelte:head>\\n    <title>Block Parties | Directory</title>\\n    <meta name=\\"og:title\\" content=\\"Block Parties | Directory\\" />\\n    <meta name=\\"og:description\\" content=\\"Find a party to invest in digital assets with.\\" />\\n</svelte:head>\\n\\n<div class=\\"outer\\">\\n    <!-- <div class=\\"sidebar\\">\\n        <h1>Party Directory</h1>\\n\\n        <p>Investing is done best when effort, knowledge, and resources are effectively pooled together.</p>\\n        <br />\\n        <p>\\n            To get started, look for clubs with similar interests as you and a risk tolerance you're comfortable with.\\n        </p>\\n    </div> -->\\n\\n    <main>\\n        {#each parties as party}\\n            <div>\\n                <PartyCard {party} />\\n            </div>\\n        {/each}\\n    </main>\\n</div>\\n\\n<style lang=\\"scss\\">:global(body) {\\n  margin: 0;\\n  background: #0c0218;\\n}\\n\\n.outer {\\n  display: flex;\\n}\\n\\n.sidebar {\\n  position: sticky;\\n  align-self: flex-start;\\n  z-index: 99;\\n  top: 56px;\\n  height: calc(100vh - 2 * 60px);\\n  left: 0;\\n  bottom: 0;\\n  min-width: 280px;\\n  background: #1b0a30;\\n  padding: 32px 16px;\\n}\\n.sidebar h1 {\\n  margin-bottom: 16px;\\n}\\n.sidebar p {\\n  font-weight: 400;\\n  font-size: 14px;\\n  line-height: 19px;\\n  color: #eeeeee;\\n}\\n\\nmain {\\n  display: flex;\\n  flex-flow: row wrap;\\n  justify-content: space-around;\\n  padding: 32px;\\n}\\nmain div {\\n  padding: 24px 16px;\\n}</style>\\n"],"names":[],"mappings":"AAmF2B,IAAI,AAAE,CAAC,AAChC,MAAM,CAAE,CAAC,CACT,UAAU,CAAE,OAAO,AACrB,CAAC,AAED,MAAM,8BAAC,CAAC,AACN,OAAO,CAAE,IAAI,AACf,CAAC,AAwBD,IAAI,8BAAC,CAAC,AACJ,OAAO,CAAE,IAAI,CACb,SAAS,CAAE,GAAG,CAAC,IAAI,CACnB,eAAe,CAAE,YAAY,CAC7B,OAAO,CAAE,IAAI,AACf,CAAC,AACD,mBAAI,CAAC,GAAG,eAAC,CAAC,AACR,OAAO,CAAE,IAAI,CAAC,IAAI,AACpB,CAAC"}`
 };
-var __awaiter$d = function(thisArg, _arguments, P, generator) {
-  function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve2) {
-      resolve2(value);
+const Parties = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+  var __awaiter2 = function(thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P ? value : new P(function(resolve2) {
+        resolve2(value);
+      });
+    }
+    return new (P || (P = Promise))(function(resolve2, reject) {
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-  }
-  return new (P || (P = Promise))(function(resolve2, reject) {
-    function fulfilled(value) {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
+  };
+  let parties2 = [];
+  onMount(() => __awaiter2(void 0, void 0, void 0, function* () {
+    let p = yield (yield fetch("http://3.143.138.224:8000/parties")).json();
+    p = p.slice(-20);
+    let tokenPairs = p.map((item) => [item.tokenContract, item.tokenId]);
+    console.log(tokenPairs);
+    let searchParams = new URLSearchParams({});
+    tokenPairs.forEach((item) => {
+      if (item[0] != void 0 && item[1] != void 0) {
+        searchParams.append("asset_contract_addresses", item[0]);
+        searchParams.append("token_ids", item[1]);
       }
-    }
-    function rejected(value) {
-      try {
-        step(generator["throw"](value));
-      } catch (e) {
-        reject(e);
-      }
-    }
-    function step(result) {
-      result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-    }
-    step((generator = generator.apply(thisArg, _arguments || [])).next());
-  });
-};
-function load({page, fetch: fetch2, session, context}) {
-  return __awaiter$d(this, void 0, void 0, function* () {
-    let parties = yield Api$1.Parties.getParties();
-    parties = yield Promise.all(parties.map((party) => __awaiter$d(this, void 0, void 0, function* () {
-      const res = yield fetch2("https://api.opensea.io/api/v1/assets?" + new URLSearchParams({
-        token_ids: party.tokenId,
-        asset_contract_address: party.tokenContract
-      }));
-      const assets = (yield res.json())["assets"];
-      console.log(assets);
-      party = Object.assign(Object.assign({}, party), {asset: assets[0]});
-      return party;
-    })));
-    return {props: {parties}};
-  });
-}
-const Clubs = create_ssr_component(($$result, $$props, $$bindings, slots) => {
-  let {parties} = $$props;
-  if ($$props.parties === void 0 && $$bindings.parties && parties !== void 0)
-    $$bindings.parties(parties);
+    });
+    console.log(searchParams.toString());
+    const response = yield (yield fetch("https://rinkeby-api.opensea.io/api/v1/assets?" + searchParams)).json();
+    const assets = response["assets"];
+    console.log(assets);
+    parties2 = p.map((p2) => {
+      p2 = Object.assign(Object.assign({}, p2), {
+        asset: assets.find((asset) => p2.tokenId == asset.token_id && p2.tokenContract == asset.asset_contract["address"])
+      });
+      return p2;
+    }).filter((p2) => p2.asset != null);
+    console.log(parties2);
+  }));
   $$result.css.add(css$1);
-  return `${$$result.head += `${$$result.title = `<title>Block Parties | Directory</title>`, ""}<meta name="${"og:title"}" content="${"Block Parties | Directory"}" data-svelte="svelte-1f1gt9p"><meta name="${"og:description"}" content="${"Find a party to invest in digital assets with."}" data-svelte="svelte-1f1gt9p">`, ""}
+  return `
 
-<div class="${"outer svelte-1iwtxv7"}"><div class="${"sidebar svelte-1iwtxv7"}"><h1 class="${"svelte-1iwtxv7"}">Party Directory</h1>
 
-        <p class="${"svelte-1iwtxv7"}">Investing is done best when effort, knowledge, and resources are effectively pooled together.</p>
-        <br>
-        <p class="${"svelte-1iwtxv7"}">To get started, look for clubs with similar interests as you and a risk tolerance you&#39;re comfortable with.
-        </p></div>
+${$$result.head += `${$$result.title = `<title>Block Parties | Directory</title>`, ""}<meta name="${"og:title"}" content="${"Block Parties | Directory"}" data-svelte="svelte-1f1gt9p"><meta name="${"og:description"}" content="${"Find a party to invest in digital assets with."}" data-svelte="svelte-1f1gt9p">`, ""}
 
-    <main class="${"svelte-1iwtxv7"}">${each(parties, (party) => `<div class="${"svelte-1iwtxv7"}">${validate_component(PartyCard, "PartyCard").$$render($$result, {party}, {}, {})}
+<div class="${"outer svelte-1iwtxv7"}">
+
+    <main class="${"svelte-1iwtxv7"}">${each(parties2, (party) => `<div class="${"svelte-1iwtxv7"}">${validate_component(PartyCard, "PartyCard").$$render($$result, {party}, {}, {})}
             </div>`)}</main>
 </div>`;
 });
-var clubs = /* @__PURE__ */ Object.freeze({
+var parties = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   [Symbol.toStringTag]: "Module",
-  default: Clubs,
-  load
+  default: Parties
 });
 var $layout_svelte_svelte_type_style_lang = "nav.svelte-rw583c{position:sticky;top:0;z-index:99;width:100%;height:56px;background:#231845}";
 const css = {
@@ -5217,16 +5401,16 @@ var bn = createCommonjsModule$1(function(module) {
       this.x = x;
       this.y = y;
     }
-    FFTM.prototype.makeRBT = function makeRBT(N) {
-      var t = new Array(N);
-      var l = BN2.prototype._countBits(N) - 1;
-      for (var i = 0; i < N; i++) {
-        t[i] = this.revBin(i, l, N);
+    FFTM.prototype.makeRBT = function makeRBT(N2) {
+      var t = new Array(N2);
+      var l = BN2.prototype._countBits(N2) - 1;
+      for (var i = 0; i < N2; i++) {
+        t[i] = this.revBin(i, l, N2);
       }
       return t;
     };
-    FFTM.prototype.revBin = function revBin(x, l, N) {
-      if (x === 0 || x === N - 1)
+    FFTM.prototype.revBin = function revBin(x, l, N2) {
+      if (x === 0 || x === N2 - 1)
         return x;
       var rb = 0;
       for (var i = 0; i < l; i++) {
@@ -5235,19 +5419,19 @@ var bn = createCommonjsModule$1(function(module) {
       }
       return rb;
     };
-    FFTM.prototype.permute = function permute(rbt, rws, iws, rtws, itws, N) {
-      for (var i = 0; i < N; i++) {
+    FFTM.prototype.permute = function permute(rbt, rws, iws, rtws, itws, N2) {
+      for (var i = 0; i < N2; i++) {
         rtws[i] = rws[rbt[i]];
         itws[i] = iws[rbt[i]];
       }
     };
-    FFTM.prototype.transform = function transform(rws, iws, rtws, itws, N, rbt) {
-      this.permute(rbt, rws, iws, rtws, itws, N);
-      for (var s2 = 1; s2 < N; s2 <<= 1) {
+    FFTM.prototype.transform = function transform(rws, iws, rtws, itws, N2, rbt) {
+      this.permute(rbt, rws, iws, rtws, itws, N2);
+      for (var s2 = 1; s2 < N2; s2 <<= 1) {
         var l = s2 << 1;
         var rtwdf = Math.cos(2 * Math.PI / l);
         var itwdf = Math.sin(2 * Math.PI / l);
-        for (var p = 0; p < N; p += l) {
+        for (var p = 0; p < N2; p += l) {
           var rtwdf_ = rtwdf;
           var itwdf_ = itwdf;
           for (var j = 0; j < s2; j++) {
@@ -5272,30 +5456,30 @@ var bn = createCommonjsModule$1(function(module) {
       }
     };
     FFTM.prototype.guessLen13b = function guessLen13b(n, m) {
-      var N = Math.max(m, n) | 1;
-      var odd = N & 1;
+      var N2 = Math.max(m, n) | 1;
+      var odd = N2 & 1;
       var i = 0;
-      for (N = N / 2 | 0; N; N = N >>> 1) {
+      for (N2 = N2 / 2 | 0; N2; N2 = N2 >>> 1) {
         i++;
       }
       return 1 << i + 1 + odd;
     };
-    FFTM.prototype.conjugate = function conjugate(rws, iws, N) {
-      if (N <= 1)
+    FFTM.prototype.conjugate = function conjugate(rws, iws, N2) {
+      if (N2 <= 1)
         return;
-      for (var i = 0; i < N / 2; i++) {
+      for (var i = 0; i < N2 / 2; i++) {
         var t = rws[i];
-        rws[i] = rws[N - i - 1];
-        rws[N - i - 1] = t;
+        rws[i] = rws[N2 - i - 1];
+        rws[N2 - i - 1] = t;
         t = iws[i];
-        iws[i] = -iws[N - i - 1];
-        iws[N - i - 1] = -t;
+        iws[i] = -iws[N2 - i - 1];
+        iws[N2 - i - 1] = -t;
       }
     };
-    FFTM.prototype.normalize13b = function normalize13b(ws, N) {
+    FFTM.prototype.normalize13b = function normalize13b(ws, N2) {
       var carry = 0;
-      for (var i = 0; i < N / 2; i++) {
-        var w = Math.round(ws[2 * i + 1] / N) * 8192 + Math.round(ws[2 * i] / N) + carry;
+      for (var i = 0; i < N2 / 2; i++) {
+        var w = Math.round(ws[2 * i + 1] / N2) * 8192 + Math.round(ws[2 * i] / N2) + carry;
         ws[i] = w & 67108863;
         if (w < 67108864) {
           carry = 0;
@@ -5305,7 +5489,7 @@ var bn = createCommonjsModule$1(function(module) {
       }
       return ws;
     };
-    FFTM.prototype.convert13b = function convert13b(ws, len, rws, N) {
+    FFTM.prototype.convert13b = function convert13b(ws, len, rws, N2) {
       var carry = 0;
       for (var i = 0; i < len; i++) {
         carry = carry + (ws[i] | 0);
@@ -5314,44 +5498,44 @@ var bn = createCommonjsModule$1(function(module) {
         rws[2 * i + 1] = carry & 8191;
         carry = carry >>> 13;
       }
-      for (i = 2 * len; i < N; ++i) {
+      for (i = 2 * len; i < N2; ++i) {
         rws[i] = 0;
       }
       assert2(carry === 0);
       assert2((carry & ~8191) === 0);
     };
-    FFTM.prototype.stub = function stub(N) {
-      var ph = new Array(N);
-      for (var i = 0; i < N; i++) {
+    FFTM.prototype.stub = function stub(N2) {
+      var ph = new Array(N2);
+      for (var i = 0; i < N2; i++) {
         ph[i] = 0;
       }
       return ph;
     };
     FFTM.prototype.mulp = function mulp(x, y, out) {
-      var N = 2 * this.guessLen13b(x.length, y.length);
-      var rbt = this.makeRBT(N);
-      var _ = this.stub(N);
-      var rws = new Array(N);
-      var rwst = new Array(N);
-      var iwst = new Array(N);
-      var nrws = new Array(N);
-      var nrwst = new Array(N);
-      var niwst = new Array(N);
+      var N2 = 2 * this.guessLen13b(x.length, y.length);
+      var rbt = this.makeRBT(N2);
+      var _ = this.stub(N2);
+      var rws = new Array(N2);
+      var rwst = new Array(N2);
+      var iwst = new Array(N2);
+      var nrws = new Array(N2);
+      var nrwst = new Array(N2);
+      var niwst = new Array(N2);
       var rmws = out.words;
-      rmws.length = N;
-      this.convert13b(x.words, x.length, rws, N);
-      this.convert13b(y.words, y.length, nrws, N);
-      this.transform(rws, _, rwst, iwst, N, rbt);
-      this.transform(nrws, _, nrwst, niwst, N, rbt);
-      for (var i = 0; i < N; i++) {
+      rmws.length = N2;
+      this.convert13b(x.words, x.length, rws, N2);
+      this.convert13b(y.words, y.length, nrws, N2);
+      this.transform(rws, _, rwst, iwst, N2, rbt);
+      this.transform(nrws, _, nrwst, niwst, N2, rbt);
+      for (var i = 0; i < N2; i++) {
         var rx = rwst[i] * nrwst[i] - iwst[i] * niwst[i];
         iwst[i] = rwst[i] * niwst[i] + iwst[i] * nrwst[i];
         rwst[i] = rx;
       }
-      this.conjugate(rwst, iwst, N);
-      this.transform(rwst, iwst, rmws, _, N, rbt);
-      this.conjugate(rmws, _, N);
-      this.normalize13b(rmws, N);
+      this.conjugate(rwst, iwst, N2);
+      this.transform(rwst, iwst, rmws, _, N2, rbt);
+      this.conjugate(rmws, _, N2);
+      this.normalize13b(rmws, N2);
       out.negative = x.negative ^ y.negative;
       out.length = x.length + y.length;
       return out.strip();
@@ -6552,7 +6736,7 @@ var bn = createCommonjsModule$1(function(module) {
     };
   })(module, commonjsGlobal);
 });
-const version$i = "logger/5.1.0";
+const version$m = "logger/5.1.0";
 let _permanentCensorErrors = false;
 let _censorErrors = false;
 const LogLevels = {debug: 1, default: 2, info: 2, warning: 3, error: 4, off: 5};
@@ -6754,7 +6938,7 @@ class Logger {
   }
   static globalLogger() {
     if (!_globalLogger) {
-      _globalLogger = new Logger(version$i);
+      _globalLogger = new Logger(version$m);
     }
     return _globalLogger;
   }
@@ -6789,8 +6973,8 @@ class Logger {
 }
 Logger.errors = ErrorCode;
 Logger.levels = LogLevel;
-const version$h = "bytes/5.1.0";
-const logger$z = new Logger(version$h);
+const version$l = "bytes/5.1.0";
+const logger$w = new Logger(version$l);
 function isHexable(value) {
   return !!value.toHexString;
 }
@@ -6833,7 +7017,7 @@ function arrayify(value, options) {
     options = {};
   }
   if (typeof value === "number") {
-    logger$z.checkSafeUint53(value, "invalid arrayify value");
+    logger$w.checkSafeUint53(value, "invalid arrayify value");
     const result = [];
     while (value) {
       result.unshift(value & 255);
@@ -6851,26 +7035,26 @@ function arrayify(value, options) {
     value = value.toHexString();
   }
   if (isHexString(value)) {
-    let hex = value.substring(2);
-    if (hex.length % 2) {
+    let hex2 = value.substring(2);
+    if (hex2.length % 2) {
       if (options.hexPad === "left") {
-        hex = "0x0" + hex.substring(2);
+        hex2 = "0x0" + hex2.substring(2);
       } else if (options.hexPad === "right") {
-        hex += "0";
+        hex2 += "0";
       } else {
-        logger$z.throwArgumentError("hex data is odd-length", "value", value);
+        logger$w.throwArgumentError("hex data is odd-length", "value", value);
       }
     }
     const result = [];
-    for (let i = 0; i < hex.length; i += 2) {
-      result.push(parseInt(hex.substring(i, i + 2), 16));
+    for (let i = 0; i < hex2.length; i += 2) {
+      result.push(parseInt(hex2.substring(i, i + 2), 16));
     }
     return addSlice(new Uint8Array(result));
   }
   if (isBytes(value)) {
     return addSlice(new Uint8Array(value));
   }
-  return logger$z.throwArgumentError("invalid arrayify value", "value", value);
+  return logger$w.throwArgumentError("invalid arrayify value", "value", value);
 }
 function concat(items) {
   const objects = items.map((item) => arrayify(item));
@@ -6899,7 +7083,7 @@ function stripZeros(value) {
 function zeroPad(value, length) {
   value = arrayify(value);
   if (value.length > length) {
-    logger$z.throwArgumentError("value out of range", "value", arguments[0]);
+    logger$w.throwArgumentError("value out of range", "value", arguments[0]);
   }
   const result = new Uint8Array(length);
   result.set(value, length - value.length);
@@ -6920,17 +7104,17 @@ function hexlify(value, options) {
     options = {};
   }
   if (typeof value === "number") {
-    logger$z.checkSafeUint53(value, "invalid hexlify value");
-    let hex = "";
+    logger$w.checkSafeUint53(value, "invalid hexlify value");
+    let hex2 = "";
     while (value) {
-      hex = HexCharacters[value & 15] + hex;
+      hex2 = HexCharacters[value & 15] + hex2;
       value = Math.floor(value / 16);
     }
-    if (hex.length) {
-      if (hex.length % 2) {
-        hex = "0" + hex;
+    if (hex2.length) {
+      if (hex2.length % 2) {
+        hex2 = "0" + hex2;
       }
-      return "0x" + hex;
+      return "0x" + hex2;
     }
     return "0x00";
   }
@@ -6947,7 +7131,7 @@ function hexlify(value, options) {
       } else if (options.hexPad === "right") {
         value += "0";
       } else {
-        logger$z.throwArgumentError("hex data is odd-length", "value", value);
+        logger$w.throwArgumentError("hex data is odd-length", "value", value);
       }
     }
     return value.toLowerCase();
@@ -6960,27 +7144,27 @@ function hexlify(value, options) {
     }
     return result;
   }
-  return logger$z.throwArgumentError("invalid hexlify value", "value", value);
+  return logger$w.throwArgumentError("invalid hexlify value", "value", value);
 }
-function hexDataLength(data) {
-  if (typeof data !== "string") {
-    data = hexlify(data);
-  } else if (!isHexString(data) || data.length % 2) {
+function hexDataLength(data2) {
+  if (typeof data2 !== "string") {
+    data2 = hexlify(data2);
+  } else if (!isHexString(data2) || data2.length % 2) {
     return null;
   }
-  return (data.length - 2) / 2;
+  return (data2.length - 2) / 2;
 }
-function hexDataSlice(data, offset, endOffset) {
-  if (typeof data !== "string") {
-    data = hexlify(data);
-  } else if (!isHexString(data) || data.length % 2) {
-    logger$z.throwArgumentError("invalid hexData", "value", data);
+function hexDataSlice(data2, offset, endOffset) {
+  if (typeof data2 !== "string") {
+    data2 = hexlify(data2);
+  } else if (!isHexString(data2) || data2.length % 2) {
+    logger$w.throwArgumentError("invalid hexData", "value", data2);
   }
   offset = 2 + 2 * offset;
   if (endOffset != null) {
-    return "0x" + data.substring(offset, 2 + 2 * endOffset);
+    return "0x" + data2.substring(offset, 2 + 2 * endOffset);
   }
-  return "0x" + data.substring(offset);
+  return "0x" + data2.substring(offset);
 }
 function hexConcat(items) {
   let result = "0x";
@@ -7001,7 +7185,7 @@ function hexStripZeros(value) {
     value = hexlify(value);
   }
   if (!isHexString(value)) {
-    logger$z.throwArgumentError("invalid hex string", "value", value);
+    logger$w.throwArgumentError("invalid hex string", "value", value);
   }
   value = value.substring(2);
   let offset = 0;
@@ -7014,10 +7198,10 @@ function hexZeroPad(value, length) {
   if (typeof value !== "string") {
     value = hexlify(value);
   } else if (!isHexString(value)) {
-    logger$z.throwArgumentError("invalid hex string", "value", value);
+    logger$w.throwArgumentError("invalid hex string", "value", value);
   }
   if (value.length > 2 * length + 2) {
-    logger$z.throwArgumentError("value out of range", "value", arguments[1]);
+    logger$w.throwArgumentError("value out of range", "value", arguments[1]);
   }
   while (value.length < 2 * length + 2) {
     value = "0x0" + value.substring(2);
@@ -7035,7 +7219,7 @@ function splitSignature(signature2) {
   if (isBytesLike(signature2)) {
     const bytes = arrayify(signature2);
     if (bytes.length !== 65) {
-      logger$z.throwArgumentError("invalid signature string; must be 65 bytes", "signature", signature2);
+      logger$w.throwArgumentError("invalid signature string; must be 65 bytes", "signature", signature2);
     }
     result.r = hexlify(bytes.slice(0, 32));
     result.s = hexlify(bytes.slice(32, 64));
@@ -7044,7 +7228,7 @@ function splitSignature(signature2) {
       if (result.v === 0 || result.v === 1) {
         result.v += 27;
       } else {
-        logger$z.throwArgumentError("signature invalid v byte", "signature", signature2);
+        logger$w.throwArgumentError("signature invalid v byte", "signature", signature2);
       }
     }
     result.recoveryParam = 1 - result.v % 2;
@@ -7065,19 +7249,19 @@ function splitSignature(signature2) {
       if (result.recoveryParam == null) {
         result.recoveryParam = recoveryParam;
       } else if (result.recoveryParam !== recoveryParam) {
-        logger$z.throwArgumentError("signature recoveryParam mismatch _vs", "signature", signature2);
+        logger$w.throwArgumentError("signature recoveryParam mismatch _vs", "signature", signature2);
       }
       vs2[0] &= 127;
       const s2 = hexlify(vs2);
       if (result.s == null) {
         result.s = s2;
       } else if (result.s !== s2) {
-        logger$z.throwArgumentError("signature v mismatch _vs", "signature", signature2);
+        logger$w.throwArgumentError("signature v mismatch _vs", "signature", signature2);
       }
     }
     if (result.recoveryParam == null) {
       if (result.v == null) {
-        logger$z.throwArgumentError("signature missing v and recoveryParam", "signature", signature2);
+        logger$w.throwArgumentError("signature missing v and recoveryParam", "signature", signature2);
       } else if (result.v === 0 || result.v === 1) {
         result.recoveryParam = result.v;
       } else {
@@ -7087,22 +7271,22 @@ function splitSignature(signature2) {
       if (result.v == null) {
         result.v = 27 + result.recoveryParam;
       } else if (result.recoveryParam !== 1 - result.v % 2) {
-        logger$z.throwArgumentError("signature recoveryParam mismatch v", "signature", signature2);
+        logger$w.throwArgumentError("signature recoveryParam mismatch v", "signature", signature2);
       }
     }
     if (result.r == null || !isHexString(result.r)) {
-      logger$z.throwArgumentError("signature missing or invalid r", "signature", signature2);
+      logger$w.throwArgumentError("signature missing or invalid r", "signature", signature2);
     } else {
       result.r = hexZeroPad(result.r, 32);
     }
     if (result.s == null || !isHexString(result.s)) {
-      logger$z.throwArgumentError("signature missing or invalid s", "signature", signature2);
+      logger$w.throwArgumentError("signature missing or invalid s", "signature", signature2);
     } else {
       result.s = hexZeroPad(result.s, 32);
     }
     const vs = arrayify(result.s);
     if (vs[0] >= 128) {
-      logger$z.throwArgumentError("signature s out of range", "signature", signature2);
+      logger$w.throwArgumentError("signature s out of range", "signature", signature2);
     }
     if (result.recoveryParam) {
       vs[0] |= 128;
@@ -7110,36 +7294,44 @@ function splitSignature(signature2) {
     const _vs = hexlify(vs);
     if (result._vs) {
       if (!isHexString(result._vs)) {
-        logger$z.throwArgumentError("signature invalid _vs", "signature", signature2);
+        logger$w.throwArgumentError("signature invalid _vs", "signature", signature2);
       }
       result._vs = hexZeroPad(result._vs, 32);
     }
     if (result._vs == null) {
       result._vs = _vs;
     } else if (result._vs !== _vs) {
-      logger$z.throwArgumentError("signature _vs mismatch v and s", "signature", signature2);
+      logger$w.throwArgumentError("signature _vs mismatch v and s", "signature", signature2);
     }
   }
   return result;
 }
-const version$g = "bignumber/5.1.0";
+function joinSignature(signature2) {
+  signature2 = splitSignature(signature2);
+  return hexlify(concat([
+    signature2.r,
+    signature2.s,
+    signature2.recoveryParam ? "0x1c" : "0x1b"
+  ]));
+}
+const version$k = "bignumber/5.1.0";
 var BN = bn.BN;
-const logger$y = new Logger(version$g);
-const _constructorGuard$3 = {};
+const logger$v = new Logger(version$k);
+const _constructorGuard$4 = {};
 const MAX_SAFE = 9007199254740991;
 function isBigNumberish(value) {
   return value != null && (BigNumber.isBigNumber(value) || typeof value === "number" && value % 1 === 0 || typeof value === "string" && !!value.match(/^-?[0-9]+$/) || isHexString(value) || typeof value === "bigint" || isBytes(value));
 }
 let _warnedToStringRadix = false;
 class BigNumber {
-  constructor(constructorGuard, hex) {
-    logger$y.checkNew(new.target, BigNumber);
-    if (constructorGuard !== _constructorGuard$3) {
-      logger$y.throwError("cannot call constructor directly; use BigNumber.from", Logger.errors.UNSUPPORTED_OPERATION, {
+  constructor(constructorGuard, hex2) {
+    logger$v.checkNew(new.target, BigNumber);
+    if (constructorGuard !== _constructorGuard$4) {
+      logger$v.throwError("cannot call constructor directly; use BigNumber.from", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "new (BigNumber)"
       });
     }
-    this._hex = hex;
+    this._hex = hex2;
     this._isBigNumber = true;
     Object.freeze(this);
   }
@@ -7258,7 +7450,7 @@ class BigNumber {
       return BigInt(this.toString());
     } catch (e) {
     }
-    return logger$y.throwError("this platform does not support BigInt", Logger.errors.UNSUPPORTED_OPERATION, {
+    return logger$v.throwError("this platform does not support BigInt", Logger.errors.UNSUPPORTED_OPERATION, {
       value: this.toString()
     });
   }
@@ -7267,12 +7459,12 @@ class BigNumber {
       if (arguments[0] === 10) {
         if (!_warnedToStringRadix) {
           _warnedToStringRadix = true;
-          logger$y.warn("BigNumber.toString does not accept any parameters; base-10 is assumed");
+          logger$v.warn("BigNumber.toString does not accept any parameters; base-10 is assumed");
         }
       } else if (arguments[0] === 16) {
-        logger$y.throwError("BigNumber.toString does not accept any parameters; use bigNumber.toHexString()", Logger.errors.UNEXPECTED_ARGUMENT, {});
+        logger$v.throwError("BigNumber.toString does not accept any parameters; use bigNumber.toHexString()", Logger.errors.UNEXPECTED_ARGUMENT, {});
       } else {
-        logger$y.throwError("BigNumber.toString does not accept parameters", Logger.errors.UNEXPECTED_ARGUMENT, {});
+        logger$v.throwError("BigNumber.toString does not accept parameters", Logger.errors.UNEXPECTED_ARGUMENT, {});
       }
     }
     return toBN(this).toString(10);
@@ -7289,12 +7481,12 @@ class BigNumber {
     }
     if (typeof value === "string") {
       if (value.match(/^-?0x[0-9a-f]+$/i)) {
-        return new BigNumber(_constructorGuard$3, toHex$2(value));
+        return new BigNumber(_constructorGuard$4, toHex$2(value));
       }
       if (value.match(/^-?[0-9]+$/)) {
-        return new BigNumber(_constructorGuard$3, toHex$2(new BN(value)));
+        return new BigNumber(_constructorGuard$4, toHex$2(new BN(value)));
       }
-      return logger$y.throwArgumentError("invalid BigNumber string", "value", value);
+      return logger$v.throwArgumentError("invalid BigNumber string", "value", value);
     }
     if (typeof value === "number") {
       if (value % 1) {
@@ -7314,23 +7506,23 @@ class BigNumber {
     }
     if (anyValue) {
       if (anyValue.toHexString) {
-        const hex = anyValue.toHexString();
-        if (typeof hex === "string") {
-          return BigNumber.from(hex);
+        const hex2 = anyValue.toHexString();
+        if (typeof hex2 === "string") {
+          return BigNumber.from(hex2);
         }
       } else {
-        let hex = anyValue._hex;
-        if (hex == null && anyValue.type === "BigNumber") {
-          hex = anyValue.hex;
+        let hex2 = anyValue._hex;
+        if (hex2 == null && anyValue.type === "BigNumber") {
+          hex2 = anyValue.hex;
         }
-        if (typeof hex === "string") {
-          if (isHexString(hex) || hex[0] === "-" && isHexString(hex.substring(1))) {
-            return BigNumber.from(hex);
+        if (typeof hex2 === "string") {
+          if (isHexString(hex2) || hex2[0] === "-" && isHexString(hex2.substring(1))) {
+            return BigNumber.from(hex2);
           }
         }
       }
     }
-    return logger$y.throwArgumentError("invalid BigNumber value", "value", value);
+    return logger$v.throwArgumentError("invalid BigNumber value", "value", value);
   }
   static isBigNumber(value) {
     return !!(value && value._isBigNumber);
@@ -7343,7 +7535,7 @@ function toHex$2(value) {
   if (value[0] === "-") {
     value = value.substring(1);
     if (value[0] === "-") {
-      logger$y.throwArgumentError("invalid hex", "value", value);
+      logger$v.throwArgumentError("invalid hex", "value", value);
     }
     value = toHex$2(value);
     if (value === "0x00") {
@@ -7369,24 +7561,27 @@ function toBigNumber(value) {
   return BigNumber.from(toHex$2(value));
 }
 function toBN(value) {
-  const hex = BigNumber.from(value).toHexString();
-  if (hex[0] === "-") {
-    return new BN("-" + hex.substring(3), 16);
+  const hex2 = BigNumber.from(value).toHexString();
+  if (hex2[0] === "-") {
+    return new BN("-" + hex2.substring(3), 16);
   }
-  return new BN(hex.substring(2), 16);
+  return new BN(hex2.substring(2), 16);
 }
 function throwFault$1(fault, operation, value) {
   const params = {fault, operation};
   if (value != null) {
     params.value = value;
   }
-  return logger$y.throwError(fault, Logger.errors.NUMERIC_FAULT, params);
+  return logger$v.throwError(fault, Logger.errors.NUMERIC_FAULT, params);
 }
 function _base36To16(value) {
   return new BN(value, 36).toString(16);
 }
-const logger$x = new Logger(version$g);
-const _constructorGuard$2 = {};
+function _base16To36(value) {
+  return new BN(value, 16).toString(36);
+}
+const logger$u = new Logger(version$k);
+const _constructorGuard$3 = {};
 const Zero$2 = BigNumber.from(0);
 const NegativeOne$2 = BigNumber.from(-1);
 function throwFault(message, fault, operation, value) {
@@ -7394,7 +7589,7 @@ function throwFault(message, fault, operation, value) {
   if (value !== void 0) {
     params.value = value;
   }
-  return logger$x.throwError(message, Logger.errors.NUMERIC_FAULT, params);
+  return logger$u.throwError(message, Logger.errors.NUMERIC_FAULT, params);
 }
 let zeros = "0";
 while (zeros.length < 256) {
@@ -7410,7 +7605,7 @@ function getMultiplier(decimals) {
   if (typeof decimals === "number" && decimals >= 0 && decimals <= 256 && !(decimals % 1)) {
     return "1" + zeros.substring(0, decimals);
   }
-  return logger$x.throwArgumentError("invalid decimal size", "decimals", decimals);
+  return logger$u.throwArgumentError("invalid decimal size", "decimals", decimals);
 }
 function formatFixed(value, decimals) {
   if (decimals == null) {
@@ -7440,7 +7635,7 @@ function parseFixed(value, decimals) {
   }
   const multiplier = getMultiplier(decimals);
   if (typeof value !== "string" || !value.match(/^-?[0-9.,]+$/)) {
-    logger$x.throwArgumentError("invalid decimal value", "value", value);
+    logger$u.throwArgumentError("invalid decimal value", "value", value);
   }
   if (multiplier.length - 1 === 0) {
     return BigNumber.from(value);
@@ -7450,11 +7645,11 @@ function parseFixed(value, decimals) {
     value = value.substring(1);
   }
   if (value === ".") {
-    logger$x.throwArgumentError("missing value", "value", value);
+    logger$u.throwArgumentError("missing value", "value", value);
   }
   const comps = value.split(".");
   if (comps.length > 2) {
-    logger$x.throwArgumentError("too many decimal points", "value", value);
+    logger$u.throwArgumentError("too many decimal points", "value", value);
   }
   let whole = comps[0], fraction = comps[1];
   if (!whole) {
@@ -7479,8 +7674,8 @@ function parseFixed(value, decimals) {
 }
 class FixedFormat {
   constructor(constructorGuard, signed, width, decimals) {
-    if (constructorGuard !== _constructorGuard$2) {
-      logger$x.throwError("cannot use FixedFormat constructor; use FixedFormat.from", Logger.errors.UNSUPPORTED_OPERATION, {
+    if (constructorGuard !== _constructorGuard$3) {
+      logger$u.throwError("cannot use FixedFormat constructor; use FixedFormat.from", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "new FixedFormat"
       });
     }
@@ -7506,7 +7701,7 @@ class FixedFormat {
       } else if (value != null) {
         const match = value.match(/^(u?)fixed([0-9]+)x([0-9]+)$/);
         if (!match) {
-          logger$x.throwArgumentError("invalid fixed format", "format", value);
+          logger$u.throwArgumentError("invalid fixed format", "format", value);
         }
         signed = match[1] !== "u";
         width = parseInt(match[2]);
@@ -7518,7 +7713,7 @@ class FixedFormat {
           return defaultValue;
         }
         if (typeof value[key2] !== type) {
-          logger$x.throwArgumentError("invalid fixed format (" + key2 + " not " + type + ")", "format." + key2, value[key2]);
+          logger$u.throwArgumentError("invalid fixed format (" + key2 + " not " + type + ")", "format." + key2, value[key2]);
         }
         return value[key2];
       };
@@ -7527,31 +7722,31 @@ class FixedFormat {
       decimals = check("decimals", "number", decimals);
     }
     if (width % 8) {
-      logger$x.throwArgumentError("invalid fixed format width (not byte aligned)", "format.width", width);
+      logger$u.throwArgumentError("invalid fixed format width (not byte aligned)", "format.width", width);
     }
     if (decimals > 80) {
-      logger$x.throwArgumentError("invalid fixed format (decimals too large)", "format.decimals", decimals);
+      logger$u.throwArgumentError("invalid fixed format (decimals too large)", "format.decimals", decimals);
     }
-    return new FixedFormat(_constructorGuard$2, signed, width, decimals);
+    return new FixedFormat(_constructorGuard$3, signed, width, decimals);
   }
 }
 class FixedNumber {
-  constructor(constructorGuard, hex, value, format2) {
-    logger$x.checkNew(new.target, FixedNumber);
-    if (constructorGuard !== _constructorGuard$2) {
-      logger$x.throwError("cannot use FixedNumber constructor; use FixedNumber.from", Logger.errors.UNSUPPORTED_OPERATION, {
+  constructor(constructorGuard, hex2, value, format2) {
+    logger$u.checkNew(new.target, FixedNumber);
+    if (constructorGuard !== _constructorGuard$3) {
+      logger$u.throwError("cannot use FixedNumber constructor; use FixedNumber.from", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "new FixedFormat"
       });
     }
     this.format = format2;
-    this._hex = hex;
+    this._hex = hex2;
     this._value = value;
     this._isFixedNumber = true;
     Object.freeze(this);
   }
   _checkFormat(other) {
     if (this.format.name !== other.format.name) {
-      logger$x.throwArgumentError("incompatible format; use fixedNumber.toFormat", "other", other);
+      logger$u.throwArgumentError("incompatible format; use fixedNumber.toFormat", "other", other);
     }
   }
   addUnsafe(other) {
@@ -7602,7 +7797,7 @@ class FixedNumber {
     }
     let comps = this.toString().split(".");
     if (decimals < 0 || decimals > 80 || decimals % 1) {
-      logger$x.throwArgumentError("invalid decimal count", "decimals", decimals);
+      logger$u.throwArgumentError("invalid decimal count", "decimals", decimals);
     }
     if (comps[1].length <= decimals) {
       return this;
@@ -7624,10 +7819,10 @@ class FixedNumber {
       return this._hex;
     }
     if (width % 8) {
-      logger$x.throwArgumentError("invalid byte width", "width", width);
+      logger$u.throwArgumentError("invalid byte width", "width", width);
     }
-    const hex = BigNumber.from(this._hex).fromTwos(this.format.width).toTwos(width).toHexString();
-    return hexZeroPad(hex, width / 8);
+    const hex2 = BigNumber.from(this._hex).fromTwos(this.format.width).toTwos(width).toHexString();
+    return hexZeroPad(hex2, width / 8);
   }
   toUnsafeFloat() {
     return parseFloat(this.toString());
@@ -7657,15 +7852,15 @@ class FixedNumber {
     if (!fixedFormat.signed && numeric.lt(Zero$2)) {
       throwFault("unsigned value cannot be negative", "overflow", "value", value);
     }
-    let hex = null;
+    let hex2 = null;
     if (fixedFormat.signed) {
-      hex = numeric.toTwos(fixedFormat.width).toHexString();
+      hex2 = numeric.toTwos(fixedFormat.width).toHexString();
     } else {
-      hex = numeric.toHexString();
-      hex = hexZeroPad(hex, fixedFormat.width / 8);
+      hex2 = numeric.toHexString();
+      hex2 = hexZeroPad(hex2, fixedFormat.width / 8);
     }
     const decimal = formatFixed(numeric, fixedFormat.decimals);
-    return new FixedNumber(_constructorGuard$2, hex, decimal, fixedFormat);
+    return new FixedNumber(_constructorGuard$3, hex2, decimal, fixedFormat);
   }
   static fromBytes(value, format2) {
     if (format2 == null) {
@@ -7679,9 +7874,9 @@ class FixedNumber {
     if (fixedFormat.signed) {
       numeric = numeric.fromTwos(fixedFormat.width);
     }
-    const hex = numeric.toTwos((fixedFormat.signed ? 0 : 1) + fixedFormat.width).toHexString();
+    const hex2 = numeric.toTwos((fixedFormat.signed ? 0 : 1) + fixedFormat.width).toHexString();
     const decimal = formatFixed(numeric, fixedFormat.decimals);
-    return new FixedNumber(_constructorGuard$2, hex, decimal, fixedFormat);
+    return new FixedNumber(_constructorGuard$3, hex2, decimal, fixedFormat);
   }
   static from(value, format2) {
     if (typeof value === "string") {
@@ -7697,7 +7892,7 @@ class FixedNumber {
         throw error2;
       }
     }
-    return logger$x.throwArgumentError("invalid FixedNumber value", "value", value);
+    return logger$u.throwArgumentError("invalid FixedNumber value", "value", value);
   }
   static isFixedNumber(value) {
     return !!(value && value._isFixedNumber);
@@ -7705,8 +7900,8 @@ class FixedNumber {
 }
 const ONE = FixedNumber.from(1);
 const BUMP = FixedNumber.from("0.5");
-const version$f = "properties/5.1.0";
-var __awaiter$c = function(thisArg, _arguments, P, generator) {
+const version$j = "properties/5.1.0";
+var __awaiter$9 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -7733,7 +7928,7 @@ var __awaiter$c = function(thisArg, _arguments, P, generator) {
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 };
-const logger$w = new Logger(version$f);
+const logger$t = new Logger(version$j);
 function defineReadOnly(object, name2, value) {
   Object.defineProperty(object, name2, {
     enumerable: true,
@@ -7754,7 +7949,7 @@ function getStatic(ctor, key2) {
   return null;
 }
 function resolveProperties(object) {
-  return __awaiter$c(this, void 0, void 0, function* () {
+  return __awaiter$9(this, void 0, void 0, function* () {
     const promises = Object.keys(object).map((key2) => {
       const value = object[key2];
       return Promise.resolve(value).then((v) => ({key: key2, value: v}));
@@ -7768,11 +7963,11 @@ function resolveProperties(object) {
 }
 function checkProperties(object, properties) {
   if (!object || typeof object !== "object") {
-    logger$w.throwArgumentError("invalid object", "object", object);
+    logger$t.throwArgumentError("invalid object", "object", object);
   }
   Object.keys(object).forEach((key2) => {
     if (!properties[key2]) {
-      logger$w.throwArgumentError("invalid object key - " + key2, "transaction:" + key2, object);
+      logger$t.throwArgumentError("invalid object key - " + key2, "transaction:" + key2, object);
     }
   });
 }
@@ -7800,7 +7995,7 @@ function _isFrozen(object) {
     }
     return true;
   }
-  return logger$w.throwArgumentError(`Cannot deepCopy ${typeof object}`, "object", object);
+  return logger$t.throwArgumentError(`Cannot deepCopy ${typeof object}`, "object", object);
 }
 function _deepCopy(object) {
   if (_isFrozen(object)) {
@@ -7820,7 +8015,7 @@ function _deepCopy(object) {
     }
     return result;
   }
-  return logger$w.throwArgumentError(`Cannot deepCopy ${typeof object}`, "object", object);
+  return logger$t.throwArgumentError(`Cannot deepCopy ${typeof object}`, "object", object);
 }
 function deepCopy(object) {
   return _deepCopy(object);
@@ -7832,9 +8027,9 @@ class Description {
     }
   }
 }
-const version$e = "abi/5.1.0";
-const logger$v = new Logger(version$e);
-const _constructorGuard$1 = {};
+const version$i = "abi/5.1.0";
+const logger$s = new Logger(version$i);
+const _constructorGuard$2 = {};
 let ModifiersBytes = {calldata: true, memory: true, storage: true};
 let ModifiersNest = {calldata: true, memory: true};
 function checkModifier(type, name2) {
@@ -7852,14 +8047,14 @@ function checkModifier(type, name2) {
     }
   }
   if (ModifiersBytes[name2] || name2 === "payable") {
-    logger$v.throwArgumentError("invalid modifier", "name", name2);
+    logger$s.throwArgumentError("invalid modifier", "name", name2);
   }
   return false;
 }
 function parseParamType(param, allowIndexed) {
   let originalParam = param;
   function throwError(i) {
-    logger$v.throwArgumentError(`unexpected character at position ${i}`, "param", param);
+    logger$s.throwArgumentError(`unexpected character at position ${i}`, "param", param);
   }
   param = param.replace(/\s/g, " ");
   function newNode(parent2) {
@@ -7988,7 +8183,7 @@ function parseParamType(param, allowIndexed) {
     }
   }
   if (node.parent) {
-    logger$v.throwArgumentError("unexpected eof", "param", param);
+    logger$s.throwArgumentError("unexpected eof", "param", param);
   }
   delete parent.state;
   if (node.name === "indexed") {
@@ -8020,8 +8215,8 @@ const FormatTypes = Object.freeze({
 const paramTypeArray = new RegExp(/^(.*)\[([0-9]*)\]$/);
 class ParamType {
   constructor(constructorGuard, params) {
-    if (constructorGuard !== _constructorGuard$1) {
-      logger$v.throwError("use fromString", Logger.errors.UNSUPPORTED_OPERATION, {
+    if (constructorGuard !== _constructorGuard$2) {
+      logger$s.throwError("use fromString", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "new ParamType()"
       });
     }
@@ -8051,7 +8246,7 @@ class ParamType {
       format2 = FormatTypes.sighash;
     }
     if (!FormatTypes[format2]) {
-      logger$v.throwArgumentError("invalid format type", "format", format2);
+      logger$s.throwArgumentError("invalid format type", "format", format2);
     }
     if (format2 === FormatTypes.json) {
       let result2 = {
@@ -8100,7 +8295,7 @@ class ParamType {
     if (ParamType.isParamType(value)) {
       return value;
     }
-    return new ParamType(_constructorGuard$1, {
+    return new ParamType(_constructorGuard$2, {
       name: value.name || null,
       type: verifyType(value.type),
       indexed: value.indexed == null ? null : !!value.indexed,
@@ -8127,8 +8322,8 @@ function parseParams(value, allowIndex) {
 }
 class Fragment {
   constructor(constructorGuard, params) {
-    if (constructorGuard !== _constructorGuard$1) {
-      logger$v.throwError("use a static from method", Logger.errors.UNSUPPORTED_OPERATION, {
+    if (constructorGuard !== _constructorGuard$2) {
+      logger$s.throwError("use a static from method", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "new Fragment()"
       });
     }
@@ -8160,7 +8355,7 @@ class Fragment {
       case "receive":
         return null;
     }
-    return logger$v.throwArgumentError("invalid fragment object", "value", value);
+    return logger$s.throwArgumentError("invalid fragment object", "value", value);
   }
   static fromString(value) {
     value = value.replace(/\s/g, " ");
@@ -8173,7 +8368,7 @@ class Fragment {
     } else if (value.split("(")[0].trim() === "constructor") {
       return ConstructorFragment.fromString(value.trim());
     }
-    return logger$v.throwArgumentError("unsupported fragment", "value", value);
+    return logger$s.throwArgumentError("unsupported fragment", "value", value);
   }
   static isFragment(value) {
     return !!(value && value._isFragment);
@@ -8185,7 +8380,7 @@ class EventFragment extends Fragment {
       format2 = FormatTypes.sighash;
     }
     if (!FormatTypes[format2]) {
-      logger$v.throwArgumentError("invalid format type", "format", format2);
+      logger$s.throwArgumentError("invalid format type", "format", format2);
     }
     if (format2 === FormatTypes.json) {
       return JSON.stringify({
@@ -8218,7 +8413,7 @@ class EventFragment extends Fragment {
       return value;
     }
     if (value.type !== "event") {
-      logger$v.throwArgumentError("invalid event object", "value", value);
+      logger$s.throwArgumentError("invalid event object", "value", value);
     }
     const params = {
       name: verifyIdentifier(value.name),
@@ -8226,12 +8421,12 @@ class EventFragment extends Fragment {
       inputs: value.inputs ? value.inputs.map(ParamType.fromObject) : [],
       type: "event"
     };
-    return new EventFragment(_constructorGuard$1, params);
+    return new EventFragment(_constructorGuard$2, params);
   }
   static fromString(value) {
     let match = value.match(regexParen);
     if (!match) {
-      logger$v.throwArgumentError("invalid event string", "value", value);
+      logger$s.throwArgumentError("invalid event string", "value", value);
     }
     let anonymous = false;
     match[3].split(" ").forEach((modifier) => {
@@ -8242,7 +8437,7 @@ class EventFragment extends Fragment {
         case "":
           break;
         default:
-          logger$v.warn("unknown modifier: " + modifier);
+          logger$s.warn("unknown modifier: " + modifier);
       }
     });
     return EventFragment.fromObject({
@@ -8261,10 +8456,10 @@ function parseGas(value, params) {
   let comps = value.split("@");
   if (comps.length !== 1) {
     if (comps.length > 2) {
-      logger$v.throwArgumentError("invalid human-readable ABI signature", "value", value);
+      logger$s.throwArgumentError("invalid human-readable ABI signature", "value", value);
     }
     if (!comps[1].match(/^[0-9]+$/)) {
-      logger$v.throwArgumentError("invalid human-readable ABI signature gas", "value", value);
+      logger$s.throwArgumentError("invalid human-readable ABI signature gas", "value", value);
     }
     params.gas = BigNumber.from(comps[1]);
     return comps[0];
@@ -8316,19 +8511,19 @@ function verifyState(value) {
     result.constant = result.stateMutability === "view" || result.stateMutability === "pure";
     if (value.constant != null) {
       if (!!value.constant !== result.constant) {
-        logger$v.throwArgumentError("cannot have constant function with mutability " + result.stateMutability, "value", value);
+        logger$s.throwArgumentError("cannot have constant function with mutability " + result.stateMutability, "value", value);
       }
     }
     result.payable = result.stateMutability === "payable";
     if (value.payable != null) {
       if (!!value.payable !== result.payable) {
-        logger$v.throwArgumentError("cannot have payable function with mutability " + result.stateMutability, "value", value);
+        logger$s.throwArgumentError("cannot have payable function with mutability " + result.stateMutability, "value", value);
       }
     }
   } else if (value.payable != null) {
     result.payable = !!value.payable;
     if (value.constant == null && !result.payable && value.type !== "constructor") {
-      logger$v.throwArgumentError("unable to determine stateMutability", "value", value);
+      logger$s.throwArgumentError("unable to determine stateMutability", "value", value);
     }
     result.constant = !!value.constant;
     if (result.constant) {
@@ -8337,14 +8532,14 @@ function verifyState(value) {
       result.stateMutability = result.payable ? "payable" : "nonpayable";
     }
     if (result.payable && result.constant) {
-      logger$v.throwArgumentError("cannot have constant payable function", "value", value);
+      logger$s.throwArgumentError("cannot have constant payable function", "value", value);
     }
   } else if (value.constant != null) {
     result.constant = !!value.constant;
     result.payable = !result.constant;
     result.stateMutability = result.constant ? "view" : "payable";
   } else if (value.type !== "constructor") {
-    logger$v.throwArgumentError("unable to determine stateMutability", "value", value);
+    logger$s.throwArgumentError("unable to determine stateMutability", "value", value);
   }
   return result;
 }
@@ -8354,7 +8549,7 @@ class ConstructorFragment extends Fragment {
       format2 = FormatTypes.sighash;
     }
     if (!FormatTypes[format2]) {
-      logger$v.throwArgumentError("invalid format type", "format", format2);
+      logger$s.throwArgumentError("invalid format type", "format", format2);
     }
     if (format2 === FormatTypes.json) {
       return JSON.stringify({
@@ -8366,7 +8561,7 @@ class ConstructorFragment extends Fragment {
       });
     }
     if (format2 === FormatTypes.sighash) {
-      logger$v.throwError("cannot format a constructor for sighash", Logger.errors.UNSUPPORTED_OPERATION, {
+      logger$s.throwError("cannot format a constructor for sighash", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "format(sighash)"
       });
     }
@@ -8387,11 +8582,11 @@ class ConstructorFragment extends Fragment {
       return value;
     }
     if (value.type !== "constructor") {
-      logger$v.throwArgumentError("invalid constructor object", "value", value);
+      logger$s.throwArgumentError("invalid constructor object", "value", value);
     }
     let state = verifyState(value);
     if (state.constant) {
-      logger$v.throwArgumentError("constructor cannot be constant", "value", value);
+      logger$s.throwArgumentError("constructor cannot be constant", "value", value);
     }
     const params = {
       name: null,
@@ -8401,14 +8596,14 @@ class ConstructorFragment extends Fragment {
       stateMutability: state.stateMutability,
       gas: value.gas ? BigNumber.from(value.gas) : null
     };
-    return new ConstructorFragment(_constructorGuard$1, params);
+    return new ConstructorFragment(_constructorGuard$2, params);
   }
   static fromString(value) {
     let params = {type: "constructor"};
     value = parseGas(value, params);
     let parens = value.match(regexParen);
     if (!parens || parens[1].trim() !== "constructor") {
-      logger$v.throwArgumentError("invalid constructor string", "value", value);
+      logger$s.throwArgumentError("invalid constructor string", "value", value);
     }
     params.inputs = parseParams(parens[2].trim(), false);
     parseModifiers(parens[3].trim(), params);
@@ -8424,7 +8619,7 @@ class FunctionFragment extends ConstructorFragment {
       format2 = FormatTypes.sighash;
     }
     if (!FormatTypes[format2]) {
-      logger$v.throwArgumentError("invalid format type", "format", format2);
+      logger$s.throwArgumentError("invalid format type", "format", format2);
     }
     if (format2 === FormatTypes.json) {
       return JSON.stringify({
@@ -8471,7 +8666,7 @@ class FunctionFragment extends ConstructorFragment {
       return value;
     }
     if (value.type !== "function") {
-      logger$v.throwArgumentError("invalid function object", "value", value);
+      logger$s.throwArgumentError("invalid function object", "value", value);
     }
     let state = verifyState(value);
     const params = {
@@ -8484,18 +8679,18 @@ class FunctionFragment extends ConstructorFragment {
       stateMutability: state.stateMutability,
       gas: value.gas ? BigNumber.from(value.gas) : null
     };
-    return new FunctionFragment(_constructorGuard$1, params);
+    return new FunctionFragment(_constructorGuard$2, params);
   }
   static fromString(value) {
     let params = {type: "function"};
     value = parseGas(value, params);
     let comps = value.split(" returns ");
     if (comps.length > 2) {
-      logger$v.throwArgumentError("invalid function string", "value", value);
+      logger$s.throwArgumentError("invalid function string", "value", value);
     }
     let parens = comps[0].match(regexParen);
     if (!parens) {
-      logger$v.throwArgumentError("invalid function signature", "value", value);
+      logger$s.throwArgumentError("invalid function signature", "value", value);
     }
     params.name = parens[1].trim();
     if (params.name) {
@@ -8506,7 +8701,7 @@ class FunctionFragment extends ConstructorFragment {
     if (comps.length > 1) {
       let returns = comps[1].match(regexParen);
       if (returns[1].trim() != "" || returns[3].trim() != "") {
-        logger$v.throwArgumentError("unexpected tokens", "value", value);
+        logger$s.throwArgumentError("unexpected tokens", "value", value);
       }
       params.outputs = parseParams(returns[2], false);
     } else {
@@ -8529,7 +8724,7 @@ function verifyType(type) {
 const regexIdentifier = new RegExp("^[A-Za-z_][A-Za-z0-9_]*$");
 function verifyIdentifier(value) {
   if (!value || !value.match(regexIdentifier)) {
-    logger$v.throwArgumentError(`invalid identifier "${value}"`, "value", value);
+    logger$s.throwArgumentError(`invalid identifier "${value}"`, "value", value);
   }
   return value;
 }
@@ -8551,7 +8746,7 @@ function splitNesting(value) {
       } else if (c === ")") {
         depth--;
         if (depth === -1) {
-          logger$v.throwArgumentError("unbalanced parenthesis", "value", value);
+          logger$s.throwArgumentError("unbalanced parenthesis", "value", value);
         }
       }
     }
@@ -8561,7 +8756,7 @@ function splitNesting(value) {
   }
   return result;
 }
-const logger$u = new Logger(version$e);
+const logger$r = new Logger(version$i);
 function checkResultErrors(result) {
   const errors = [];
   const checkErrors = function(path, object) {
@@ -8589,7 +8784,7 @@ class Coder {
     this.dynamic = dynamic;
   }
   _throwError(message, value) {
-    logger$u.throwArgumentError(message, this.localName, value);
+    logger$r.throwArgumentError(message, this.localName, value);
   }
 }
 class Writer {
@@ -8605,10 +8800,10 @@ class Writer {
   get length() {
     return this._dataLength;
   }
-  _writeData(data) {
-    this._data.push(data);
-    this._dataLength += data.length;
-    return data.length;
+  _writeData(data2) {
+    this._data.push(data2);
+    this._dataLength += data2.length;
+    return data2.length;
   }
   appendWriter(writer) {
     return this._writeData(concat(writer._data));
@@ -8624,7 +8819,7 @@ class Writer {
   _getValue(value) {
     let bytes = arrayify(BigNumber.from(value));
     if (bytes.length > this.wordSize) {
-      logger$u.throwError("value out-of-bounds", Logger.errors.BUFFER_OVERRUN, {
+      logger$r.throwError("value out-of-bounds", Logger.errors.BUFFER_OVERRUN, {
         length: this.wordSize,
         offset: bytes.length
       });
@@ -8647,8 +8842,8 @@ class Writer {
   }
 }
 class Reader {
-  constructor(data, wordSize, coerceFunc, allowLoose) {
-    defineReadOnly(this, "_data", arrayify(data));
+  constructor(data2, wordSize, coerceFunc, allowLoose) {
+    defineReadOnly(this, "_data", arrayify(data2));
     defineReadOnly(this, "wordSize", wordSize || 32);
     defineReadOnly(this, "_coerceFunc", coerceFunc);
     defineReadOnly(this, "allowLoose", allowLoose);
@@ -8679,7 +8874,7 @@ class Reader {
       if (this.allowLoose && loose && this._offset + length <= this._data.length) {
         alignedLength = length;
       } else {
-        logger$u.throwError("data out-of-bounds", Logger.errors.BUFFER_OVERRUN, {
+        logger$r.throwError("data out-of-bounds", Logger.errors.BUFFER_OVERRUN, {
           length: this._data.length,
           offset: this._offset + alignedLength
         });
@@ -8914,11 +9109,11 @@ var sha3 = createCommonjsModule$1(function(module) {
     Keccak.prototype.toString = Keccak.prototype.hex = function() {
       this.finalize();
       var blockCount = this.blockCount, s2 = this.s, outputBlocks = this.outputBlocks, extraBytes = this.extraBytes, i2 = 0, j2 = 0;
-      var hex = "", block;
+      var hex2 = "", block;
       while (j2 < outputBlocks) {
         for (i2 = 0; i2 < blockCount && j2 < outputBlocks; ++i2, ++j2) {
           block = s2[i2];
-          hex += HEX_CHARS[block >> 4 & 15] + HEX_CHARS[block & 15] + HEX_CHARS[block >> 12 & 15] + HEX_CHARS[block >> 8 & 15] + HEX_CHARS[block >> 20 & 15] + HEX_CHARS[block >> 16 & 15] + HEX_CHARS[block >> 28 & 15] + HEX_CHARS[block >> 24 & 15];
+          hex2 += HEX_CHARS[block >> 4 & 15] + HEX_CHARS[block & 15] + HEX_CHARS[block >> 12 & 15] + HEX_CHARS[block >> 8 & 15] + HEX_CHARS[block >> 20 & 15] + HEX_CHARS[block >> 16 & 15] + HEX_CHARS[block >> 28 & 15] + HEX_CHARS[block >> 24 & 15];
         }
         if (j2 % blockCount === 0) {
           f2(s2);
@@ -8928,16 +9123,16 @@ var sha3 = createCommonjsModule$1(function(module) {
       if (extraBytes) {
         block = s2[i2];
         if (extraBytes > 0) {
-          hex += HEX_CHARS[block >> 4 & 15] + HEX_CHARS[block & 15];
+          hex2 += HEX_CHARS[block >> 4 & 15] + HEX_CHARS[block & 15];
         }
         if (extraBytes > 1) {
-          hex += HEX_CHARS[block >> 12 & 15] + HEX_CHARS[block >> 8 & 15];
+          hex2 += HEX_CHARS[block >> 12 & 15] + HEX_CHARS[block >> 8 & 15];
         }
         if (extraBytes > 2) {
-          hex += HEX_CHARS[block >> 20 & 15] + HEX_CHARS[block >> 16 & 15];
+          hex2 += HEX_CHARS[block >> 20 & 15] + HEX_CHARS[block >> 16 & 15];
         }
       }
-      return hex;
+      return hex2;
     };
     Keccak.prototype.arrayBuffer = function() {
       this.finalize();
@@ -9183,11 +9378,11 @@ var sha3 = createCommonjsModule$1(function(module) {
     }
   })();
 });
-function keccak256(data) {
-  return "0x" + sha3.keccak_256(arrayify(data));
+function keccak256$1(data2) {
+  return "0x" + sha3.keccak_256(arrayify(data2));
 }
-const version$d = "rlp/5.1.0";
-const logger$t = new Logger(version$d);
+const version$h = "rlp/5.1.0";
+const logger$q = new Logger(version$h);
 function arrayifyInteger(value) {
   const result = [];
   while (value) {
@@ -9196,10 +9391,10 @@ function arrayifyInteger(value) {
   }
   return result;
 }
-function unarrayifyInteger(data, offset, length) {
+function unarrayifyInteger(data2, offset, length) {
   let result = 0;
   for (let i = 0; i < length; i++) {
-    result = result * 256 + data[offset + i];
+    result = result * 256 + data2[offset + i];
   }
   return result;
 }
@@ -9218,88 +9413,94 @@ function _encode(object) {
     return length2.concat(payload);
   }
   if (!isBytesLike(object)) {
-    logger$t.throwArgumentError("RLP object must be BytesLike", "object", object);
+    logger$q.throwArgumentError("RLP object must be BytesLike", "object", object);
   }
-  const data = Array.prototype.slice.call(arrayify(object));
-  if (data.length === 1 && data[0] <= 127) {
-    return data;
-  } else if (data.length <= 55) {
-    data.unshift(128 + data.length);
-    return data;
+  const data2 = Array.prototype.slice.call(arrayify(object));
+  if (data2.length === 1 && data2[0] <= 127) {
+    return data2;
+  } else if (data2.length <= 55) {
+    data2.unshift(128 + data2.length);
+    return data2;
   }
-  const length = arrayifyInteger(data.length);
+  const length = arrayifyInteger(data2.length);
   length.unshift(183 + length.length);
-  return length.concat(data);
+  return length.concat(data2);
 }
 function encode$2(object) {
   return hexlify(_encode(object));
 }
-function _decodeChildren(data, offset, childOffset, length) {
+function _decodeChildren(data2, offset, childOffset, length) {
   const result = [];
   while (childOffset < offset + 1 + length) {
-    const decoded = _decode(data, childOffset);
+    const decoded = _decode(data2, childOffset);
     result.push(decoded.result);
     childOffset += decoded.consumed;
     if (childOffset > offset + 1 + length) {
-      logger$t.throwError("child data too short", Logger.errors.BUFFER_OVERRUN, {});
+      logger$q.throwError("child data too short", Logger.errors.BUFFER_OVERRUN, {});
     }
   }
   return {consumed: 1 + length, result};
 }
-function _decode(data, offset) {
-  if (data.length === 0) {
-    logger$t.throwError("data too short", Logger.errors.BUFFER_OVERRUN, {});
+function _decode(data2, offset) {
+  if (data2.length === 0) {
+    logger$q.throwError("data too short", Logger.errors.BUFFER_OVERRUN, {});
   }
-  if (data[offset] >= 248) {
-    const lengthLength = data[offset] - 247;
-    if (offset + 1 + lengthLength > data.length) {
-      logger$t.throwError("data short segment too short", Logger.errors.BUFFER_OVERRUN, {});
+  if (data2[offset] >= 248) {
+    const lengthLength = data2[offset] - 247;
+    if (offset + 1 + lengthLength > data2.length) {
+      logger$q.throwError("data short segment too short", Logger.errors.BUFFER_OVERRUN, {});
     }
-    const length = unarrayifyInteger(data, offset + 1, lengthLength);
-    if (offset + 1 + lengthLength + length > data.length) {
-      logger$t.throwError("data long segment too short", Logger.errors.BUFFER_OVERRUN, {});
+    const length = unarrayifyInteger(data2, offset + 1, lengthLength);
+    if (offset + 1 + lengthLength + length > data2.length) {
+      logger$q.throwError("data long segment too short", Logger.errors.BUFFER_OVERRUN, {});
     }
-    return _decodeChildren(data, offset, offset + 1 + lengthLength, lengthLength + length);
-  } else if (data[offset] >= 192) {
-    const length = data[offset] - 192;
-    if (offset + 1 + length > data.length) {
-      logger$t.throwError("data array too short", Logger.errors.BUFFER_OVERRUN, {});
+    return _decodeChildren(data2, offset, offset + 1 + lengthLength, lengthLength + length);
+  } else if (data2[offset] >= 192) {
+    const length = data2[offset] - 192;
+    if (offset + 1 + length > data2.length) {
+      logger$q.throwError("data array too short", Logger.errors.BUFFER_OVERRUN, {});
     }
-    return _decodeChildren(data, offset, offset + 1, length);
-  } else if (data[offset] >= 184) {
-    const lengthLength = data[offset] - 183;
-    if (offset + 1 + lengthLength > data.length) {
-      logger$t.throwError("data array too short", Logger.errors.BUFFER_OVERRUN, {});
+    return _decodeChildren(data2, offset, offset + 1, length);
+  } else if (data2[offset] >= 184) {
+    const lengthLength = data2[offset] - 183;
+    if (offset + 1 + lengthLength > data2.length) {
+      logger$q.throwError("data array too short", Logger.errors.BUFFER_OVERRUN, {});
     }
-    const length = unarrayifyInteger(data, offset + 1, lengthLength);
-    if (offset + 1 + lengthLength + length > data.length) {
-      logger$t.throwError("data array too short", Logger.errors.BUFFER_OVERRUN, {});
+    const length = unarrayifyInteger(data2, offset + 1, lengthLength);
+    if (offset + 1 + lengthLength + length > data2.length) {
+      logger$q.throwError("data array too short", Logger.errors.BUFFER_OVERRUN, {});
     }
-    const result = hexlify(data.slice(offset + 1 + lengthLength, offset + 1 + lengthLength + length));
+    const result = hexlify(data2.slice(offset + 1 + lengthLength, offset + 1 + lengthLength + length));
     return {consumed: 1 + lengthLength + length, result};
-  } else if (data[offset] >= 128) {
-    const length = data[offset] - 128;
-    if (offset + 1 + length > data.length) {
-      logger$t.throwError("data too short", Logger.errors.BUFFER_OVERRUN, {});
+  } else if (data2[offset] >= 128) {
+    const length = data2[offset] - 128;
+    if (offset + 1 + length > data2.length) {
+      logger$q.throwError("data too short", Logger.errors.BUFFER_OVERRUN, {});
     }
-    const result = hexlify(data.slice(offset + 1, offset + 1 + length));
+    const result = hexlify(data2.slice(offset + 1, offset + 1 + length));
     return {consumed: 1 + length, result};
   }
-  return {consumed: 1, result: hexlify(data[offset])};
+  return {consumed: 1, result: hexlify(data2[offset])};
 }
-function decode$1(data) {
-  const bytes = arrayify(data);
+function decode$2(data2) {
+  const bytes = arrayify(data2);
   const decoded = _decode(bytes, 0);
   if (decoded.consumed !== bytes.length) {
-    logger$t.throwArgumentError("invalid rlp data", "data", data);
+    logger$q.throwArgumentError("invalid rlp data", "data", data2);
   }
   return decoded.result;
 }
-const version$c = "address/5.1.0";
-const logger$s = new Logger(version$c);
+var index$1 = /* @__PURE__ */ Object.freeze({
+  __proto__: null,
+  [Symbol.toStringTag]: "Module",
+  encode: encode$2,
+  decode: decode$2
+});
+const version$g = "address/5.1.0";
+const logger$p = new Logger(version$g);
 function getChecksumAddress(address) {
   if (!isHexString(address, 20)) {
-    logger$s.throwArgumentError("invalid address", "address", address);
+    logger$p.throwArgumentError("invalid address", "address", address);
   }
   address = address.toLowerCase();
   const chars2 = address.substring(2).split("");
@@ -9307,7 +9508,7 @@ function getChecksumAddress(address) {
   for (let i = 0; i < 40; i++) {
     expanded[i] = chars2[i].charCodeAt(0);
   }
-  const hashed = arrayify(keccak256(expanded));
+  const hashed = arrayify(keccak256$1(expanded));
   for (let i = 0; i < 40; i += 2) {
     if (hashed[i >> 1] >> 4 >= 8) {
       chars2[i] = chars2[i].toUpperCase();
@@ -9352,7 +9553,7 @@ function ibanChecksum(address) {
 function getAddress(address) {
   let result = null;
   if (typeof address !== "string") {
-    logger$s.throwArgumentError("invalid address", "address", address);
+    logger$p.throwArgumentError("invalid address", "address", address);
   }
   if (address.match(/^(0x)?[0-9a-fA-F]{40}$/)) {
     if (address.substring(0, 2) !== "0x") {
@@ -9360,11 +9561,11 @@ function getAddress(address) {
     }
     result = getChecksumAddress(address);
     if (address.match(/([A-F].*[a-f])|([a-f].*[A-F])/) && result !== address) {
-      logger$s.throwArgumentError("bad address checksum", "address", address);
+      logger$p.throwArgumentError("bad address checksum", "address", address);
     }
   } else if (address.match(/^XE[0-9]{2}[0-9A-Za-z]{30,31}$/)) {
     if (address.substring(2, 4) !== ibanChecksum(address)) {
-      logger$s.throwArgumentError("bad icap checksum", "address", address);
+      logger$p.throwArgumentError("bad icap checksum", "address", address);
     }
     result = _base36To16(address.substring(4));
     while (result.length < 40) {
@@ -9372,19 +9573,43 @@ function getAddress(address) {
     }
     result = getChecksumAddress("0x" + result);
   } else {
-    logger$s.throwArgumentError("invalid address", "address", address);
+    logger$p.throwArgumentError("invalid address", "address", address);
   }
   return result;
+}
+function isAddress(address) {
+  try {
+    getAddress(address);
+    return true;
+  } catch (error2) {
+  }
+  return false;
+}
+function getIcapAddress(address) {
+  let base36 = _base16To36(getAddress(address).substring(2)).toUpperCase();
+  while (base36.length < 30) {
+    base36 = "0" + base36;
+  }
+  return "XE" + ibanChecksum("XE00" + base36) + base36;
 }
 function getContractAddress(transaction) {
   let from = null;
   try {
     from = getAddress(transaction.from);
   } catch (error2) {
-    logger$s.throwArgumentError("missing from address", "transaction", transaction);
+    logger$p.throwArgumentError("missing from address", "transaction", transaction);
   }
   const nonce = stripZeros(arrayify(BigNumber.from(transaction.nonce).toHexString()));
-  return getAddress(hexDataSlice(keccak256(encode$2([from, nonce])), 12));
+  return getAddress(hexDataSlice(keccak256$1(encode$2([from, nonce])), 12));
+}
+function getCreate2Address(from, salt, initCodeHash) {
+  if (hexDataLength(salt) !== 32) {
+    logger$p.throwArgumentError("salt must be 32 bytes", "salt", salt);
+  }
+  if (hexDataLength(initCodeHash) !== 32) {
+    logger$p.throwArgumentError("initCodeHash must be 32 bytes", "initCodeHash", initCodeHash);
+  }
+  return getAddress(hexDataSlice(keccak256$1(concat(["0xff", getAddress(from), salt, initCodeHash])), 12));
 }
 class AddressCoder extends Coder {
   constructor(localName) {
@@ -9420,8 +9645,8 @@ class AnonymousCoder extends Coder {
     return this.coder.decode(reader);
   }
 }
-const logger$r = new Logger(version$e);
-function pack(writer, coders, values) {
+const logger$o = new Logger(version$i);
+function pack$1(writer, coders, values) {
   let arrayValues = null;
   if (Array.isArray(values)) {
     arrayValues = values;
@@ -9430,14 +9655,14 @@ function pack(writer, coders, values) {
     arrayValues = coders.map((coder) => {
       const name2 = coder.localName;
       if (!name2) {
-        logger$r.throwError("cannot encode object for signature with missing names", Logger.errors.INVALID_ARGUMENT, {
+        logger$o.throwError("cannot encode object for signature with missing names", Logger.errors.INVALID_ARGUMENT, {
           argument: "values",
           coder,
           value: values
         });
       }
       if (unique[name2]) {
-        logger$r.throwError("cannot encode object for signature with duplicate names", Logger.errors.INVALID_ARGUMENT, {
+        logger$o.throwError("cannot encode object for signature with duplicate names", Logger.errors.INVALID_ARGUMENT, {
           argument: "values",
           coder,
           value: values
@@ -9447,10 +9672,10 @@ function pack(writer, coders, values) {
       return values[name2];
     });
   } else {
-    logger$r.throwArgumentError("invalid tuple value", "tuple", values);
+    logger$o.throwArgumentError("invalid tuple value", "tuple", values);
   }
   if (coders.length !== arrayValues.length) {
-    logger$r.throwArgumentError("types/value length mismatch", "tuple", values);
+    logger$o.throwArgumentError("types/value length mismatch", "tuple", values);
   }
   let staticWriter = new Writer(writer.wordSize);
   let dynamicWriter = new Writer(writer.wordSize);
@@ -9580,12 +9805,12 @@ class ArrayCoder extends Coder {
       count = value.length;
       writer.writeValue(value.length);
     }
-    logger$r.checkArgumentCount(value.length, count, "coder array" + (this.localName ? " " + this.localName : ""));
+    logger$o.checkArgumentCount(value.length, count, "coder array" + (this.localName ? " " + this.localName : ""));
     let coders = [];
     for (let i = 0; i < value.length; i++) {
       coders.push(this.coder);
     }
-    return pack(writer, coders, value);
+    return pack$1(writer, coders, value);
   }
   decode(reader) {
     let count = this.length;
@@ -9648,11 +9873,11 @@ class FixedBytesCoder extends Coder {
     return "0x0000000000000000000000000000000000000000000000000000000000000000".substring(0, 2 + this.size * 2);
   }
   encode(writer, value) {
-    let data = arrayify(value);
-    if (data.length !== this.size) {
+    let data2 = arrayify(value);
+    if (data2.length !== this.size) {
       this._throwError("incorrect data length", value);
     }
-    return writer.writeBytes(data);
+    return writer.writeBytes(data2);
   }
   decode(reader) {
     return reader.coerce(this.name, hexlify(reader.readBytes(this.size)));
@@ -9717,8 +9942,8 @@ class NumberCoder extends Coder {
     return reader.coerce(this.name, value);
   }
 }
-const version$b = "strings/5.1.0";
-const logger$q = new Logger(version$b);
+const version$f = "strings/5.1.0";
+const logger$n = new Logger(version$f);
 var UnicodeNormalizationForm;
 (function(UnicodeNormalizationForm2) {
   UnicodeNormalizationForm2["current"] = "";
@@ -9738,7 +9963,7 @@ var Utf8ErrorReason;
   Utf8ErrorReason2["OVERLONG"] = "overlong representation";
 })(Utf8ErrorReason || (Utf8ErrorReason = {}));
 function errorFunc(reason, offset, bytes, output, badCodepoint) {
-  return logger$q.throwArgumentError(`invalid codepoint at offset ${offset}; ${reason}`, "bytes", bytes);
+  return logger$n.throwArgumentError(`invalid codepoint at offset ${offset}; ${reason}`, "bytes", bytes);
 }
 function ignoreFunc(reason, offset, bytes, output, badCodepoint) {
   if (reason === Utf8ErrorReason.BAD_PREFIX || reason === Utf8ErrorReason.UNEXPECTED_CONTINUE) {
@@ -9837,7 +10062,7 @@ function getUtf8CodePoints(bytes, onError) {
 }
 function toUtf8Bytes(str, form = UnicodeNormalizationForm.current) {
   if (form != UnicodeNormalizationForm.current) {
-    logger$q.checkNormalize();
+    logger$n.checkNormalize();
     str = str.normalize(form);
   }
   let result = [];
@@ -9867,6 +10092,38 @@ function toUtf8Bytes(str, form = UnicodeNormalizationForm.current) {
   }
   return arrayify(result);
 }
+function escapeChar(value) {
+  const hex2 = "0000" + value.toString(16);
+  return "\\u" + hex2.substring(hex2.length - 4);
+}
+function _toEscapedUtf8String(bytes, onError) {
+  return '"' + getUtf8CodePoints(bytes, onError).map((codePoint) => {
+    if (codePoint < 256) {
+      switch (codePoint) {
+        case 8:
+          return "\\b";
+        case 9:
+          return "\\t";
+        case 10:
+          return "\\n";
+        case 13:
+          return "\\r";
+        case 34:
+          return '\\"';
+        case 92:
+          return "\\\\";
+      }
+      if (codePoint >= 32 && codePoint < 127) {
+        return String.fromCharCode(codePoint);
+      }
+    }
+    if (codePoint <= 65535) {
+      return escapeChar(codePoint);
+    }
+    codePoint -= 65536;
+    return escapeChar((codePoint >> 10 & 1023) + 55296) + escapeChar((codePoint & 1023) + 56320);
+  }).join("") + '"';
+}
 function _toUtf8String(codePoints) {
   return codePoints.map((codePoint) => {
     if (codePoint <= 65535) {
@@ -9882,17 +10139,38 @@ function toUtf8String(bytes, onError) {
 function toUtf8CodePoints(str, form = UnicodeNormalizationForm.current) {
   return getUtf8CodePoints(toUtf8Bytes(str, form));
 }
-function bytes2(data) {
-  if (data.length % 4 !== 0) {
+function formatBytes32String(text) {
+  const bytes = toUtf8Bytes(text);
+  if (bytes.length > 31) {
+    throw new Error("bytes32 string must be less than 32 bytes");
+  }
+  return hexlify(concat([bytes, HashZero]).slice(0, 32));
+}
+function parseBytes32String(bytes) {
+  const data2 = arrayify(bytes);
+  if (data2.length !== 32) {
+    throw new Error("invalid bytes32 - not 32 bytes long");
+  }
+  if (data2[31] !== 0) {
+    throw new Error("invalid bytes32 string - no null terminator");
+  }
+  let length = 31;
+  while (data2[length - 1] === 0) {
+    length--;
+  }
+  return toUtf8String(data2.slice(0, length));
+}
+function bytes2(data2) {
+  if (data2.length % 4 !== 0) {
     throw new Error("bad data");
   }
   let result = [];
-  for (let i = 0; i < data.length; i += 4) {
-    result.push(parseInt(data.substring(i, i + 4), 16));
+  for (let i = 0; i < data2.length; i += 4) {
+    result.push(parseInt(data2.substring(i, i + 4), 16));
   }
   return result;
 }
-function createTable(data, func) {
+function createTable(data2, func) {
   if (!func) {
     func = function(value) {
       return [parseInt(value, 16)];
@@ -9900,16 +10178,16 @@ function createTable(data, func) {
   }
   let lo = 0;
   let result = {};
-  data.split(",").forEach((pair) => {
+  data2.split(",").forEach((pair) => {
     let comps = pair.split(":");
     lo += parseInt(comps[0], 16);
     result[lo] = func(comps[1]);
   });
   return result;
 }
-function createRangeTable(data) {
+function createRangeTable(data2) {
   let hi = 0;
-  return data.split(",").map((v) => {
+  return data2.split(",").map((v) => {
     let comps = v.split("-");
     if (comps.length === 1) {
       comps[1] = "0";
@@ -10001,9 +10279,9 @@ function _nameprepTableB2(codepoint) {
   if (range) {
     return [codepoint + range.s];
   }
-  let codes = Table_B_2_lut_abs[codepoint];
-  if (codes) {
-    return codes;
+  let codes2 = Table_B_2_lut_abs[codepoint];
+  if (codes2) {
+    return codes2;
   }
   let shift = Table_B_2_lut_rel[codepoint];
   if (shift) {
@@ -10022,8 +10300,8 @@ function nameprep(value) {
   if (value.match(/^[a-z0-9-]*$/i) && value.length <= 59) {
     return value.toLowerCase();
   }
-  let codes = toUtf8CodePoints(value);
-  codes = flatten(codes.map((code) => {
+  let codes2 = toUtf8CodePoints(value);
+  codes2 = flatten(codes2.map((code) => {
     if (Table_B_1_flags.indexOf(code) >= 0) {
       return [];
     }
@@ -10036,18 +10314,18 @@ function nameprep(value) {
     }
     return [code];
   }));
-  codes = toUtf8CodePoints(_toUtf8String(codes), UnicodeNormalizationForm.NFKC);
-  codes.forEach((code) => {
+  codes2 = toUtf8CodePoints(_toUtf8String(codes2), UnicodeNormalizationForm.NFKC);
+  codes2.forEach((code) => {
     if (_nameprepTableC(code)) {
       throw new Error("STRINGPREP_CONTAINS_PROHIBITED");
     }
   });
-  codes.forEach((code) => {
+  codes2.forEach((code) => {
     if (_nameprepTableA1(code)) {
       throw new Error("STRINGPREP_CONTAINS_UNASSIGNED");
     }
   });
-  let name2 = _toUtf8String(codes);
+  let name2 = _toUtf8String(codes2);
   if (name2.substring(0, 1) === "-" || name2.substring(2, 4) === "--" || name2.substring(name2.length - 1) === "-") {
     throw new Error("invalid hyphen");
   }
@@ -10115,18 +10393,18 @@ class TupleCoder extends Coder {
     return Object.freeze(values);
   }
   encode(writer, value) {
-    return pack(writer, this.coders, value);
+    return pack$1(writer, this.coders, value);
   }
   decode(reader) {
     return reader.coerce(this.name, unpack(reader, this.coders));
   }
 }
-const logger$p = new Logger(version$e);
+const logger$m = new Logger(version$i);
 const paramTypeBytes = new RegExp(/^bytes([0-9]*)$/);
 const paramTypeNumber = new RegExp(/^(u?int)([0-9]*)$/);
 class AbiCoder {
   constructor(coerceFunc) {
-    logger$p.checkNew(new.target, AbiCoder);
+    logger$m.checkNew(new.target, AbiCoder);
     defineReadOnly(this, "coerceFunc", coerceFunc || null);
   }
   _getCoder(param) {
@@ -10152,7 +10430,7 @@ class AbiCoder {
     if (match) {
       let size = parseInt(match[2] || "256");
       if (size === 0 || size > 256 || size % 8 !== 0) {
-        logger$p.throwArgumentError("invalid " + match[1] + " bit length", "param", param);
+        logger$m.throwArgumentError("invalid " + match[1] + " bit length", "param", param);
       }
       return new NumberCoder(size / 8, match[1] === "int", param.name);
     }
@@ -10160,17 +10438,17 @@ class AbiCoder {
     if (match) {
       let size = parseInt(match[1]);
       if (size === 0 || size > 32) {
-        logger$p.throwArgumentError("invalid bytes length", "param", param);
+        logger$m.throwArgumentError("invalid bytes length", "param", param);
       }
       return new FixedBytesCoder(size, param.name);
     }
-    return logger$p.throwArgumentError("invalid type", "type", param.type);
+    return logger$m.throwArgumentError("invalid type", "type", param.type);
   }
   _getWordSize() {
     return 32;
   }
-  _getReader(data, allowLoose) {
-    return new Reader(data, this._getWordSize(), this.coerceFunc, allowLoose);
+  _getReader(data2, allowLoose) {
+    return new Reader(data2, this._getWordSize(), this.coerceFunc, allowLoose);
   }
   _getWriter() {
     return new Writer(this._getWordSize());
@@ -10182,7 +10460,7 @@ class AbiCoder {
   }
   encode(types, values) {
     if (types.length !== values.length) {
-      logger$p.throwError("types/values length mismatch", Logger.errors.INVALID_ARGUMENT, {
+      logger$m.throwError("types/values length mismatch", Logger.errors.INVALID_ARGUMENT, {
         count: {types: types.length, values: values.length},
         value: {types, values}
       });
@@ -10193,35 +10471,59 @@ class AbiCoder {
     coder.encode(writer, values);
     return writer.data;
   }
-  decode(types, data, loose) {
+  decode(types, data2, loose) {
     const coders = types.map((type) => this._getCoder(ParamType.from(type)));
     const coder = new TupleCoder(coders, "_");
-    return coder.decode(this._getReader(arrayify(data), loose));
+    return coder.decode(this._getReader(arrayify(data2), loose));
   }
 }
 const defaultAbiCoder = new AbiCoder();
 function id(text) {
-  return keccak256(toUtf8Bytes(text));
+  return keccak256$1(toUtf8Bytes(text));
 }
-const version$a = "hash/5.1.0";
-const logger$o = new Logger(version$a);
-const Zeros = new Uint8Array(32);
-Zeros.fill(0);
+const version$e = "hash/5.1.0";
+const logger$l = new Logger(version$e);
+const Zeros$1 = new Uint8Array(32);
+Zeros$1.fill(0);
 const Partition = new RegExp("^((.*)\\.)?([^.]+)$");
+function isValidName(name2) {
+  try {
+    const comps = name2.split(".");
+    for (let i = 0; i < comps.length; i++) {
+      if (nameprep(comps[i]).length === 0) {
+        throw new Error("empty");
+      }
+    }
+    return true;
+  } catch (error2) {
+  }
+  return false;
+}
 function namehash(name2) {
   if (typeof name2 !== "string") {
-    logger$o.throwArgumentError("invalid address - " + String(name2), "name", name2);
+    logger$l.throwArgumentError("invalid address - " + String(name2), "name", name2);
   }
-  let result = Zeros;
+  let result = Zeros$1;
   while (name2.length) {
     const partition = name2.match(Partition);
     const label = toUtf8Bytes(nameprep(partition[3]));
-    result = keccak256(concat([result, keccak256(label)]));
+    result = keccak256$1(concat([result, keccak256$1(label)]));
     name2 = partition[2] || "";
   }
   return hexlify(result);
 }
-var __awaiter$b = function(thisArg, _arguments, P, generator) {
+const messagePrefix = "Ethereum Signed Message:\n";
+function hashMessage(message) {
+  if (typeof message === "string") {
+    message = toUtf8Bytes(message);
+  }
+  return keccak256$1(concat([
+    toUtf8Bytes(messagePrefix),
+    toUtf8Bytes(String(message.length)),
+    message
+  ]));
+}
+var __awaiter$8 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -10248,7 +10550,7 @@ var __awaiter$b = function(thisArg, _arguments, P, generator) {
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 };
-const logger$n = new Logger(version$a);
+const logger$k = new Logger(version$e);
 const padding = new Uint8Array(32);
 padding.fill(0);
 const NegativeOne = BigNumber.from(-1);
@@ -10282,7 +10584,7 @@ const domainFieldNames = [
 function checkString(key2) {
   return function(value) {
     if (typeof value !== "string") {
-      logger$n.throwArgumentError(`invalid domain value for ${JSON.stringify(key2)}`, `domain.${key2}`, value);
+      logger$k.throwArgumentError(`invalid domain value for ${JSON.stringify(key2)}`, `domain.${key2}`, value);
     }
     return value;
   };
@@ -10295,14 +10597,14 @@ const domainChecks = {
       return BigNumber.from(value).toString();
     } catch (error2) {
     }
-    return logger$n.throwArgumentError(`invalid domain value for "chainId"`, "domain.chainId", value);
+    return logger$k.throwArgumentError(`invalid domain value for "chainId"`, "domain.chainId", value);
   },
   verifyingContract: function(value) {
     try {
       return getAddress(value).toLowerCase();
     } catch (error2) {
     }
-    return logger$n.throwArgumentError(`invalid domain value "verifyingContract"`, "domain.verifyingContract", value);
+    return logger$k.throwArgumentError(`invalid domain value "verifyingContract"`, "domain.verifyingContract", value);
   },
   salt: function(value) {
     try {
@@ -10313,7 +10615,7 @@ const domainChecks = {
       return hexlify(bytes);
     } catch (error2) {
     }
-    return logger$n.throwArgumentError(`invalid domain value "salt"`, "domain.salt", value);
+    return logger$k.throwArgumentError(`invalid domain value "salt"`, "domain.salt", value);
   }
 };
 function getBaseEncoder(type) {
@@ -10323,14 +10625,14 @@ function getBaseEncoder(type) {
       const signed = match[1] === "";
       const width = parseInt(match[2] || "256");
       if (width % 8 !== 0 || width > 256 || match[2] && match[2] !== String(width)) {
-        logger$n.throwArgumentError("invalid numeric width", "type", type);
+        logger$k.throwArgumentError("invalid numeric width", "type", type);
       }
       const boundsUpper = MaxUint256.mask(signed ? width - 1 : width);
       const boundsLower = signed ? boundsUpper.add(One).mul(NegativeOne) : Zero;
       return function(value) {
         const v = BigNumber.from(value);
         if (v.lt(boundsLower) || v.gt(boundsUpper)) {
-          logger$n.throwArgumentError(`value out-of-bounds for ${type}`, "value", value);
+          logger$k.throwArgumentError(`value out-of-bounds for ${type}`, "value", value);
         }
         return hexZeroPad(v.toTwos(256).toHexString(), 32);
       };
@@ -10341,12 +10643,12 @@ function getBaseEncoder(type) {
     if (match) {
       const width = parseInt(match[1]);
       if (width === 0 || width > 32 || match[1] !== String(width)) {
-        logger$n.throwArgumentError("invalid bytes width", "type", type);
+        logger$k.throwArgumentError("invalid bytes width", "type", type);
       }
       return function(value) {
         const bytes = arrayify(value);
         if (bytes.length !== width) {
-          logger$n.throwArgumentError(`invalid length for ${type}`, "value", value);
+          logger$k.throwArgumentError(`invalid length for ${type}`, "value", value);
         }
         return hexPadRight(value);
       };
@@ -10363,7 +10665,7 @@ function getBaseEncoder(type) {
       };
     case "bytes":
       return function(value) {
-        return keccak256(value);
+        return keccak256$1(value);
       };
     case "string":
       return function(value) {
@@ -10392,19 +10694,19 @@ class TypedDataEncoder {
       const uniqueNames = {};
       types[name2].forEach((field) => {
         if (uniqueNames[field.name]) {
-          logger$n.throwArgumentError(`duplicate variable name ${JSON.stringify(field.name)} in ${JSON.stringify(name2)}`, "types", types);
+          logger$k.throwArgumentError(`duplicate variable name ${JSON.stringify(field.name)} in ${JSON.stringify(name2)}`, "types", types);
         }
         uniqueNames[field.name] = true;
         const baseType = field.type.match(/^([^\x5b]*)(\x5b|$)/)[1];
         if (baseType === name2) {
-          logger$n.throwArgumentError(`circular type reference to ${JSON.stringify(baseType)}`, "types", types);
+          logger$k.throwArgumentError(`circular type reference to ${JSON.stringify(baseType)}`, "types", types);
         }
         const encoder = getBaseEncoder(baseType);
         if (encoder) {
           return;
         }
         if (!parents[baseType]) {
-          logger$n.throwArgumentError(`unknown type ${JSON.stringify(baseType)}`, "types", types);
+          logger$k.throwArgumentError(`unknown type ${JSON.stringify(baseType)}`, "types", types);
         }
         parents[baseType].push(name2);
         links[name2][baseType] = true;
@@ -10412,14 +10714,14 @@ class TypedDataEncoder {
     }
     const primaryTypes = Object.keys(parents).filter((n) => parents[n].length === 0);
     if (primaryTypes.length === 0) {
-      logger$n.throwArgumentError("missing primary type", "types", types);
+      logger$k.throwArgumentError("missing primary type", "types", types);
     } else if (primaryTypes.length > 1) {
-      logger$n.throwArgumentError(`ambiguous primary types or unused types: ${primaryTypes.map((t) => JSON.stringify(t)).join(", ")}`, "types", types);
+      logger$k.throwArgumentError(`ambiguous primary types or unused types: ${primaryTypes.map((t) => JSON.stringify(t)).join(", ")}`, "types", types);
     }
     defineReadOnly(this, "primaryType", primaryTypes[0]);
     function checkCircular(type, found) {
       if (found[type]) {
-        logger$n.throwArgumentError(`circular type reference to ${JSON.stringify(type)}`, "types", types);
+        logger$k.throwArgumentError(`circular type reference to ${JSON.stringify(type)}`, "types", types);
       }
       found[type] = true;
       Object.keys(links[type]).forEach((child) => {
@@ -10461,13 +10763,13 @@ class TypedDataEncoder {
       const length = parseInt(match[3]);
       return (value) => {
         if (length >= 0 && value.length !== length) {
-          logger$n.throwArgumentError("array length mismatch; expected length ${ arrayLength }", "value", value);
+          logger$k.throwArgumentError("array length mismatch; expected length ${ arrayLength }", "value", value);
         }
         let result = value.map(subEncoder);
         if (this._types[subtype]) {
-          result = result.map(keccak256);
+          result = result.map(keccak256$1);
         }
-        return keccak256(hexConcat(result));
+        return keccak256$1(hexConcat(result));
       };
     }
     const fields = this.types[type];
@@ -10477,7 +10779,7 @@ class TypedDataEncoder {
         const values = fields.map(({name: name2, type: type2}) => {
           const result = this.getEncoder(type2)(value[name2]);
           if (this._types[type2]) {
-            return keccak256(result);
+            return keccak256$1(result);
           }
           return result;
         });
@@ -10485,12 +10787,12 @@ class TypedDataEncoder {
         return hexConcat(values);
       };
     }
-    return logger$n.throwArgumentError(`unknown type: ${type}`, "type", type);
+    return logger$k.throwArgumentError(`unknown type: ${type}`, "type", type);
   }
   encodeType(name2) {
     const result = this._types[name2];
     if (!result) {
-      logger$n.throwArgumentError(`unknown type: ${JSON.stringify(name2)}`, "name", name2);
+      logger$k.throwArgumentError(`unknown type: ${JSON.stringify(name2)}`, "name", name2);
     }
     return result;
   }
@@ -10498,7 +10800,7 @@ class TypedDataEncoder {
     return this.getEncoder(type)(value);
   }
   hashStruct(name2, value) {
-    return keccak256(this.encodeData(name2, value));
+    return keccak256$1(this.encodeData(name2, value));
   }
   encode(value) {
     return this.encodeData(this.primaryType, value);
@@ -10518,7 +10820,7 @@ class TypedDataEncoder {
       const subtype = match[1];
       const length = parseInt(match[3]);
       if (length >= 0 && value.length !== length) {
-        logger$n.throwArgumentError("array length mismatch; expected length ${ arrayLength }", "value", value);
+        logger$k.throwArgumentError("array length mismatch; expected length ${ arrayLength }", "value", value);
       }
       return value.map((v) => this._visit(subtype, v, callback));
     }
@@ -10529,7 +10831,7 @@ class TypedDataEncoder {
         return accum;
       }, {});
     }
-    return logger$n.throwArgumentError(`unknown type: ${type}`, "type", type);
+    return logger$k.throwArgumentError(`unknown type: ${type}`, "type", type);
   }
   visit(value, callback) {
     return this._visit(this.primaryType, value, callback);
@@ -10548,7 +10850,7 @@ class TypedDataEncoder {
     for (const name2 in domain) {
       const type = domainFieldTypes[name2];
       if (!type) {
-        logger$n.throwArgumentError(`invalid typed-data domain key: ${JSON.stringify(name2)}`, "domain", domain);
+        logger$k.throwArgumentError(`invalid typed-data domain key: ${JSON.stringify(name2)}`, "domain", domain);
       }
       domainFields.push({name: name2, type});
     }
@@ -10565,10 +10867,10 @@ class TypedDataEncoder {
     ]);
   }
   static hash(domain, types, value) {
-    return keccak256(TypedDataEncoder.encode(domain, types, value));
+    return keccak256$1(TypedDataEncoder.encode(domain, types, value));
   }
   static resolveNames(domain, types, value, resolveName2) {
-    return __awaiter$b(this, void 0, void 0, function* () {
+    return __awaiter$8(this, void 0, void 0, function* () {
       domain = shallowCopy(domain);
       const ensCache = {};
       if (domain.verifyingContract && !isHexString(domain.verifyingContract, 20)) {
@@ -10611,7 +10913,7 @@ class TypedDataEncoder {
     const encoder = TypedDataEncoder.from(types);
     const typesWithDomain = shallowCopy(types);
     if (typesWithDomain.EIP712Domain) {
-      logger$n.throwArgumentError("types must not contain EIP712Domain type", "types.EIP712Domain", types);
+      logger$k.throwArgumentError("types must not contain EIP712Domain type", "types.EIP712Domain", types);
     } else {
       typesWithDomain.EIP712Domain = domainTypes;
     }
@@ -10634,16 +10936,16 @@ class TypedDataEncoder {
             return !!value2;
           case "string":
             if (typeof value2 !== "string") {
-              logger$n.throwArgumentError(`invalid string`, "value", value2);
+              logger$k.throwArgumentError(`invalid string`, "value", value2);
             }
             return value2;
         }
-        return logger$n.throwArgumentError("unsupported type", "type", type);
+        return logger$k.throwArgumentError("unsupported type", "type", type);
       })
     };
   }
 }
-const logger$m = new Logger(version$e);
+const logger$j = new Logger(version$i);
 class LogDescription extends Description {
 }
 class TransactionDescription extends Description {
@@ -10660,7 +10962,7 @@ function wrapAccessError(property, error2) {
 }
 class Interface {
   constructor(fragments) {
-    logger$m.checkNew(new.target, Interface);
+    logger$j.checkNew(new.target, Interface);
     let abi = [];
     if (typeof fragments === "string") {
       abi = JSON.parse(fragments);
@@ -10680,7 +10982,7 @@ class Interface {
       switch (fragment.type) {
         case "constructor":
           if (this.deploy) {
-            logger$m.warn("duplicate definition - constructor");
+            logger$j.warn("duplicate definition - constructor");
             return;
           }
           defineReadOnly(this, "deploy", fragment);
@@ -10696,7 +10998,7 @@ class Interface {
       }
       let signature2 = fragment.format();
       if (bucket[signature2]) {
-        logger$m.warn("duplicate definition - " + signature2);
+        logger$j.warn("duplicate definition - " + signature2);
         return;
       }
       bucket[signature2] = fragment;
@@ -10714,7 +11016,7 @@ class Interface {
       format2 = FormatTypes.full;
     }
     if (format2 === FormatTypes.sighash) {
-      logger$m.throwArgumentError("interface does not support formatting sighash", "format", format2);
+      logger$j.throwArgumentError("interface does not support formatting sighash", "format", format2);
     }
     const abi = this.fragments.map((fragment) => fragment.format(format2));
     if (format2 === FormatTypes.json) {
@@ -10741,21 +11043,21 @@ class Interface {
           return this.functions[name2];
         }
       }
-      logger$m.throwArgumentError("no matching function", "sighash", nameOrSignatureOrSighash);
+      logger$j.throwArgumentError("no matching function", "sighash", nameOrSignatureOrSighash);
     }
     if (nameOrSignatureOrSighash.indexOf("(") === -1) {
       const name2 = nameOrSignatureOrSighash.trim();
       const matching = Object.keys(this.functions).filter((f2) => f2.split("(")[0] === name2);
       if (matching.length === 0) {
-        logger$m.throwArgumentError("no matching function", "name", name2);
+        logger$j.throwArgumentError("no matching function", "name", name2);
       } else if (matching.length > 1) {
-        logger$m.throwArgumentError("multiple matching functions", "name", name2);
+        logger$j.throwArgumentError("multiple matching functions", "name", name2);
       }
       return this.functions[matching[0]];
     }
     const result = this.functions[FunctionFragment.fromString(nameOrSignatureOrSighash).format()];
     if (!result) {
-      logger$m.throwArgumentError("no matching function", "signature", nameOrSignatureOrSighash);
+      logger$j.throwArgumentError("no matching function", "signature", nameOrSignatureOrSighash);
     }
     return result;
   }
@@ -10767,21 +11069,21 @@ class Interface {
           return this.events[name2];
         }
       }
-      logger$m.throwArgumentError("no matching event", "topichash", topichash);
+      logger$j.throwArgumentError("no matching event", "topichash", topichash);
     }
     if (nameOrSignatureOrTopic.indexOf("(") === -1) {
       const name2 = nameOrSignatureOrTopic.trim();
       const matching = Object.keys(this.events).filter((f2) => f2.split("(")[0] === name2);
       if (matching.length === 0) {
-        logger$m.throwArgumentError("no matching event", "name", name2);
+        logger$j.throwArgumentError("no matching event", "name", name2);
       } else if (matching.length > 1) {
-        logger$m.throwArgumentError("multiple matching events", "name", name2);
+        logger$j.throwArgumentError("multiple matching events", "name", name2);
       }
       return this.events[matching[0]];
     }
     const result = this.events[EventFragment.fromString(nameOrSignatureOrTopic).format()];
     if (!result) {
-      logger$m.throwArgumentError("no matching event", "signature", nameOrSignatureOrTopic);
+      logger$j.throwArgumentError("no matching event", "signature", nameOrSignatureOrTopic);
     }
     return result;
   }
@@ -10797,8 +11099,8 @@ class Interface {
     }
     return getStatic(this.constructor, "getEventTopic")(eventFragment);
   }
-  _decodeParams(params, data) {
-    return this._abiCoder.decode(params, data);
+  _decodeParams(params, data2) {
+    return this._abiCoder.decode(params, data2);
   }
   _encodeParams(params, values) {
     return this._abiCoder.encode(params, values);
@@ -10806,13 +11108,13 @@ class Interface {
   encodeDeploy(values) {
     return this._encodeParams(this.deploy.inputs, values || []);
   }
-  decodeFunctionData(functionFragment, data) {
+  decodeFunctionData(functionFragment, data2) {
     if (typeof functionFragment === "string") {
       functionFragment = this.getFunction(functionFragment);
     }
-    const bytes = arrayify(data);
+    const bytes = arrayify(data2);
     if (hexlify(bytes.slice(0, 4)) !== this.getSighash(functionFragment)) {
-      logger$m.throwArgumentError(`data signature does not match function ${functionFragment.name}.`, "data", hexlify(bytes));
+      logger$j.throwArgumentError(`data signature does not match function ${functionFragment.name}.`, "data", hexlify(bytes));
     }
     return this._decodeParams(functionFragment.inputs, bytes.slice(4));
   }
@@ -10825,11 +11127,11 @@ class Interface {
       this._encodeParams(functionFragment.inputs, values || [])
     ]));
   }
-  decodeFunctionResult(functionFragment, data) {
+  decodeFunctionResult(functionFragment, data2) {
     if (typeof functionFragment === "string") {
       functionFragment = this.getFunction(functionFragment);
     }
-    let bytes = arrayify(data);
+    let bytes = arrayify(data2);
     let reason = null;
     let errorSignature = null;
     switch (bytes.length % this._abiCoder._getWordSize()) {
@@ -10846,7 +11148,7 @@ class Interface {
         }
         break;
     }
-    return logger$m.throwError("call revert exception", Logger.errors.CALL_EXCEPTION, {
+    return logger$j.throwError("call revert exception", Logger.errors.CALL_EXCEPTION, {
       method: functionFragment.format(),
       errorSignature,
       errorArgs: [reason],
@@ -10864,7 +11166,7 @@ class Interface {
       eventFragment = this.getEvent(eventFragment);
     }
     if (values.length > eventFragment.inputs.length) {
-      logger$m.throwError("too many arguments for " + eventFragment.format(), Logger.errors.UNEXPECTED_ARGUMENT, {
+      logger$j.throwError("too many arguments for " + eventFragment.format(), Logger.errors.UNEXPECTED_ARGUMENT, {
         argument: "values",
         value: values
       });
@@ -10877,7 +11179,7 @@ class Interface {
       if (param.type === "string") {
         return id(value);
       } else if (param.type === "bytes") {
-        return keccak256(hexlify(value));
+        return keccak256$1(hexlify(value));
       }
       if (param.type === "address") {
         this._abiCoder.encode(["address"], [value]);
@@ -10888,14 +11190,14 @@ class Interface {
       let param = eventFragment.inputs[index2];
       if (!param.indexed) {
         if (value != null) {
-          logger$m.throwArgumentError("cannot filter non-indexed parameters; must be null", "contract." + param.name, value);
+          logger$j.throwArgumentError("cannot filter non-indexed parameters; must be null", "contract." + param.name, value);
         }
         return;
       }
       if (value == null) {
         topics.push(null);
       } else if (param.baseType === "array" || param.baseType === "tuple") {
-        logger$m.throwArgumentError("filtering with tuples or arrays not supported", "contract." + param.name, value);
+        logger$j.throwArgumentError("filtering with tuples or arrays not supported", "contract." + param.name, value);
       } else if (Array.isArray(value)) {
         topics.push(value.map((value2) => encodeTopic(param, value2)));
       } else {
@@ -10918,7 +11220,7 @@ class Interface {
       topics.push(this.getEventTopic(eventFragment));
     }
     if (values.length !== eventFragment.inputs.length) {
-      logger$m.throwArgumentError("event arguments/values mismatch", "values", values);
+      logger$j.throwArgumentError("event arguments/values mismatch", "values", values);
     }
     eventFragment.inputs.forEach((param, index2) => {
       const value = values[index2];
@@ -10926,7 +11228,7 @@ class Interface {
         if (param.type === "string") {
           topics.push(id(value));
         } else if (param.type === "bytes") {
-          topics.push(keccak256(value));
+          topics.push(keccak256$1(value));
         } else if (param.baseType === "tuple" || param.baseType === "array") {
           throw new Error("not implemented");
         } else {
@@ -10942,14 +11244,14 @@ class Interface {
       topics
     };
   }
-  decodeEventLog(eventFragment, data, topics) {
+  decodeEventLog(eventFragment, data2, topics) {
     if (typeof eventFragment === "string") {
       eventFragment = this.getEvent(eventFragment);
     }
     if (topics != null && !eventFragment.anonymous) {
       let topicHash = this.getEventTopic(eventFragment);
       if (!isHexString(topics[0], 32) || topics[0].toLowerCase() !== topicHash) {
-        logger$m.throwError("fragment/topic mismatch", Logger.errors.INVALID_ARGUMENT, {argument: "topics[0]", expected: topicHash, value: topics[0]});
+        logger$j.throwError("fragment/topic mismatch", Logger.errors.INVALID_ARGUMENT, {argument: "topics[0]", expected: topicHash, value: topics[0]});
       }
       topics = topics.slice(1);
     }
@@ -10971,7 +11273,7 @@ class Interface {
       }
     });
     let resultIndexed = topics != null ? this._abiCoder.decode(indexed, concat(topics)) : null;
-    let resultNonIndexed = this._abiCoder.decode(nonIndexed, data, true);
+    let resultNonIndexed = this._abiCoder.decode(nonIndexed, data2, true);
     let result = [];
     let nonIndexedIndex = 0, indexedIndex = 0;
     eventFragment.inputs.forEach((param, index2) => {
@@ -11050,8 +11352,8 @@ class Interface {
     return !!(value && value._isInterface);
   }
 }
-const version$9 = "abstract-provider/5.1.0";
-const logger$l = new Logger(version$9);
+const version$d = "abstract-provider/5.1.0";
+const logger$i = new Logger(version$d);
 class ForkEvent extends Description {
   static isForkEvent(value) {
     return !!(value && value._isForkEvent);
@@ -11059,7 +11361,7 @@ class ForkEvent extends Description {
 }
 class Provider {
   constructor() {
-    logger$l.checkAbstract(new.target, Provider);
+    logger$i.checkAbstract(new.target, Provider);
     defineReadOnly(this, "_isProvider", true);
   }
   addListener(eventName, listener) {
@@ -11072,8 +11374,8 @@ class Provider {
     return !!(value && value._isProvider);
   }
 }
-const version$8 = "abstract-signer/5.1.0";
-var __awaiter$a = function(thisArg, _arguments, P, generator) {
+const version$c = "abstract-signer/5.1.0";
+var __awaiter$7 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -11100,8 +11402,8 @@ var __awaiter$a = function(thisArg, _arguments, P, generator) {
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 };
-const logger$k = new Logger(version$8);
-const allowedTransactionKeys$1 = [
+const logger$h = new Logger(version$c);
+const allowedTransactionKeys$2 = [
   "accessList",
   "chainId",
   "data",
@@ -11120,30 +11422,30 @@ const forwardErrors = [
 ];
 class Signer {
   constructor() {
-    logger$k.checkAbstract(new.target, Signer);
+    logger$h.checkAbstract(new.target, Signer);
     defineReadOnly(this, "_isSigner", true);
   }
   getBalance(blockTag) {
-    return __awaiter$a(this, void 0, void 0, function* () {
+    return __awaiter$7(this, void 0, void 0, function* () {
       this._checkProvider("getBalance");
       return yield this.provider.getBalance(this.getAddress(), blockTag);
     });
   }
   getTransactionCount(blockTag) {
-    return __awaiter$a(this, void 0, void 0, function* () {
+    return __awaiter$7(this, void 0, void 0, function* () {
       this._checkProvider("getTransactionCount");
       return yield this.provider.getTransactionCount(this.getAddress(), blockTag);
     });
   }
   estimateGas(transaction) {
-    return __awaiter$a(this, void 0, void 0, function* () {
+    return __awaiter$7(this, void 0, void 0, function* () {
       this._checkProvider("estimateGas");
       const tx = yield resolveProperties(this.checkTransaction(transaction));
       return yield this.provider.estimateGas(tx);
     });
   }
   call(transaction, blockTag) {
-    return __awaiter$a(this, void 0, void 0, function* () {
+    return __awaiter$7(this, void 0, void 0, function* () {
       this._checkProvider("call");
       const tx = yield resolveProperties(this.checkTransaction(transaction));
       return yield this.provider.call(tx, blockTag);
@@ -11158,28 +11460,28 @@ class Signer {
     });
   }
   getChainId() {
-    return __awaiter$a(this, void 0, void 0, function* () {
+    return __awaiter$7(this, void 0, void 0, function* () {
       this._checkProvider("getChainId");
       const network = yield this.provider.getNetwork();
       return network.chainId;
     });
   }
   getGasPrice() {
-    return __awaiter$a(this, void 0, void 0, function* () {
+    return __awaiter$7(this, void 0, void 0, function* () {
       this._checkProvider("getGasPrice");
       return yield this.provider.getGasPrice();
     });
   }
   resolveName(name2) {
-    return __awaiter$a(this, void 0, void 0, function* () {
+    return __awaiter$7(this, void 0, void 0, function* () {
       this._checkProvider("resolveName");
       return yield this.provider.resolveName(name2);
     });
   }
   checkTransaction(transaction) {
     for (const key2 in transaction) {
-      if (allowedTransactionKeys$1.indexOf(key2) === -1) {
-        logger$k.throwArgumentError("invalid transaction key: " + key2, "transaction", transaction);
+      if (allowedTransactionKeys$2.indexOf(key2) === -1) {
+        logger$h.throwArgumentError("invalid transaction key: " + key2, "transaction", transaction);
       }
     }
     const tx = shallowCopy(transaction);
@@ -11191,7 +11493,7 @@ class Signer {
         this.getAddress()
       ]).then((result) => {
         if (result[0].toLowerCase() !== result[1].toLowerCase()) {
-          logger$k.throwArgumentError("from address mismatch", "transaction", transaction);
+          logger$h.throwArgumentError("from address mismatch", "transaction", transaction);
         }
         return result[0];
       });
@@ -11199,16 +11501,16 @@ class Signer {
     return tx;
   }
   populateTransaction(transaction) {
-    return __awaiter$a(this, void 0, void 0, function* () {
+    return __awaiter$7(this, void 0, void 0, function* () {
       const tx = yield resolveProperties(this.checkTransaction(transaction));
       if (tx.to != null) {
-        tx.to = Promise.resolve(tx.to).then((to) => __awaiter$a(this, void 0, void 0, function* () {
+        tx.to = Promise.resolve(tx.to).then((to) => __awaiter$7(this, void 0, void 0, function* () {
           if (to == null) {
             return null;
           }
           const address = yield this.resolveName(to);
           if (address == null) {
-            logger$k.throwArgumentError("provided ENS name resolves to null", "tx.to", to);
+            logger$h.throwArgumentError("provided ENS name resolves to null", "tx.to", to);
           }
           return address;
         }));
@@ -11224,7 +11526,7 @@ class Signer {
           if (forwardErrors.indexOf(error2.code) >= 0) {
             throw error2;
           }
-          return logger$k.throwError("cannot estimate gas; transaction may fail or may require manual gas limit", Logger.errors.UNPREDICTABLE_GAS_LIMIT, {
+          return logger$h.throwError("cannot estimate gas; transaction may fail or may require manual gas limit", Logger.errors.UNPREDICTABLE_GAS_LIMIT, {
             error: error2,
             tx
           });
@@ -11238,7 +11540,7 @@ class Signer {
           this.getChainId()
         ]).then((results) => {
           if (results[1] !== 0 && results[0] !== results[1]) {
-            logger$k.throwArgumentError("chainId address mismatch", "transaction", transaction);
+            logger$h.throwArgumentError("chainId address mismatch", "transaction", transaction);
           }
           return results[0];
         });
@@ -11248,7 +11550,7 @@ class Signer {
   }
   _checkProvider(operation) {
     if (!this.provider) {
-      logger$k.throwError("missing provider", Logger.errors.UNSUPPORTED_OPERATION, {
+      logger$h.throwError("missing provider", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: operation || "_checkProvider"
       });
     }
@@ -11258,18 +11560,18 @@ class Signer {
   }
 }
 class VoidSigner extends Signer {
-  constructor(address, provider) {
-    logger$k.checkNew(new.target, VoidSigner);
+  constructor(address, provider2) {
+    logger$h.checkNew(new.target, VoidSigner);
     super();
     defineReadOnly(this, "address", address);
-    defineReadOnly(this, "provider", provider || null);
+    defineReadOnly(this, "provider", provider2 || null);
   }
   getAddress() {
     return Promise.resolve(this.address);
   }
   _fail(message, operation) {
     return Promise.resolve().then(() => {
-      logger$k.throwError(message, Logger.errors.UNSUPPORTED_OPERATION, {operation});
+      logger$h.throwError(message, Logger.errors.UNSUPPORTED_OPERATION, {operation});
     });
   }
   signMessage(message) {
@@ -11281,8 +11583,8 @@ class VoidSigner extends Signer {
   _signTypedData(domain, types, value) {
     return this._fail("VoidSigner cannot sign typed data", "signTypedData");
   }
-  connect(provider) {
-    return new VoidSigner(this.address, provider);
+  connect(provider2) {
+    return new VoidSigner(this.address, provider2);
   }
 }
 var minimalisticAssert$1 = assert$6;
@@ -11558,7 +11860,7 @@ function shr64_lo$3(ah, al, num) {
   return r2 >>> 0;
 }
 var shr64_lo_1$1 = shr64_lo$3;
-var utils$1 = {
+var utils$2 = {
   inherits: inherits_1$1,
   toArray: toArray_1$1,
   toHex: toHex_1$1,
@@ -11599,7 +11901,7 @@ function BlockHash$9() {
 }
 var BlockHash_1$1 = BlockHash$9;
 BlockHash$9.prototype.update = function update(msg, enc) {
-  msg = utils$1.toArray(msg, enc);
+  msg = utils$2.toArray(msg, enc);
   if (!this.pending)
     this.pending = msg;
   else
@@ -11611,7 +11913,7 @@ BlockHash$9.prototype.update = function update(msg, enc) {
     this.pending = msg.slice(msg.length - r2, msg.length);
     if (this.pending.length === 0)
       this.pending = null;
-    msg = utils$1.join32(msg, 0, msg.length - r2, this.endian);
+    msg = utils$2.join32(msg, 0, msg.length - r2, this.endian);
     for (var i = 0; i < msg.length; i += this._delta32)
       this._update(msg, i, i + this._delta32);
   }
@@ -11659,7 +11961,7 @@ BlockHash$9.prototype._pad = function pad() {
 var common$3 = {
   BlockHash: BlockHash_1$1
 };
-var rotr32$2 = utils$1.rotr32;
+var rotr32$2 = utils$2.rotr32;
 function ft_1$3(s2, x, y, z) {
   if (s2 === 0)
     return ch32$3(x, y, z);
@@ -11707,9 +12009,9 @@ var common$2 = {
   g0_256: g0_256_1$1,
   g1_256: g1_256_1$1
 };
-var rotl32$4 = utils$1.rotl32;
-var sum32$6 = utils$1.sum32;
-var sum32_5$4 = utils$1.sum32_5;
+var rotl32$4 = utils$2.rotl32;
+var sum32$6 = utils$2.sum32;
+var sum32_5$4 = utils$2.sum32_5;
 var ft_1$2 = common$2.ft_1;
 var BlockHash$8 = common$3.BlockHash;
 var sha1_K$1 = [
@@ -11731,7 +12033,7 @@ function SHA1$1() {
   ];
   this.W = new Array(80);
 }
-utils$1.inherits(SHA1$1, BlockHash$8);
+utils$2.inherits(SHA1$1, BlockHash$8);
 var _1$1 = SHA1$1;
 SHA1$1.blockSize = 512;
 SHA1$1.outSize = 160;
@@ -11765,13 +12067,13 @@ SHA1$1.prototype._update = function _update(msg, start) {
 };
 SHA1$1.prototype._digest = function digest2(enc) {
   if (enc === "hex")
-    return utils$1.toHex32(this.h, "big");
+    return utils$2.toHex32(this.h, "big");
   else
-    return utils$1.split32(this.h, "big");
+    return utils$2.split32(this.h, "big");
 };
-var sum32$5 = utils$1.sum32;
-var sum32_4$4 = utils$1.sum32_4;
-var sum32_5$3 = utils$1.sum32_5;
+var sum32$5 = utils$2.sum32;
+var sum32_4$4 = utils$2.sum32_4;
+var sum32_5$3 = utils$2.sum32_5;
 var ch32$2 = common$2.ch32;
 var maj32$2 = common$2.maj32;
 var s0_256$2 = common$2.s0_256;
@@ -11862,7 +12164,7 @@ function SHA256$1() {
   this.k = sha256_K$1;
   this.W = new Array(64);
 }
-utils$1.inherits(SHA256$1, BlockHash$7);
+utils$2.inherits(SHA256$1, BlockHash$7);
 var _256$1 = SHA256$1;
 SHA256$1.blockSize = 512;
 SHA256$1.outSize = 256;
@@ -11906,9 +12208,9 @@ SHA256$1.prototype._update = function _update2(msg, start) {
 };
 SHA256$1.prototype._digest = function digest3(enc) {
   if (enc === "hex")
-    return utils$1.toHex32(this.h, "big");
+    return utils$2.toHex32(this.h, "big");
   else
-    return utils$1.split32(this.h, "big");
+    return utils$2.split32(this.h, "big");
 };
 function SHA224$1() {
   if (!(this instanceof SHA224$1))
@@ -11925,7 +12227,7 @@ function SHA224$1() {
     3204075428
   ];
 }
-utils$1.inherits(SHA224$1, _256$1);
+utils$2.inherits(SHA224$1, _256$1);
 var _224$1 = SHA224$1;
 SHA224$1.blockSize = 512;
 SHA224$1.outSize = 224;
@@ -11933,21 +12235,21 @@ SHA224$1.hmacStrength = 192;
 SHA224$1.padLength = 64;
 SHA224$1.prototype._digest = function digest4(enc) {
   if (enc === "hex")
-    return utils$1.toHex32(this.h.slice(0, 7), "big");
+    return utils$2.toHex32(this.h.slice(0, 7), "big");
   else
-    return utils$1.split32(this.h.slice(0, 7), "big");
+    return utils$2.split32(this.h.slice(0, 7), "big");
 };
-var rotr64_hi$2 = utils$1.rotr64_hi;
-var rotr64_lo$2 = utils$1.rotr64_lo;
-var shr64_hi$2 = utils$1.shr64_hi;
-var shr64_lo$2 = utils$1.shr64_lo;
-var sum64$2 = utils$1.sum64;
-var sum64_hi$2 = utils$1.sum64_hi;
-var sum64_lo$2 = utils$1.sum64_lo;
-var sum64_4_hi$2 = utils$1.sum64_4_hi;
-var sum64_4_lo$2 = utils$1.sum64_4_lo;
-var sum64_5_hi$2 = utils$1.sum64_5_hi;
-var sum64_5_lo$2 = utils$1.sum64_5_lo;
+var rotr64_hi$2 = utils$2.rotr64_hi;
+var rotr64_lo$2 = utils$2.rotr64_lo;
+var shr64_hi$2 = utils$2.shr64_hi;
+var shr64_lo$2 = utils$2.shr64_lo;
+var sum64$2 = utils$2.sum64;
+var sum64_hi$2 = utils$2.sum64_hi;
+var sum64_lo$2 = utils$2.sum64_lo;
+var sum64_4_hi$2 = utils$2.sum64_4_hi;
+var sum64_4_lo$2 = utils$2.sum64_4_lo;
+var sum64_5_hi$2 = utils$2.sum64_5_hi;
+var sum64_5_lo$2 = utils$2.sum64_5_lo;
 var BlockHash$6 = common$3.BlockHash;
 var sha512_K$1 = [
   1116352408,
@@ -12136,7 +12438,7 @@ function SHA512$1() {
   this.k = sha512_K$1;
   this.W = new Array(160);
 }
-utils$1.inherits(SHA512$1, BlockHash$6);
+utils$2.inherits(SHA512$1, BlockHash$6);
 var _512$1 = SHA512$1;
 SHA512$1.blockSize = 1024;
 SHA512$1.outSize = 512;
@@ -12226,9 +12528,9 @@ SHA512$1.prototype._update = function _update3(msg, start) {
 };
 SHA512$1.prototype._digest = function digest5(enc) {
   if (enc === "hex")
-    return utils$1.toHex32(this.h, "big");
+    return utils$2.toHex32(this.h, "big");
   else
-    return utils$1.split32(this.h, "big");
+    return utils$2.split32(this.h, "big");
 };
 function ch64_hi$1(xh, xl, yh, yl, zh) {
   var r2 = xh & yh ^ ~xh & zh;
@@ -12349,7 +12651,7 @@ function SHA384$1() {
     3204075428
   ];
 }
-utils$1.inherits(SHA384$1, _512$1);
+utils$2.inherits(SHA384$1, _512$1);
 var _384$1 = SHA384$1;
 SHA384$1.blockSize = 1024;
 SHA384$1.outSize = 384;
@@ -12357,26 +12659,26 @@ SHA384$1.hmacStrength = 192;
 SHA384$1.padLength = 128;
 SHA384$1.prototype._digest = function digest6(enc) {
   if (enc === "hex")
-    return utils$1.toHex32(this.h.slice(0, 12), "big");
+    return utils$2.toHex32(this.h.slice(0, 12), "big");
   else
-    return utils$1.split32(this.h.slice(0, 12), "big");
+    return utils$2.split32(this.h.slice(0, 12), "big");
 };
 var sha1$1 = _1$1;
 var sha224$1 = _224$1;
-var sha256$2 = _256$1;
+var sha256$3 = _256$1;
 var sha384$1 = _384$1;
-var sha512$1 = _512$1;
+var sha512$2 = _512$1;
 var sha$1 = {
   sha1: sha1$1,
   sha224: sha224$1,
-  sha256: sha256$2,
+  sha256: sha256$3,
   sha384: sha384$1,
-  sha512: sha512$1
+  sha512: sha512$2
 };
-var rotl32$3 = utils$1.rotl32;
-var sum32$4 = utils$1.sum32;
-var sum32_3$2 = utils$1.sum32_3;
-var sum32_4$3 = utils$1.sum32_4;
+var rotl32$3 = utils$2.rotl32;
+var sum32$4 = utils$2.sum32;
+var sum32_3$2 = utils$2.sum32_3;
+var sum32_4$3 = utils$2.sum32_4;
 var BlockHash$5 = common$3.BlockHash;
 function RIPEMD160$1() {
   if (!(this instanceof RIPEMD160$1))
@@ -12385,8 +12687,8 @@ function RIPEMD160$1() {
   this.h = [1732584193, 4023233417, 2562383102, 271733878, 3285377520];
   this.endian = "little";
 }
-utils$1.inherits(RIPEMD160$1, BlockHash$5);
-var ripemd160$1 = RIPEMD160$1;
+utils$2.inherits(RIPEMD160$1, BlockHash$5);
+var ripemd160$2 = RIPEMD160$1;
 RIPEMD160$1.blockSize = 512;
 RIPEMD160$1.outSize = 160;
 RIPEMD160$1.hmacStrength = 192;
@@ -12425,9 +12727,9 @@ RIPEMD160$1.prototype._update = function update2(msg, start) {
 };
 RIPEMD160$1.prototype._digest = function digest7(enc) {
   if (enc === "hex")
-    return utils$1.toHex32(this.h, "little");
+    return utils$2.toHex32(this.h, "little");
   else
-    return utils$1.split32(this.h, "little");
+    return utils$2.split32(this.h, "little");
 };
 function f$1(j, x, y, z) {
   if (j <= 15)
@@ -12794,7 +13096,7 @@ var sh$1 = [
   11
 ];
 var ripemd$1 = {
-  ripemd160: ripemd160$1
+  ripemd160: ripemd160$2
 };
 function Hmac$1(hash, key2, enc) {
   if (!(this instanceof Hmac$1))
@@ -12804,7 +13106,7 @@ function Hmac$1(hash, key2, enc) {
   this.outSize = hash.outSize / 8;
   this.inner = null;
   this.outer = null;
-  this._init(utils$1.toArray(key2, enc));
+  this._init(utils$2.toArray(key2, enc));
 }
 var hmac$1 = Hmac$1;
 Hmac$1.prototype._init = function init2(key2) {
@@ -12830,7 +13132,7 @@ Hmac$1.prototype.digest = function digest8(enc) {
 };
 var hash_1$1 = createCommonjsModule$1(function(module, exports) {
   var hash = exports;
-  hash.utils = utils$1;
+  hash.utils = utils$2;
   hash.common = common$3;
   hash.sha = sha$1;
   hash.ripemd = ripemd$1;
@@ -14408,39 +14710,39 @@ function rmPadding(buf) {
   }
   return buf.slice(i);
 }
-Signature.prototype._importDER = function _importDER(data, enc) {
-  data = utils_1$1.toArray(data, enc);
+Signature.prototype._importDER = function _importDER(data2, enc) {
+  data2 = utils_1$1.toArray(data2, enc);
   var p = new Position();
-  if (data[p.place++] !== 48) {
+  if (data2[p.place++] !== 48) {
     return false;
   }
-  var len = getLength(data, p);
+  var len = getLength(data2, p);
   if (len === false) {
     return false;
   }
-  if (len + p.place !== data.length) {
+  if (len + p.place !== data2.length) {
     return false;
   }
-  if (data[p.place++] !== 2) {
+  if (data2[p.place++] !== 2) {
     return false;
   }
-  var rlen = getLength(data, p);
+  var rlen = getLength(data2, p);
   if (rlen === false) {
     return false;
   }
-  var r2 = data.slice(p.place, rlen + p.place);
+  var r2 = data2.slice(p.place, rlen + p.place);
   p.place += rlen;
-  if (data[p.place++] !== 2) {
+  if (data2[p.place++] !== 2) {
     return false;
   }
-  var slen = getLength(data, p);
+  var slen = getLength(data2, p);
   if (slen === false) {
     return false;
   }
-  if (data.length !== slen + p.place) {
+  if (data2.length !== slen + p.place) {
     return false;
   }
-  var s2 = data.slice(p.place, slen + p.place);
+  var s2 = data2.slice(p.place, slen + p.place);
   if (r2[0] === 0) {
     if (r2[1] & 128) {
       r2 = r2.slice(1);
@@ -14674,8 +14976,8 @@ var elliptic_1 = createCommonjsModule(function(module, exports) {
   elliptic.eddsa = null;
 });
 var EC$1 = elliptic_1.ec;
-const version$7 = "signing-key/5.1.0";
-const logger$j = new Logger(version$7);
+const version$b = "signing-key/5.1.0";
+const logger$g = new Logger(version$b);
 let _curve = null;
 function getCurve() {
   if (!_curve) {
@@ -14701,7 +15003,7 @@ class SigningKey {
     const keyPair2 = getCurve().keyFromPrivate(arrayify(this.privateKey));
     const digestBytes = arrayify(digest17);
     if (digestBytes.length !== 32) {
-      logger$j.throwArgumentError("bad digest length", "digest", digest17);
+      logger$g.throwArgumentError("bad digest length", "digest", digest17);
     }
     const signature2 = keyPair2.sign(digestBytes, {canonical: true});
     return splitSignature({
@@ -14743,10 +15045,10 @@ function computePublicKey(key2, compressed) {
     }
     return "0x" + getCurve().keyFromPublic(bytes).getPublic(true, "hex");
   }
-  return logger$j.throwArgumentError("invalid public or private key", "key", "[REDACTED]");
+  return logger$g.throwArgumentError("invalid public or private key", "key", "[REDACTED]");
 }
-const version$6 = "transactions/5.1.0";
-const logger$i = new Logger(version$6);
+const version$a = "transactions/5.1.0";
+const logger$f = new Logger(version$a);
 function handleAddress(value) {
   if (value === "0x") {
     return null;
@@ -14759,9 +15061,26 @@ function handleNumber(value) {
   }
   return BigNumber.from(value);
 }
+const transactionFields = [
+  {name: "nonce", maxLength: 32, numeric: true},
+  {name: "gasPrice", maxLength: 32, numeric: true},
+  {name: "gasLimit", maxLength: 32, numeric: true},
+  {name: "to", length: 20},
+  {name: "value", maxLength: 32, numeric: true},
+  {name: "data"}
+];
+const allowedTransactionKeys$1 = {
+  chainId: true,
+  data: true,
+  gasLimit: true,
+  gasPrice: true,
+  nonce: true,
+  to: true,
+  value: true
+};
 function computeAddress(key2) {
   const publicKey = computePublicKey(key2);
-  return getAddress(hexDataSlice(keccak256(hexDataSlice(publicKey, 1)), 12));
+  return getAddress(hexDataSlice(keccak256$1(hexDataSlice(publicKey, 1)), 12));
 }
 function recoverAddress(digest17, signature2) {
   return computeAddress(recoverPublicKey(arrayify(digest17), signature2));
@@ -14769,7 +15088,7 @@ function recoverAddress(digest17, signature2) {
 function formatNumber(value, name2) {
   const result = stripZeros(BigNumber.from(value).toHexString());
   if (result.length > 32) {
-    logger$i.throwArgumentError("invalid length for " + name2, "transaction:" + name2, value);
+    logger$f.throwArgumentError("invalid length for " + name2, "transaction:" + name2, value);
   }
   return result;
 }
@@ -14778,7 +15097,7 @@ function accessSetify(addr, storageKeys) {
     address: getAddress(addr),
     storageKeys: (storageKeys || []).map((storageKey, index2) => {
       if (hexDataLength(storageKey) !== 32) {
-        logger$i.throwArgumentError("invalid access list storageKey", `accessList[${addr}:${index2}]`, storageKey);
+        logger$f.throwArgumentError("invalid access list storageKey", `accessList[${addr}:${index2}]`, storageKey);
       }
       return storageKey.toLowerCase();
     })
@@ -14789,7 +15108,7 @@ function accessListify(value) {
     return value.map((set, index2) => {
       if (Array.isArray(set)) {
         if (set.length > 2) {
-          logger$i.throwArgumentError("access list expected to be [ address, storageKeys[] ]", `value[${index2}]`, set);
+          logger$f.throwArgumentError("access list expected to be [ address, storageKeys[] ]", `value[${index2}]`, set);
         }
         return accessSetify(set[0], set[1]);
       }
@@ -14828,10 +15147,79 @@ function _serializeEip2930(transaction, signature2) {
   }
   return hexConcat(["0x01", encode$2(fields)]);
 }
+function _serialize(transaction, signature2) {
+  checkProperties(transaction, allowedTransactionKeys$1);
+  const raw = [];
+  transactionFields.forEach(function(fieldInfo) {
+    let value = transaction[fieldInfo.name] || [];
+    const options = {};
+    if (fieldInfo.numeric) {
+      options.hexPad = "left";
+    }
+    value = arrayify(hexlify(value, options));
+    if (fieldInfo.length && value.length !== fieldInfo.length && value.length > 0) {
+      logger$f.throwArgumentError("invalid length for " + fieldInfo.name, "transaction:" + fieldInfo.name, value);
+    }
+    if (fieldInfo.maxLength) {
+      value = stripZeros(value);
+      if (value.length > fieldInfo.maxLength) {
+        logger$f.throwArgumentError("invalid length for " + fieldInfo.name, "transaction:" + fieldInfo.name, value);
+      }
+    }
+    raw.push(hexlify(value));
+  });
+  let chainId = 0;
+  if (transaction.chainId != null) {
+    chainId = transaction.chainId;
+    if (typeof chainId !== "number") {
+      logger$f.throwArgumentError("invalid transaction.chainId", "transaction", transaction);
+    }
+  } else if (signature2 && !isBytesLike(signature2) && signature2.v > 28) {
+    chainId = Math.floor((signature2.v - 35) / 2);
+  }
+  if (chainId !== 0) {
+    raw.push(hexlify(chainId));
+    raw.push("0x");
+    raw.push("0x");
+  }
+  if (!signature2) {
+    return encode$2(raw);
+  }
+  const sig = splitSignature(signature2);
+  let v = 27 + sig.recoveryParam;
+  if (chainId !== 0) {
+    raw.pop();
+    raw.pop();
+    raw.pop();
+    v += chainId * 2 + 8;
+    if (sig.v > 28 && sig.v !== v) {
+      logger$f.throwArgumentError("transaction.chainId/signature.v mismatch", "signature", signature2);
+    }
+  } else if (sig.v !== v) {
+    logger$f.throwArgumentError("transaction.chainId/signature.v mismatch", "signature", signature2);
+  }
+  raw.push(hexlify(v));
+  raw.push(stripZeros(arrayify(sig.r)));
+  raw.push(stripZeros(arrayify(sig.s)));
+  return encode$2(raw);
+}
+function serialize(transaction, signature2) {
+  if (transaction.type == null) {
+    return _serialize(transaction, signature2);
+  }
+  switch (transaction.type) {
+    case 1:
+      return _serializeEip2930(transaction, signature2);
+  }
+  return logger$f.throwError(`unsupported transaction type: ${transaction.type}`, Logger.errors.UNSUPPORTED_OPERATION, {
+    operation: "serializeTransaction",
+    transactionType: transaction.type
+  });
+}
 function _parseEip2930(payload) {
-  const transaction = decode$1(payload.slice(1));
+  const transaction = decode$2(payload.slice(1));
   if (transaction.length !== 8 && transaction.length !== 11) {
-    logger$i.throwArgumentError("invalid component count for transaction type: 1", "payload", hexlify(payload));
+    logger$f.throwArgumentError("invalid component count for transaction type: 1", "payload", hexlify(payload));
   }
   const tx = {
     type: 1,
@@ -14854,23 +15242,23 @@ function _parseEip2930(payload) {
     }
     tx.v = recid;
   } catch (error2) {
-    logger$i.throwArgumentError("invalid v for transaction type: 1", "v", transaction[8]);
+    logger$f.throwArgumentError("invalid v for transaction type: 1", "v", transaction[8]);
   }
   tx.r = hexZeroPad(transaction[9], 32);
   tx.s = hexZeroPad(transaction[10], 32);
   try {
-    const digest17 = keccak256(_serializeEip2930(tx));
+    const digest17 = keccak256$1(_serializeEip2930(tx));
     tx.from = recoverAddress(digest17, {r: tx.r, s: tx.s, recoveryParam: tx.v});
   } catch (error2) {
     console.log(error2);
   }
-  tx.hash = keccak256(payload);
+  tx.hash = keccak256$1(payload);
   return tx;
 }
 function _parse(rawTransaction) {
-  const transaction = decode$1(rawTransaction);
+  const transaction = decode$2(rawTransaction);
   if (transaction.length !== 9 && transaction.length !== 6) {
-    logger$i.throwArgumentError("invalid raw transaction", "rawTransaction", rawTransaction);
+    logger$f.throwArgumentError("invalid raw transaction", "rawTransaction", rawTransaction);
   }
   const tx = {
     nonce: handleNumber(transaction[0]).toNumber(),
@@ -14908,13 +15296,13 @@ function _parse(rawTransaction) {
       raw.push("0x");
       recoveryParam -= tx.chainId * 2 + 8;
     }
-    const digest17 = keccak256(encode$2(raw));
+    const digest17 = keccak256$1(encode$2(raw));
     try {
       tx.from = recoverAddress(digest17, {r: hexlify(tx.r), s: hexlify(tx.s), recoveryParam});
     } catch (error2) {
       console.log(error2);
     }
-    tx.hash = keccak256(rawTransaction);
+    tx.hash = keccak256$1(rawTransaction);
   }
   tx.type = null;
   return tx;
@@ -14928,13 +15316,13 @@ function parse(rawTransaction) {
     case 1:
       return _parseEip2930(payload);
   }
-  return logger$i.throwError(`unsupported transaction type: ${payload[0]}`, Logger.errors.UNSUPPORTED_OPERATION, {
+  return logger$f.throwError(`unsupported transaction type: ${payload[0]}`, Logger.errors.UNSUPPORTED_OPERATION, {
     operation: "parseTransaction",
     transactionType: payload[0]
   });
 }
-const version$5 = "contracts/5.1.0";
-var __awaiter$9 = function(thisArg, _arguments, P, generator) {
+const version$9 = "contracts/5.1.0";
+var __awaiter$6 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -14961,28 +15349,28 @@ var __awaiter$9 = function(thisArg, _arguments, P, generator) {
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 };
-const logger$h = new Logger(version$5);
+const logger$e = new Logger(version$9);
 function resolveName(resolver, nameOrPromise) {
-  return __awaiter$9(this, void 0, void 0, function* () {
+  return __awaiter$6(this, void 0, void 0, function* () {
     const name2 = yield nameOrPromise;
     try {
       return getAddress(name2);
     } catch (error2) {
     }
     if (!resolver) {
-      logger$h.throwError("a provider or signer is needed to resolve ENS names", Logger.errors.UNSUPPORTED_OPERATION, {
+      logger$e.throwError("a provider or signer is needed to resolve ENS names", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "resolveName"
       });
     }
     const address = yield resolver.resolveName(name2);
     if (address == null) {
-      logger$h.throwArgumentError("resolver or addr is not configured for ENS name", "name", name2);
+      logger$e.throwArgumentError("resolver or addr is not configured for ENS name", "name", name2);
     }
     return address;
   });
 }
 function resolveAddresses(resolver, value, paramType) {
-  return __awaiter$9(this, void 0, void 0, function* () {
+  return __awaiter$6(this, void 0, void 0, function* () {
     if (Array.isArray(paramType)) {
       return yield Promise.all(paramType.map((paramType2, index2) => {
         return resolveAddresses(resolver, Array.isArray(value) ? value[index2] : value[paramType2.name], paramType2);
@@ -15004,20 +15392,20 @@ function resolveAddresses(resolver, value, paramType) {
   });
 }
 function populateTransaction(contract, fragment, args) {
-  return __awaiter$9(this, void 0, void 0, function* () {
+  return __awaiter$6(this, void 0, void 0, function* () {
     let overrides = {};
     if (args.length === fragment.inputs.length + 1 && typeof args[args.length - 1] === "object") {
       overrides = shallowCopy(args.pop());
     }
-    logger$h.checkArgumentCount(args.length, fragment.inputs.length, "passed to contract");
+    logger$e.checkArgumentCount(args.length, fragment.inputs.length, "passed to contract");
     if (contract.signer) {
       if (overrides.from) {
         overrides.from = resolveProperties({
           override: resolveName(contract.signer, overrides.from),
           signer: contract.signer.getAddress()
-        }).then((check) => __awaiter$9(this, void 0, void 0, function* () {
+        }).then((check) => __awaiter$6(this, void 0, void 0, function* () {
           if (getAddress(check.signer) !== check.override) {
-            logger$h.throwError("Contract with a Signer cannot override from", Logger.errors.UNSUPPORTED_OPERATION, {
+            logger$e.throwError("Contract with a Signer cannot override from", Logger.errors.UNSUPPORTED_OPERATION, {
               operation: "overrides.from"
             });
           }
@@ -15034,9 +15422,9 @@ function populateTransaction(contract, fragment, args) {
       address: contract.resolvedAddress,
       overrides: resolveProperties(overrides) || {}
     });
-    const data = contract.interface.encodeFunctionData(fragment, resolved.args);
+    const data2 = contract.interface.encodeFunctionData(fragment, resolved.args);
     const tx = {
-      data,
+      data: data2,
       to: resolved.address
     };
     const ro = resolved.overrides;
@@ -15060,7 +15448,7 @@ function populateTransaction(contract, fragment, args) {
     }
     if (tx.gasLimit == null && fragment.gas != null) {
       let intrinsic = 21e3;
-      const bytes = arrayify(data);
+      const bytes = arrayify(data2);
       for (let i = 0; i < bytes.length; i++) {
         intrinsic += 4;
         if (bytes[i]) {
@@ -15072,7 +15460,7 @@ function populateTransaction(contract, fragment, args) {
     if (ro.value) {
       const roValue = BigNumber.from(ro.value);
       if (!roValue.isZero() && !fragment.payable) {
-        logger$h.throwError("non-payable method cannot override value", Logger.errors.UNSUPPORTED_OPERATION, {
+        logger$e.throwError("non-payable method cannot override value", Logger.errors.UNSUPPORTED_OPERATION, {
           operation: "overrides.value",
           value: overrides.value
         });
@@ -15088,7 +15476,7 @@ function populateTransaction(contract, fragment, args) {
     delete overrides.accessList;
     const leftovers = Object.keys(overrides).filter((key2) => overrides[key2] != null);
     if (leftovers.length) {
-      logger$h.throwError(`cannot override ${leftovers.map((l) => JSON.stringify(l)).join(",")}`, Logger.errors.UNSUPPORTED_OPERATION, {
+      logger$e.throwError(`cannot override ${leftovers.map((l) => JSON.stringify(l)).join(",")}`, Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "overrides",
         overrides: leftovers
       });
@@ -15104,9 +15492,9 @@ function buildPopulate(contract, fragment) {
 function buildEstimate(contract, fragment) {
   const signerOrProvider = contract.signer || contract.provider;
   return function(...args) {
-    return __awaiter$9(this, void 0, void 0, function* () {
+    return __awaiter$6(this, void 0, void 0, function* () {
       if (!signerOrProvider) {
-        logger$h.throwError("estimate require a provider or signer", Logger.errors.UNSUPPORTED_OPERATION, {
+        logger$e.throwError("estimate require a provider or signer", Logger.errors.UNSUPPORTED_OPERATION, {
           operation: "estimateGas"
         });
       }
@@ -15118,7 +15506,7 @@ function buildEstimate(contract, fragment) {
 function buildCall(contract, fragment, collapseSimple) {
   const signerOrProvider = contract.signer || contract.provider;
   return function(...args) {
-    return __awaiter$9(this, void 0, void 0, function* () {
+    return __awaiter$6(this, void 0, void 0, function* () {
       let blockTag = void 0;
       if (args.length === fragment.inputs.length + 1 && typeof args[args.length - 1] === "object") {
         const overrides = shallowCopy(args.pop());
@@ -15152,9 +15540,9 @@ function buildCall(contract, fragment, collapseSimple) {
 }
 function buildSend(contract, fragment) {
   return function(...args) {
-    return __awaiter$9(this, void 0, void 0, function* () {
+    return __awaiter$6(this, void 0, void 0, function* () {
       if (!contract.signer) {
-        logger$h.throwError("sending a transaction requires a signer", Logger.errors.UNSUPPORTED_OPERATION, {
+        logger$e.throwError("sending a transaction requires a signer", Logger.errors.UNSUPPORTED_OPERATION, {
           operation: "sendTransaction"
         });
       }
@@ -15175,8 +15563,8 @@ function buildSend(contract, fragment) {
             }
             if (parsed) {
               event.args = parsed.args;
-              event.decode = (data, topics) => {
-                return contract.interface.decodeEventLog(parsed.eventFragment, data, topics);
+              event.decode = (data2, topics) => {
+                return contract.interface.decodeEventLog(parsed.eventFragment, data2, topics);
               };
               event.event = parsed.name;
               event.eventSignature = parsed.signature;
@@ -15277,7 +15665,7 @@ class FragmentRunningEvent extends RunningEvent {
     let topic = contractInterface.getEventTopic(fragment);
     if (topics) {
       if (topic !== topics[0]) {
-        logger$h.throwArgumentError("topic mismatch", "topics", topics);
+        logger$e.throwArgumentError("topic mismatch", "topics", topics);
       }
       filter.topics = topics.slice();
     } else {
@@ -15292,8 +15680,8 @@ class FragmentRunningEvent extends RunningEvent {
     super.prepareEvent(event);
     event.event = this.fragment.name;
     event.eventSignature = this.fragment.format();
-    event.decode = (data, topics) => {
-      return this.interface.decodeEventLog(this.fragment, data, topics);
+    event.decode = (data2, topics) => {
+      return this.interface.decodeEventLog(this.fragment, data2, topics);
     };
     try {
       event.args = this.interface.decodeEventLog(this.fragment, event.data, event.topics);
@@ -15324,8 +15712,8 @@ class WildcardRunningEvent extends RunningEvent {
       const parsed = this.interface.parseLog(event);
       event.event = parsed.name;
       event.eventSignature = parsed.signature;
-      event.decode = (data, topics) => {
-        return this.interface.decodeEventLog(parsed.eventFragment, data, topics);
+      event.decode = (data2, topics) => {
+        return this.interface.decodeEventLog(parsed.eventFragment, data2, topics);
       };
       event.args = parsed.args;
     } catch (error2) {
@@ -15334,7 +15722,7 @@ class WildcardRunningEvent extends RunningEvent {
 }
 class BaseContract {
   constructor(addressOrName, contractInterface, signerOrProvider) {
-    logger$h.checkNew(new.target, Contract);
+    logger$e.checkNew(new.target, Contract);
     defineReadOnly(this, "interface", getStatic(new.target, "getInterface")(contractInterface));
     if (signerOrProvider == null) {
       defineReadOnly(this, "provider", null);
@@ -15346,7 +15734,7 @@ class BaseContract {
       defineReadOnly(this, "provider", signerOrProvider);
       defineReadOnly(this, "signer", null);
     } else {
-      logger$h.throwArgumentError("invalid signer or provider", "signerOrProvider", signerOrProvider);
+      logger$e.throwArgumentError("invalid signer or provider", "signerOrProvider", signerOrProvider);
     }
     defineReadOnly(this, "callStatic", {});
     defineReadOnly(this, "estimateGas", {});
@@ -15373,14 +15761,14 @@ class BaseContract {
         if (filters.length === 1) {
           defineReadOnly(this.filters, name2, this.filters[filters[0]]);
         } else {
-          logger$h.warn(`Duplicate definition of ${name2} (${filters.join(", ")})`);
+          logger$e.warn(`Duplicate definition of ${name2} (${filters.join(", ")})`);
         }
       });
     }
     defineReadOnly(this, "_runningEvents", {});
     defineReadOnly(this, "_wrappedEmits", {});
     if (addressOrName == null) {
-      logger$h.throwArgumentError("invalid contract address or ENS name", "addressOrName", addressOrName);
+      logger$e.throwArgumentError("invalid contract address or ENS name", "addressOrName", addressOrName);
     }
     defineReadOnly(this, "address", addressOrName);
     if (this.provider) {
@@ -15389,7 +15777,7 @@ class BaseContract {
       try {
         defineReadOnly(this, "resolvedAddress", Promise.resolve(getAddress(addressOrName)));
       } catch (error2) {
-        logger$h.throwError("provider is required to use ENS name as contract address", Logger.errors.UNSUPPORTED_OPERATION, {
+        logger$e.throwError("provider is required to use ENS name as contract address", Logger.errors.UNSUPPORTED_OPERATION, {
           operation: "new Contract"
         });
       }
@@ -15399,7 +15787,7 @@ class BaseContract {
     Object.keys(this.interface.functions).forEach((signature2) => {
       const fragment = this.interface.functions[signature2];
       if (uniqueSignatures[signature2]) {
-        logger$h.warn(`Duplicate ABI entry for ${JSON.stringify(name)}`);
+        logger$e.warn(`Duplicate ABI entry for ${JSON.stringify(name)}`);
         return;
       }
       uniqueSignatures[signature2] = true;
@@ -15473,7 +15861,7 @@ class BaseContract {
       } else {
         this._deployedPromise = this.provider.getCode(this.address, blockTag).then((code) => {
           if (code === "0x") {
-            logger$h.throwError("contract not deployed", Logger.errors.UNSUPPORTED_OPERATION, {
+            logger$e.throwError("contract not deployed", Logger.errors.UNSUPPORTED_OPERATION, {
               contractAddress: this.address,
               operation: "getDeployed"
             });
@@ -15486,14 +15874,14 @@ class BaseContract {
   }
   fallback(overrides) {
     if (!this.signer) {
-      logger$h.throwError("sending a transactions require a signer", Logger.errors.UNSUPPORTED_OPERATION, {operation: "sendTransaction(fallback)"});
+      logger$e.throwError("sending a transactions require a signer", Logger.errors.UNSUPPORTED_OPERATION, {operation: "sendTransaction(fallback)"});
     }
     const tx = shallowCopy(overrides || {});
     ["from", "to"].forEach(function(key2) {
       if (tx[key2] == null) {
         return;
       }
-      logger$h.throwError("cannot override " + key2, Logger.errors.UNSUPPORTED_OPERATION, {operation: key2});
+      logger$e.throwError("cannot override " + key2, Logger.errors.UNSUPPORTED_OPERATION, {operation: key2});
     });
     tx.to = this.resolvedAddress;
     return this.deployed().then(() => {
@@ -15587,7 +15975,7 @@ class BaseContract {
   }
   _addEventListener(runningEvent, listener, once) {
     if (!this.provider) {
-      logger$h.throwError("events require a provider or a signer with a provider", Logger.errors.UNSUPPORTED_OPERATION, {operation: "once"});
+      logger$e.throwError("events require a provider or a signer with a provider", Logger.errors.UNSUPPORTED_OPERATION, {operation: "once"});
     }
     runningEvent.addListener(listener, once);
     this._runningEvents[runningEvent.tag] = runningEvent;
@@ -15620,7 +16008,7 @@ class BaseContract {
     const filter = shallowCopy(runningEvent.filter);
     if (typeof fromBlockOrBlockhash === "string" && isHexString(fromBlockOrBlockhash, 32)) {
       if (toBlock != null) {
-        logger$h.throwArgumentError("cannot specify toBlock with blockhash", "toBlock", toBlock);
+        logger$e.throwArgumentError("cannot specify toBlock with blockhash", "toBlock", toBlock);
       }
       filter.blockHash = fromBlockOrBlockhash;
     } else {
@@ -15992,7 +16380,7 @@ function shr64_lo$1(ah, al, num) {
   return r2 >>> 0;
 }
 var shr64_lo_1 = shr64_lo$1;
-var utils = {
+var utils$1 = {
   inherits: inherits_1,
   toArray: toArray_1,
   toHex: toHex_1,
@@ -16033,7 +16421,7 @@ function BlockHash$4() {
 }
 var BlockHash_1 = BlockHash$4;
 BlockHash$4.prototype.update = function update5(msg, enc) {
-  msg = utils.toArray(msg, enc);
+  msg = utils$1.toArray(msg, enc);
   if (!this.pending)
     this.pending = msg;
   else
@@ -16045,7 +16433,7 @@ BlockHash$4.prototype.update = function update5(msg, enc) {
     this.pending = msg.slice(msg.length - r2, msg.length);
     if (this.pending.length === 0)
       this.pending = null;
-    msg = utils.join32(msg, 0, msg.length - r2, this.endian);
+    msg = utils$1.join32(msg, 0, msg.length - r2, this.endian);
     for (var i = 0; i < msg.length; i += this._delta32)
       this._update(msg, i, i + this._delta32);
   }
@@ -16093,7 +16481,7 @@ BlockHash$4.prototype._pad = function pad2() {
 var common$1 = {
   BlockHash: BlockHash_1
 };
-var rotr32 = utils.rotr32;
+var rotr32 = utils$1.rotr32;
 function ft_1$1(s2, x, y, z) {
   if (s2 === 0)
     return ch32$1(x, y, z);
@@ -16141,9 +16529,9 @@ var common = {
   g0_256: g0_256_1,
   g1_256: g1_256_1
 };
-var rotl32$1 = utils.rotl32;
-var sum32$2 = utils.sum32;
-var sum32_5$1 = utils.sum32_5;
+var rotl32$1 = utils$1.rotl32;
+var sum32$2 = utils$1.sum32;
+var sum32_5$1 = utils$1.sum32_5;
 var ft_1 = common.ft_1;
 var BlockHash$3 = common$1.BlockHash;
 var sha1_K = [
@@ -16165,7 +16553,7 @@ function SHA1() {
   ];
   this.W = new Array(80);
 }
-utils.inherits(SHA1, BlockHash$3);
+utils$1.inherits(SHA1, BlockHash$3);
 var _1 = SHA1;
 SHA1.blockSize = 512;
 SHA1.outSize = 160;
@@ -16199,13 +16587,13 @@ SHA1.prototype._update = function _update4(msg, start) {
 };
 SHA1.prototype._digest = function digest10(enc) {
   if (enc === "hex")
-    return utils.toHex32(this.h, "big");
+    return utils$1.toHex32(this.h, "big");
   else
-    return utils.split32(this.h, "big");
+    return utils$1.split32(this.h, "big");
 };
-var sum32$1 = utils.sum32;
-var sum32_4$1 = utils.sum32_4;
-var sum32_5 = utils.sum32_5;
+var sum32$1 = utils$1.sum32;
+var sum32_4$1 = utils$1.sum32_4;
+var sum32_5 = utils$1.sum32_5;
 var ch32 = common.ch32;
 var maj32 = common.maj32;
 var s0_256 = common.s0_256;
@@ -16296,7 +16684,7 @@ function SHA256() {
   this.k = sha256_K;
   this.W = new Array(64);
 }
-utils.inherits(SHA256, BlockHash$2);
+utils$1.inherits(SHA256, BlockHash$2);
 var _256 = SHA256;
 SHA256.blockSize = 512;
 SHA256.outSize = 256;
@@ -16340,9 +16728,9 @@ SHA256.prototype._update = function _update5(msg, start) {
 };
 SHA256.prototype._digest = function digest11(enc) {
   if (enc === "hex")
-    return utils.toHex32(this.h, "big");
+    return utils$1.toHex32(this.h, "big");
   else
-    return utils.split32(this.h, "big");
+    return utils$1.split32(this.h, "big");
 };
 function SHA224() {
   if (!(this instanceof SHA224))
@@ -16359,7 +16747,7 @@ function SHA224() {
     3204075428
   ];
 }
-utils.inherits(SHA224, _256);
+utils$1.inherits(SHA224, _256);
 var _224 = SHA224;
 SHA224.blockSize = 512;
 SHA224.outSize = 224;
@@ -16367,21 +16755,21 @@ SHA224.hmacStrength = 192;
 SHA224.padLength = 64;
 SHA224.prototype._digest = function digest12(enc) {
   if (enc === "hex")
-    return utils.toHex32(this.h.slice(0, 7), "big");
+    return utils$1.toHex32(this.h.slice(0, 7), "big");
   else
-    return utils.split32(this.h.slice(0, 7), "big");
+    return utils$1.split32(this.h.slice(0, 7), "big");
 };
-var rotr64_hi = utils.rotr64_hi;
-var rotr64_lo = utils.rotr64_lo;
-var shr64_hi = utils.shr64_hi;
-var shr64_lo = utils.shr64_lo;
-var sum64 = utils.sum64;
-var sum64_hi = utils.sum64_hi;
-var sum64_lo = utils.sum64_lo;
-var sum64_4_hi = utils.sum64_4_hi;
-var sum64_4_lo = utils.sum64_4_lo;
-var sum64_5_hi = utils.sum64_5_hi;
-var sum64_5_lo = utils.sum64_5_lo;
+var rotr64_hi = utils$1.rotr64_hi;
+var rotr64_lo = utils$1.rotr64_lo;
+var shr64_hi = utils$1.shr64_hi;
+var shr64_lo = utils$1.shr64_lo;
+var sum64 = utils$1.sum64;
+var sum64_hi = utils$1.sum64_hi;
+var sum64_lo = utils$1.sum64_lo;
+var sum64_4_hi = utils$1.sum64_4_hi;
+var sum64_4_lo = utils$1.sum64_4_lo;
+var sum64_5_hi = utils$1.sum64_5_hi;
+var sum64_5_lo = utils$1.sum64_5_lo;
 var BlockHash$1 = common$1.BlockHash;
 var sha512_K = [
   1116352408,
@@ -16570,7 +16958,7 @@ function SHA512() {
   this.k = sha512_K;
   this.W = new Array(160);
 }
-utils.inherits(SHA512, BlockHash$1);
+utils$1.inherits(SHA512, BlockHash$1);
 var _512 = SHA512;
 SHA512.blockSize = 1024;
 SHA512.outSize = 512;
@@ -16660,9 +17048,9 @@ SHA512.prototype._update = function _update6(msg, start) {
 };
 SHA512.prototype._digest = function digest13(enc) {
   if (enc === "hex")
-    return utils.toHex32(this.h, "big");
+    return utils$1.toHex32(this.h, "big");
   else
-    return utils.split32(this.h, "big");
+    return utils$1.split32(this.h, "big");
 };
 function ch64_hi(xh, xl, yh, yl, zh) {
   var r2 = xh & yh ^ ~xh & zh;
@@ -16783,7 +17171,7 @@ function SHA384() {
     3204075428
   ];
 }
-utils.inherits(SHA384, _512);
+utils$1.inherits(SHA384, _512);
 var _384 = SHA384;
 SHA384.blockSize = 1024;
 SHA384.outSize = 384;
@@ -16791,26 +17179,26 @@ SHA384.hmacStrength = 192;
 SHA384.padLength = 128;
 SHA384.prototype._digest = function digest14(enc) {
   if (enc === "hex")
-    return utils.toHex32(this.h.slice(0, 12), "big");
+    return utils$1.toHex32(this.h.slice(0, 12), "big");
   else
-    return utils.split32(this.h.slice(0, 12), "big");
+    return utils$1.split32(this.h.slice(0, 12), "big");
 };
 var sha1 = _1;
 var sha224 = _224;
-var sha256$1 = _256;
+var sha256$2 = _256;
 var sha384 = _384;
-var sha512 = _512;
+var sha512$1 = _512;
 var sha = {
   sha1,
   sha224,
-  sha256: sha256$1,
+  sha256: sha256$2,
   sha384,
-  sha512
+  sha512: sha512$1
 };
-var rotl32 = utils.rotl32;
-var sum32 = utils.sum32;
-var sum32_3 = utils.sum32_3;
-var sum32_4 = utils.sum32_4;
+var rotl32 = utils$1.rotl32;
+var sum32 = utils$1.sum32;
+var sum32_3 = utils$1.sum32_3;
+var sum32_4 = utils$1.sum32_4;
 var BlockHash = common$1.BlockHash;
 function RIPEMD160() {
   if (!(this instanceof RIPEMD160))
@@ -16819,8 +17207,8 @@ function RIPEMD160() {
   this.h = [1732584193, 4023233417, 2562383102, 271733878, 3285377520];
   this.endian = "little";
 }
-utils.inherits(RIPEMD160, BlockHash);
-var ripemd160 = RIPEMD160;
+utils$1.inherits(RIPEMD160, BlockHash);
+var ripemd160$1 = RIPEMD160;
 RIPEMD160.blockSize = 512;
 RIPEMD160.outSize = 160;
 RIPEMD160.hmacStrength = 192;
@@ -16859,9 +17247,9 @@ RIPEMD160.prototype._update = function update6(msg, start) {
 };
 RIPEMD160.prototype._digest = function digest15(enc) {
   if (enc === "hex")
-    return utils.toHex32(this.h, "little");
+    return utils$1.toHex32(this.h, "little");
   else
-    return utils.split32(this.h, "little");
+    return utils$1.split32(this.h, "little");
 };
 function f(j, x, y, z) {
   if (j <= 15)
@@ -17228,7 +17616,7 @@ var sh = [
   11
 ];
 var ripemd = {
-  ripemd160
+  ripemd160: ripemd160$1
 };
 function Hmac(hash, key2, enc) {
   if (!(this instanceof Hmac))
@@ -17238,7 +17626,7 @@ function Hmac(hash, key2, enc) {
   this.outSize = hash.outSize / 8;
   this.inner = null;
   this.outer = null;
-  this._init(utils.toArray(key2, enc));
+  this._init(utils$1.toArray(key2, enc));
 }
 var hmac2 = Hmac;
 Hmac.prototype._init = function init4(key2) {
@@ -17264,7 +17652,7 @@ Hmac.prototype.digest = function digest16(enc) {
 };
 var hash_1 = createCommonjsModule$1(function(module, exports) {
   var hash = exports;
-  hash.utils = utils;
+  hash.utils = utils$1;
   hash.common = common$1;
   hash.sha = sha;
   hash.ripemd = ripemd;
@@ -17276,10 +17664,813 @@ var hash_1 = createCommonjsModule$1(function(module, exports) {
   hash.sha512 = hash.sha.sha512;
   hash.ripemd160 = hash.ripemd.ripemd160;
 });
-const version$4 = "sha2/5.1.0";
-new Logger(version$4);
-function sha256(data) {
-  return "0x" + hash_1.sha256().update(arrayify(data)).digest("hex");
+var SupportedAlgorithm;
+(function(SupportedAlgorithm2) {
+  SupportedAlgorithm2["sha256"] = "sha256";
+  SupportedAlgorithm2["sha512"] = "sha512";
+})(SupportedAlgorithm || (SupportedAlgorithm = {}));
+const version$8 = "sha2/5.1.0";
+const logger$d = new Logger(version$8);
+function ripemd160(data2) {
+  return "0x" + hash_1.ripemd160().update(arrayify(data2)).digest("hex");
+}
+function sha256$1(data2) {
+  return "0x" + hash_1.sha256().update(arrayify(data2)).digest("hex");
+}
+function sha512(data2) {
+  return "0x" + hash_1.sha512().update(arrayify(data2)).digest("hex");
+}
+function computeHmac(algorithm, key2, data2) {
+  if (!SupportedAlgorithm[algorithm]) {
+    logger$d.throwError("unsupported algorithm " + algorithm, Logger.errors.UNSUPPORTED_OPERATION, {
+      operation: "hmac",
+      algorithm
+    });
+  }
+  return "0x" + hash_1.hmac(hash_1[algorithm], arrayify(key2)).update(arrayify(data2)).digest("hex");
+}
+function pbkdf2(password, salt, iterations, keylen, hashAlgorithm) {
+  password = arrayify(password);
+  salt = arrayify(salt);
+  let hLen;
+  let l = 1;
+  const DK = new Uint8Array(keylen);
+  const block1 = new Uint8Array(salt.length + 4);
+  block1.set(salt);
+  let r2;
+  let T;
+  for (let i = 1; i <= l; i++) {
+    block1[salt.length] = i >> 24 & 255;
+    block1[salt.length + 1] = i >> 16 & 255;
+    block1[salt.length + 2] = i >> 8 & 255;
+    block1[salt.length + 3] = i & 255;
+    let U = arrayify(computeHmac(hashAlgorithm, password, block1));
+    if (!hLen) {
+      hLen = U.length;
+      T = new Uint8Array(hLen);
+      l = Math.ceil(keylen / hLen);
+      r2 = keylen - (l - 1) * hLen;
+    }
+    T.set(U);
+    for (let j = 1; j < iterations; j++) {
+      U = arrayify(computeHmac(hashAlgorithm, password, U));
+      for (let k = 0; k < hLen; k++)
+        T[k] ^= U[k];
+    }
+    const destPos = (i - 1) * hLen;
+    const len = i === l ? r2 : hLen;
+    DK.set(arrayify(T).slice(0, len), destPos);
+  }
+  return hexlify(DK);
+}
+const version$7 = "wordlists/5.1.0";
+const logger$c = new Logger(version$7);
+class Wordlist {
+  constructor(locale) {
+    logger$c.checkAbstract(new.target, Wordlist);
+    defineReadOnly(this, "locale", locale);
+  }
+  split(mnemonic) {
+    return mnemonic.toLowerCase().split(/ +/g);
+  }
+  join(words2) {
+    return words2.join(" ");
+  }
+  static check(wordlist2) {
+    const words2 = [];
+    for (let i = 0; i < 2048; i++) {
+      const word = wordlist2.getWord(i);
+      if (i !== wordlist2.getWordIndex(word)) {
+        return "0x";
+      }
+      words2.push(word);
+    }
+    return id(words2.join("\n") + "\n");
+  }
+  static register(lang, name2) {
+    if (!name2) {
+      name2 = lang.locale;
+    }
+  }
+}
+const words$4 = "AbdikaceAbecedaAdresaAgreseAkceAktovkaAlejAlkoholAmputaceAnanasAndulkaAnekdotaAnketaAntikaAnulovatArchaAroganceAsfaltAsistentAspiraceAstmaAstronomAtlasAtletikaAtolAutobusAzylBabkaBachorBacilBaculkaBadatelBagetaBagrBahnoBakterieBaladaBaletkaBalkonBalonekBalvanBalzaBambusBankomatBarbarBaretBarmanBarokoBarvaBaterkaBatohBavlnaBazalkaBazilikaBazukaBednaBeranBesedaBestieBetonBezinkaBezmocBeztakBicyklBidloBiftekBikinyBilanceBiografBiologBitvaBizonBlahobytBlatouchBlechaBleduleBleskBlikatBliznaBlokovatBlouditBludBobekBobrBodlinaBodnoutBohatostBojkotBojovatBokorysBolestBorecBoroviceBotaBoubelBouchatBoudaBouleBouratBoxerBradavkaBramboraBrankaBratrBreptaBriketaBrkoBrlohBronzBroskevBrunetkaBrusinkaBrzdaBrzyBublinaBubnovatBuchtaBuditelBudkaBudovaBufetBujarostBukviceBuldokBulvaBundaBunkrBurzaButikBuvolBuzolaBydletBylinaBytovkaBzukotCapartCarevnaCedrCeduleCejchCejnCelaCelerCelkemCelniceCeninaCennostCenovkaCentrumCenzorCestopisCetkaChalupaChapadloCharitaChataChechtatChemieChichotChirurgChladChlebaChlubitChmelChmuraChobotChocholChodbaCholeraChomoutChopitChorobaChovChrapotChrlitChrtChrupChtivostChudinaChutnatChvatChvilkaChvostChybaChystatChytitCibuleCigaretaCihelnaCihlaCinkotCirkusCisternaCitaceCitrusCizinecCizostClonaCokolivCouvatCtitelCtnostCudnostCuketaCukrCupotCvaknoutCvalCvikCvrkotCyklistaDalekoDarebaDatelDatumDceraDebataDechovkaDecibelDeficitDeflaceDeklDekretDemokratDepreseDerbyDeskaDetektivDikobrazDiktovatDiodaDiplomDiskDisplejDivadloDivochDlahaDlouhoDluhopisDnesDobroDobytekDocentDochutitDodnesDohledDohodaDohraDojemDojniceDokladDokolaDoktorDokumentDolarDolevaDolinaDomaDominantDomluvitDomovDonutitDopadDopisDoplnitDoposudDoprovodDopustitDorazitDorostDortDosahDoslovDostatekDosudDosytaDotazDotekDotknoutDoufatDoutnatDovozceDozaduDoznatDozorceDrahotaDrakDramatikDravecDrazeDrdolDrobnostDrogerieDrozdDrsnostDrtitDrzostDubenDuchovnoDudekDuhaDuhovkaDusitDusnoDutostDvojiceDvorecDynamitEkologEkonomieElektronElipsaEmailEmiseEmoceEmpatieEpizodaEpochaEpopejEposEsejEsenceEskortaEskymoEtiketaEuforieEvoluceExekuceExkurzeExpediceExplozeExportExtraktFackaFajfkaFakultaFanatikFantazieFarmacieFavoritFazoleFederaceFejetonFenkaFialkaFigurantFilozofFiltrFinanceFintaFixaceFjordFlanelFlirtFlotilaFondFosforFotbalFotkaFotonFrakceFreskaFrontaFukarFunkceFyzikaGalejeGarantGenetikaGeologGilotinaGlazuraGlejtGolemGolfistaGotikaGrafGramofonGranuleGrepGrilGrogGroteskaGumaHadiceHadrHalaHalenkaHanbaHanopisHarfaHarpunaHavranHebkostHejkalHejnoHejtmanHektarHelmaHematomHerecHernaHesloHezkyHistorikHladovkaHlasivkyHlavaHledatHlenHlodavecHlohHloupostHltatHlubinaHluchotaHmatHmotaHmyzHnisHnojivoHnoutHoblinaHobojHochHodinyHodlatHodnotaHodovatHojnostHokejHolinkaHolkaHolubHomoleHonitbaHonoraceHoralHordaHorizontHorkoHorlivecHormonHorninaHoroskopHorstvoHospodaHostinaHotovostHoubaHoufHoupatHouskaHovorHradbaHraniceHravostHrazdaHrbolekHrdinaHrdloHrdostHrnekHrobkaHromadaHrotHroudaHrozenHrstkaHrubostHryzatHubenostHubnoutHudbaHukotHumrHusitaHustotaHvozdHybnostHydrantHygienaHymnaHysterikIdylkaIhnedIkonaIluzeImunitaInfekceInflaceInkasoInovaceInspekceInternetInvalidaInvestorInzerceIronieJablkoJachtaJahodaJakmileJakostJalovecJantarJarmarkJaroJasanJasnoJatkaJavorJazykJedinecJedleJednatelJehlanJekotJelenJelitoJemnostJenomJepiceJeseterJevitJezdecJezeroJinakJindyJinochJiskraJistotaJitrniceJizvaJmenovatJogurtJurtaKabaretKabelKabinetKachnaKadetKadidloKahanKajakKajutaKakaoKaktusKalamitaKalhotyKalibrKalnostKameraKamkolivKamnaKanibalKanoeKantorKapalinaKapelaKapitolaKapkaKapleKapotaKaprKapustaKapybaraKaramelKarotkaKartonKasaKatalogKatedraKauceKauzaKavalecKazajkaKazetaKazivostKdekolivKdesiKedlubenKempKeramikaKinoKlacekKladivoKlamKlapotKlasikaKlaunKlecKlenbaKlepatKlesnoutKlidKlimaKlisnaKloboukKlokanKlopaKloubKlubovnaKlusatKluzkostKmenKmitatKmotrKnihaKnotKoaliceKoberecKobkaKoblihaKobylaKocourKohoutKojenecKokosKoktejlKolapsKoledaKolizeKoloKomandoKometaKomikKomnataKomoraKompasKomunitaKonatKonceptKondiceKonecKonfeseKongresKoninaKonkursKontaktKonzervaKopanecKopieKopnoutKoprovkaKorbelKorektorKormidloKoroptevKorpusKorunaKorytoKorzetKosatecKostkaKotelKotletaKotoulKoukatKoupelnaKousekKouzloKovbojKozaKozorohKrabiceKrachKrajinaKralovatKrasopisKravataKreditKrejcarKresbaKrevetaKriketKritikKrizeKrkavecKrmelecKrmivoKrocanKrokKronikaKropitKroupaKrovkaKrtekKruhadloKrupiceKrutostKrvinkaKrychleKryptaKrystalKrytKudlankaKufrKujnostKuklaKulajdaKulichKulkaKulometKulturaKunaKupodivuKurtKurzorKutilKvalitaKvasinkaKvestorKynologKyselinaKytaraKyticeKytkaKytovecKyvadloLabradorLachtanLadnostLaikLakomecLamelaLampaLanovkaLasiceLasoLasturaLatinkaLavinaLebkaLeckdyLedenLedniceLedovkaLedvinaLegendaLegieLegraceLehceLehkostLehnoutLektvarLenochodLentilkaLepenkaLepidloLetadloLetecLetmoLetokruhLevhartLevitaceLevobokLibraLichotkaLidojedLidskostLihovinaLijavecLilekLimetkaLinieLinkaLinoleumListopadLitinaLitovatLobistaLodivodLogikaLogopedLokalitaLoketLomcovatLopataLopuchLordLososLotrLoudalLouhLoukaLouskatLovecLstivostLucernaLuciferLumpLuskLustraceLviceLyraLyrikaLysinaMadamMadloMagistrMahagonMajetekMajitelMajoritaMakakMakoviceMakrelaMalbaMalinaMalovatMalviceMaminkaMandleMankoMarnostMasakrMaskotMasopustMaticeMatrikaMaturitaMazanecMazivoMazlitMazurkaMdlobaMechanikMeditaceMedovinaMelasaMelounMentolkaMetlaMetodaMetrMezeraMigraceMihnoutMihuleMikinaMikrofonMilenecMilimetrMilostMimikaMincovnaMinibarMinometMinulostMiskaMistrMixovatMladostMlhaMlhovinaMlokMlsatMluvitMnichMnohemMobilMocnostModelkaModlitbaMohylaMokroMolekulaMomentkaMonarchaMonoklMonstrumMontovatMonzunMosazMoskytMostMotivaceMotorkaMotykaMouchaMoudrostMozaikaMozekMozolMramorMravenecMrkevMrtvolaMrzetMrzutostMstitelMudrcMuflonMulatMumieMuniceMusetMutaceMuzeumMuzikantMyslivecMzdaNabouratNachytatNadaceNadbytekNadhozNadobroNadpisNahlasNahnatNahodileNahraditNaivitaNajednouNajistoNajmoutNaklonitNakonecNakrmitNalevoNamazatNamluvitNanometrNaokoNaopakNaostroNapadatNapevnoNaplnitNapnoutNaposledNaprostoNaroditNarubyNarychloNasaditNasekatNaslepoNastatNatolikNavenekNavrchNavzdoryNazvatNebeNechatNeckyNedalekoNedbatNeduhNegaceNehetNehodaNejenNejprveNeklidNelibostNemilostNemocNeochotaNeonkaNepokojNerostNervNesmyslNesouladNetvorNeuronNevinaNezvykleNicotaNijakNikamNikdyNiklNikterakNitroNoclehNohaviceNominaceNoraNorekNositelNosnostNouzeNovinyNovotaNozdraNudaNudleNugetNutitNutnostNutrieNymfaObalObarvitObavaObdivObecObehnatObejmoutObezitaObhajobaObilniceObjasnitObjektObklopitOblastOblekOblibaOblohaObludaObnosObohatitObojekOboutObrazecObrnaObrubaObrysObsahObsluhaObstaratObuvObvazObvinitObvodObvykleObyvatelObzorOcasOcelOcenitOchladitOchotaOchranaOcitnoutOdbojOdbytOdchodOdcizitOdebratOdeslatOdevzdatOdezvaOdhadceOdhoditOdjetOdjinudOdkazOdkoupitOdlivOdlukaOdmlkaOdolnostOdpadOdpisOdploutOdporOdpustitOdpykatOdrazkaOdsouditOdstupOdsunOdtokOdtudOdvahaOdvetaOdvolatOdvracetOdznakOfinaOfsajdOhlasOhniskoOhradaOhrozitOhryzekOkapOkeniceOklikaOknoOkouzlitOkovyOkrasaOkresOkrsekOkruhOkupantOkurkaOkusitOlejninaOlizovatOmakOmeletaOmezitOmladinaOmlouvatOmluvaOmylOnehdyOpakovatOpasekOperaceOpiceOpilostOpisovatOporaOpoziceOpravduOprotiOrbitalOrchestrOrgieOrliceOrlojOrtelOsadaOschnoutOsikaOsivoOslavaOslepitOslnitOslovitOsnovaOsobaOsolitOspalecOstenOstrahaOstudaOstychOsvojitOteplitOtiskOtopOtrhatOtrlostOtrokOtrubyOtvorOvanoutOvarOvesOvlivnitOvoceOxidOzdobaPachatelPacientPadouchPahorekPaktPalandaPalecPalivoPalubaPamfletPamlsekPanenkaPanikaPannaPanovatPanstvoPantoflePaprikaParketaParodiePartaParukaParybaPasekaPasivitaPastelkaPatentPatronaPavoukPaznehtPazourekPeckaPedagogPejsekPekloPelotonPenaltaPendrekPenzePeriskopPeroPestrostPetardaPeticePetrolejPevninaPexesoPianistaPihaPijavicePiklePiknikPilinaPilnostPilulkaPinzetaPipetaPisatelPistolePitevnaPivnicePivovarPlacentaPlakatPlamenPlanetaPlastikaPlatitPlavidloPlazPlechPlemenoPlentaPlesPletivoPlevelPlivatPlnitPlnoPlochaPlodinaPlombaPloutPlukPlynPobavitPobytPochodPocitPoctivecPodatPodcenitPodepsatPodhledPodivitPodkladPodmanitPodnikPodobaPodporaPodrazPodstataPodvodPodzimPoeziePohankaPohnutkaPohovorPohromaPohybPointaPojistkaPojmoutPokazitPoklesPokojPokrokPokutaPokynPolednePolibekPolknoutPolohaPolynomPomaluPominoutPomlkaPomocPomstaPomysletPonechatPonorkaPonurostPopadatPopelPopisekPoplachPoprositPopsatPopudPoradcePorcePorodPoruchaPoryvPosaditPosedPosilaPoskokPoslanecPosouditPospoluPostavaPosudekPosypPotahPotkanPotleskPotomekPotravaPotupaPotvoraPoukazPoutoPouzdroPovahaPovidlaPovlakPovozPovrchPovstatPovykPovzdechPozdravPozemekPoznatekPozorPozvatPracovatPrahoryPraktikaPralesPraotecPraporekPrasePravdaPrincipPrknoProbuditProcentoProdejProfeseProhraProjektProlomitPromilePronikatPropadProrokProsbaProtonProutekProvazPrskavkaPrstenPrudkostPrutPrvekPrvohoryPsanecPsovodPstruhPtactvoPubertaPuchPudlPukavecPuklinaPukrlePultPumpaPuncPupenPusaPusinkaPustinaPutovatPutykaPyramidaPyskPytelRacekRachotRadiaceRadniceRadonRaftRagbyRaketaRakovinaRamenoRampouchRandeRarachRaritaRasovnaRastrRatolestRazanceRazidloReagovatReakceReceptRedaktorReferentReflexRejnokReklamaRekordRekrutRektorReputaceRevizeRevmaRevolverRezervaRiskovatRizikoRobotikaRodokmenRohovkaRokleRokokoRomanetoRopovodRopuchaRorejsRosolRostlinaRotmistrRotopedRotundaRoubenkaRouchoRoupRouraRovinaRovniceRozborRozchodRozdatRozeznatRozhodceRozinkaRozjezdRozkazRozlohaRozmarRozpadRozruchRozsahRoztokRozumRozvodRubrikaRuchadloRukaviceRukopisRybaRybolovRychlostRydloRypadloRytinaRyzostSadistaSahatSakoSamecSamizdatSamotaSanitkaSardinkaSasankaSatelitSazbaSazeniceSborSchovatSebrankaSeceseSedadloSedimentSedloSehnatSejmoutSekeraSektaSekundaSekvojeSemenoSenoServisSesaditSeshoraSeskokSeslatSestraSesuvSesypatSetbaSetinaSetkatSetnoutSetrvatSeverSeznamShodaShrnoutSifonSilniceSirkaSirotekSirupSituaceSkafandrSkaliskoSkanzenSkautSkeptikSkicaSkladbaSkleniceSkloSkluzSkobaSkokanSkoroSkriptaSkrzSkupinaSkvostSkvrnaSlabikaSladidloSlaninaSlastSlavnostSledovatSlepecSlevaSlezinaSlibSlinaSlizniceSlonSloupekSlovoSluchSluhaSlunceSlupkaSlzaSmaragdSmetanaSmilstvoSmlouvaSmogSmradSmrkSmrtkaSmutekSmyslSnadSnahaSnobSobotaSochaSodovkaSokolSopkaSotvaSoubojSoucitSoudceSouhlasSouladSoumrakSoupravaSousedSoutokSouvisetSpalovnaSpasitelSpisSplavSpodekSpojenecSpoluSponzorSpornostSpoustaSprchaSpustitSrandaSrazSrdceSrnaSrnecSrovnatSrpenSrstSrubStaniceStarostaStatikaStavbaStehnoStezkaStodolaStolekStopaStornoStoupatStrachStresStrhnoutStromStrunaStudnaStupniceStvolStykSubjektSubtropySucharSudostSuknoSundatSunoutSurikataSurovinaSvahSvalstvoSvetrSvatbaSvazekSvisleSvitekSvobodaSvodidloSvorkaSvrabSykavkaSykotSynekSynovecSypatSypkostSyrovostSyselSytostTabletkaTabuleTahounTajemnoTajfunTajgaTajitTajnostTaktikaTamhleTamponTancovatTanecTankerTapetaTaveninaTazatelTechnikaTehdyTekutinaTelefonTemnotaTendenceTenistaTenorTeplotaTepnaTeprveTerapieTermoskaTextilTichoTiskopisTitulekTkadlecTkaninaTlapkaTleskatTlukotTlupaTmelToaletaTopinkaTopolTorzoTouhaToulecTradiceTraktorTrampTrasaTraverzaTrefitTrestTrezorTrhavinaTrhlinaTrochuTrojiceTroskaTroubaTrpceTrpitelTrpkostTrubecTruchlitTruhliceTrusTrvatTudyTuhnoutTuhostTundraTuristaTurnajTuzemskoTvarohTvorbaTvrdostTvrzTygrTykevUbohostUbozeUbratUbrousekUbrusUbytovnaUchoUctivostUdivitUhraditUjednatUjistitUjmoutUkazatelUklidnitUklonitUkotvitUkrojitUliceUlitaUlovitUmyvadloUnavitUniformaUniknoutUpadnoutUplatnitUplynoutUpoutatUpravitUranUrazitUsednoutUsilovatUsmrtitUsnadnitUsnoutUsouditUstlatUstrnoutUtahovatUtkatUtlumitUtonoutUtopenecUtrousitUvalitUvolnitUvozovkaUzdravitUzelUzeninaUzlinaUznatVagonValchaValounVanaVandalVanilkaVaranVarhanyVarovatVcelkuVchodVdovaVedroVegetaceVejceVelbloudVeletrhVelitelVelmocVelrybaVenkovVerandaVerzeVeselkaVeskrzeVesniceVespoduVestaVeterinaVeverkaVibraceVichrVideohraVidinaVidleVilaViniceVisetVitalitaVizeVizitkaVjezdVkladVkusVlajkaVlakVlasecVlevoVlhkostVlivVlnovkaVloupatVnucovatVnukVodaVodivostVodoznakVodstvoVojenskyVojnaVojskoVolantVolbaVolitVolnoVoskovkaVozidloVozovnaVpravoVrabecVracetVrahVrataVrbaVrcholekVrhatVrstvaVrtuleVsaditVstoupitVstupVtipVybavitVybratVychovatVydatVydraVyfotitVyhledatVyhnoutVyhoditVyhraditVyhubitVyjasnitVyjetVyjmoutVyklopitVykonatVylekatVymazatVymezitVymizetVymysletVynechatVynikatVynutitVypadatVyplatitVypravitVypustitVyrazitVyrovnatVyrvatVyslovitVysokoVystavitVysunoutVysypatVytasitVytesatVytratitVyvinoutVyvolatVyvrhelVyzdobitVyznatVzaduVzbuditVzchopitVzdorVzduchVzdychatVzestupVzhledemVzkazVzlykatVznikVzorekVzpouraVztahVztekXylofonZabratZabydletZachovatZadarmoZadusitZafoukatZahltitZahoditZahradaZahynoutZajatecZajetZajistitZaklepatZakoupitZalepitZamezitZamotatZamysletZanechatZanikatZaplatitZapojitZapsatZarazitZastavitZasunoutZatajitZatemnitZatknoutZaujmoutZavalitZaveletZavinitZavolatZavrtatZazvonitZbavitZbrusuZbudovatZbytekZdalekaZdarmaZdatnostZdivoZdobitZdrojZdvihZdymadloZeleninaZemanZeminaZeptatZezaduZezdolaZhatitZhltnoutZhlubokaZhotovitZhrubaZimaZimniceZjemnitZklamatZkoumatZkratkaZkumavkaZlatoZlehkaZlobaZlomZlostZlozvykZmapovatZmarZmatekZmijeZmizetZmocnitZmodratZmrzlinaZmutovatZnakZnalostZnamenatZnovuZobrazitZotavitZoubekZoufaleZploditZpomalitZpravaZprostitZprudkaZprvuZradaZranitZrcadloZrnitostZrnoZrovnaZrychlitZrzavostZtichaZtratitZubovinaZubrZvednoutZvenkuZveselaZvonZvratZvukovodZvyk";
+let wordlist$7 = null;
+function loadWords$7(lang) {
+  if (wordlist$7 != null) {
+    return;
+  }
+  wordlist$7 = words$4.replace(/([A-Z])/g, " $1").toLowerCase().substring(1).split(" ");
+  if (Wordlist.check(lang) !== "0x25f44555f4af25b51a711136e1c7d6e50ce9f8917d39d6b1f076b2bb4d2fac1a") {
+    wordlist$7 = null;
+    throw new Error("BIP39 Wordlist for en (English) FAILED");
+  }
+}
+class LangCz extends Wordlist {
+  constructor() {
+    super("cz");
+  }
+  getWord(index2) {
+    loadWords$7(this);
+    return wordlist$7[index2];
+  }
+  getWordIndex(word) {
+    loadWords$7(this);
+    return wordlist$7.indexOf(word);
+  }
+}
+const langCz = new LangCz();
+Wordlist.register(langCz);
+const words$3 = "AbandonAbilityAbleAboutAboveAbsentAbsorbAbstractAbsurdAbuseAccessAccidentAccountAccuseAchieveAcidAcousticAcquireAcrossActActionActorActressActualAdaptAddAddictAddressAdjustAdmitAdultAdvanceAdviceAerobicAffairAffordAfraidAgainAgeAgentAgreeAheadAimAirAirportAisleAlarmAlbumAlcoholAlertAlienAllAlleyAllowAlmostAloneAlphaAlreadyAlsoAlterAlwaysAmateurAmazingAmongAmountAmusedAnalystAnchorAncientAngerAngleAngryAnimalAnkleAnnounceAnnualAnotherAnswerAntennaAntiqueAnxietyAnyApartApologyAppearAppleApproveAprilArchArcticAreaArenaArgueArmArmedArmorArmyAroundArrangeArrestArriveArrowArtArtefactArtistArtworkAskAspectAssaultAssetAssistAssumeAsthmaAthleteAtomAttackAttendAttitudeAttractAuctionAuditAugustAuntAuthorAutoAutumnAverageAvocadoAvoidAwakeAwareAwayAwesomeAwfulAwkwardAxisBabyBachelorBaconBadgeBagBalanceBalconyBallBambooBananaBannerBarBarelyBargainBarrelBaseBasicBasketBattleBeachBeanBeautyBecauseBecomeBeefBeforeBeginBehaveBehindBelieveBelowBeltBenchBenefitBestBetrayBetterBetweenBeyondBicycleBidBikeBindBiologyBirdBirthBitterBlackBladeBlameBlanketBlastBleakBlessBlindBloodBlossomBlouseBlueBlurBlushBoardBoatBodyBoilBombBoneBonusBookBoostBorderBoringBorrowBossBottomBounceBoxBoyBracketBrainBrandBrassBraveBreadBreezeBrickBridgeBriefBrightBringBriskBroccoliBrokenBronzeBroomBrotherBrownBrushBubbleBuddyBudgetBuffaloBuildBulbBulkBulletBundleBunkerBurdenBurgerBurstBusBusinessBusyButterBuyerBuzzCabbageCabinCableCactusCageCakeCallCalmCameraCampCanCanalCancelCandyCannonCanoeCanvasCanyonCapableCapitalCaptainCarCarbonCardCargoCarpetCarryCartCaseCashCasinoCastleCasualCatCatalogCatchCategoryCattleCaughtCauseCautionCaveCeilingCeleryCementCensusCenturyCerealCertainChairChalkChampionChangeChaosChapterChargeChaseChatCheapCheckCheeseChefCherryChestChickenChiefChildChimneyChoiceChooseChronicChuckleChunkChurnCigarCinnamonCircleCitizenCityCivilClaimClapClarifyClawClayCleanClerkCleverClickClientCliffClimbClinicClipClockClogCloseClothCloudClownClubClumpClusterClutchCoachCoastCoconutCodeCoffeeCoilCoinCollectColorColumnCombineComeComfortComicCommonCompanyConcertConductConfirmCongressConnectConsiderControlConvinceCookCoolCopperCopyCoralCoreCornCorrectCostCottonCouchCountryCoupleCourseCousinCoverCoyoteCrackCradleCraftCramCraneCrashCraterCrawlCrazyCreamCreditCreekCrewCricketCrimeCrispCriticCropCrossCrouchCrowdCrucialCruelCruiseCrumbleCrunchCrushCryCrystalCubeCultureCupCupboardCuriousCurrentCurtainCurveCushionCustomCuteCycleDadDamageDampDanceDangerDaringDashDaughterDawnDayDealDebateDebrisDecadeDecemberDecideDeclineDecorateDecreaseDeerDefenseDefineDefyDegreeDelayDeliverDemandDemiseDenialDentistDenyDepartDependDepositDepthDeputyDeriveDescribeDesertDesignDeskDespairDestroyDetailDetectDevelopDeviceDevoteDiagramDialDiamondDiaryDiceDieselDietDifferDigitalDignityDilemmaDinnerDinosaurDirectDirtDisagreeDiscoverDiseaseDishDismissDisorderDisplayDistanceDivertDivideDivorceDizzyDoctorDocumentDogDollDolphinDomainDonateDonkeyDonorDoorDoseDoubleDoveDraftDragonDramaDrasticDrawDreamDressDriftDrillDrinkDripDriveDropDrumDryDuckDumbDuneDuringDustDutchDutyDwarfDynamicEagerEagleEarlyEarnEarthEasilyEastEasyEchoEcologyEconomyEdgeEditEducateEffortEggEightEitherElbowElderElectricElegantElementElephantElevatorEliteElseEmbarkEmbodyEmbraceEmergeEmotionEmployEmpowerEmptyEnableEnactEndEndlessEndorseEnemyEnergyEnforceEngageEngineEnhanceEnjoyEnlistEnoughEnrichEnrollEnsureEnterEntireEntryEnvelopeEpisodeEqualEquipEraEraseErodeErosionErrorEruptEscapeEssayEssenceEstateEternalEthicsEvidenceEvilEvokeEvolveExactExampleExcessExchangeExciteExcludeExcuseExecuteExerciseExhaustExhibitExileExistExitExoticExpandExpectExpireExplainExposeExpressExtendExtraEyeEyebrowFabricFaceFacultyFadeFaintFaithFallFalseFameFamilyFamousFanFancyFantasyFarmFashionFatFatalFatherFatigueFaultFavoriteFeatureFebruaryFederalFeeFeedFeelFemaleFenceFestivalFetchFeverFewFiberFictionFieldFigureFileFilmFilterFinalFindFineFingerFinishFireFirmFirstFiscalFishFitFitnessFixFlagFlameFlashFlatFlavorFleeFlightFlipFloatFlockFloorFlowerFluidFlushFlyFoamFocusFogFoilFoldFollowFoodFootForceForestForgetForkFortuneForumForwardFossilFosterFoundFoxFragileFrameFrequentFreshFriendFringeFrogFrontFrostFrownFrozenFruitFuelFunFunnyFurnaceFuryFutureGadgetGainGalaxyGalleryGameGapGarageGarbageGardenGarlicGarmentGasGaspGateGatherGaugeGazeGeneralGeniusGenreGentleGenuineGestureGhostGiantGiftGiggleGingerGiraffeGirlGiveGladGlanceGlareGlassGlideGlimpseGlobeGloomGloryGloveGlowGlueGoatGoddessGoldGoodGooseGorillaGospelGossipGovernGownGrabGraceGrainGrantGrapeGrassGravityGreatGreenGridGriefGritGroceryGroupGrowGruntGuardGuessGuideGuiltGuitarGunGymHabitHairHalfHammerHamsterHandHappyHarborHardHarshHarvestHatHaveHawkHazardHeadHealthHeartHeavyHedgehogHeightHelloHelmetHelpHenHeroHiddenHighHillHintHipHireHistoryHobbyHockeyHoldHoleHolidayHollowHomeHoneyHoodHopeHornHorrorHorseHospitalHostHotelHourHoverHubHugeHumanHumbleHumorHundredHungryHuntHurdleHurryHurtHusbandHybridIceIconIdeaIdentifyIdleIgnoreIllIllegalIllnessImageImitateImmenseImmuneImpactImposeImproveImpulseInchIncludeIncomeIncreaseIndexIndicateIndoorIndustryInfantInflictInformInhaleInheritInitialInjectInjuryInmateInnerInnocentInputInquiryInsaneInsectInsideInspireInstallIntactInterestIntoInvestInviteInvolveIronIslandIsolateIssueItemIvoryJacketJaguarJarJazzJealousJeansJellyJewelJobJoinJokeJourneyJoyJudgeJuiceJumpJungleJuniorJunkJustKangarooKeenKeepKetchupKeyKickKidKidneyKindKingdomKissKitKitchenKiteKittenKiwiKneeKnifeKnockKnowLabLabelLaborLadderLadyLakeLampLanguageLaptopLargeLaterLatinLaughLaundryLavaLawLawnLawsuitLayerLazyLeaderLeafLearnLeaveLectureLeftLegLegalLegendLeisureLemonLendLengthLensLeopardLessonLetterLevelLiarLibertyLibraryLicenseLifeLiftLightLikeLimbLimitLinkLionLiquidListLittleLiveLizardLoadLoanLobsterLocalLockLogicLonelyLongLoopLotteryLoudLoungeLoveLoyalLuckyLuggageLumberLunarLunchLuxuryLyricsMachineMadMagicMagnetMaidMailMainMajorMakeMammalManManageMandateMangoMansionManualMapleMarbleMarchMarginMarineMarketMarriageMaskMassMasterMatchMaterialMathMatrixMatterMaximumMazeMeadowMeanMeasureMeatMechanicMedalMediaMelodyMeltMemberMemoryMentionMenuMercyMergeMeritMerryMeshMessageMetalMethodMiddleMidnightMilkMillionMimicMindMinimumMinorMinuteMiracleMirrorMiseryMissMistakeMixMixedMixtureMobileModelModifyMomMomentMonitorMonkeyMonsterMonthMoonMoralMoreMorningMosquitoMotherMotionMotorMountainMouseMoveMovieMuchMuffinMuleMultiplyMuscleMuseumMushroomMusicMustMutualMyselfMysteryMythNaiveNameNapkinNarrowNastyNationNatureNearNeckNeedNegativeNeglectNeitherNephewNerveNestNetNetworkNeutralNeverNewsNextNiceNightNobleNoiseNomineeNoodleNormalNorthNoseNotableNoteNothingNoticeNovelNowNuclearNumberNurseNutOakObeyObjectObligeObscureObserveObtainObviousOccurOceanOctoberOdorOffOfferOfficeOftenOilOkayOldOliveOlympicOmitOnceOneOnionOnlineOnlyOpenOperaOpinionOpposeOptionOrangeOrbitOrchardOrderOrdinaryOrganOrientOriginalOrphanOstrichOtherOutdoorOuterOutputOutsideOvalOvenOverOwnOwnerOxygenOysterOzonePactPaddlePagePairPalacePalmPandaPanelPanicPantherPaperParadeParentParkParrotPartyPassPatchPathPatientPatrolPatternPausePavePaymentPeacePeanutPearPeasantPelicanPenPenaltyPencilPeoplePepperPerfectPermitPersonPetPhonePhotoPhrasePhysicalPianoPicnicPicturePiecePigPigeonPillPilotPinkPioneerPipePistolPitchPizzaPlacePlanetPlasticPlatePlayPleasePledgePluckPlugPlungePoemPoetPointPolarPolePolicePondPonyPoolPopularPortionPositionPossiblePostPotatoPotteryPovertyPowderPowerPracticePraisePredictPreferPreparePresentPrettyPreventPricePridePrimaryPrintPriorityPrisonPrivatePrizeProblemProcessProduceProfitProgramProjectPromoteProofPropertyProsperProtectProudProvidePublicPuddingPullPulpPulsePumpkinPunchPupilPuppyPurchasePurityPurposePursePushPutPuzzlePyramidQualityQuantumQuarterQuestionQuickQuitQuizQuoteRabbitRaccoonRaceRackRadarRadioRailRainRaiseRallyRampRanchRandomRangeRapidRareRateRatherRavenRawRazorReadyRealReasonRebelRebuildRecallReceiveRecipeRecordRecycleReduceReflectReformRefuseRegionRegretRegularRejectRelaxReleaseReliefRelyRemainRememberRemindRemoveRenderRenewRentReopenRepairRepeatReplaceReportRequireRescueResembleResistResourceResponseResultRetireRetreatReturnReunionRevealReviewRewardRhythmRibRibbonRiceRichRideRidgeRifleRightRigidRingRiotRippleRiskRitualRivalRiverRoadRoastRobotRobustRocketRomanceRoofRookieRoomRoseRotateRoughRoundRouteRoyalRubberRudeRugRuleRunRunwayRuralSadSaddleSadnessSafeSailSaladSalmonSalonSaltSaluteSameSampleSandSatisfySatoshiSauceSausageSaveSayScaleScanScareScatterSceneSchemeSchoolScienceScissorsScorpionScoutScrapScreenScriptScrubSeaSearchSeasonSeatSecondSecretSectionSecuritySeedSeekSegmentSelectSellSeminarSeniorSenseSentenceSeriesServiceSessionSettleSetupSevenShadowShaftShallowShareShedShellSheriffShieldShiftShineShipShiverShockShoeShootShopShortShoulderShoveShrimpShrugShuffleShySiblingSickSideSiegeSightSignSilentSilkSillySilverSimilarSimpleSinceSingSirenSisterSituateSixSizeSkateSketchSkiSkillSkinSkirtSkullSlabSlamSleepSlenderSliceSlideSlightSlimSloganSlotSlowSlushSmallSmartSmileSmokeSmoothSnackSnakeSnapSniffSnowSoapSoccerSocialSockSodaSoftSolarSoldierSolidSolutionSolveSomeoneSongSoonSorrySortSoulSoundSoupSourceSouthSpaceSpareSpatialSpawnSpeakSpecialSpeedSpellSpendSphereSpiceSpiderSpikeSpinSpiritSplitSpoilSponsorSpoonSportSpotSpraySpreadSpringSpySquareSqueezeSquirrelStableStadiumStaffStageStairsStampStandStartStateStaySteakSteelStemStepStereoStickStillStingStockStomachStoneStoolStoryStoveStrategyStreetStrikeStrongStruggleStudentStuffStumbleStyleSubjectSubmitSubwaySuccessSuchSuddenSufferSugarSuggestSuitSummerSunSunnySunsetSuperSupplySupremeSureSurfaceSurgeSurpriseSurroundSurveySuspectSustainSwallowSwampSwapSwarmSwearSweetSwiftSwimSwingSwitchSwordSymbolSymptomSyrupSystemTableTackleTagTailTalentTalkTankTapeTargetTaskTasteTattooTaxiTeachTeamTellTenTenantTennisTentTermTestTextThankThatThemeThenTheoryThereTheyThingThisThoughtThreeThriveThrowThumbThunderTicketTideTigerTiltTimberTimeTinyTipTiredTissueTitleToastTobaccoTodayToddlerToeTogetherToiletTokenTomatoTomorrowToneTongueTonightToolToothTopTopicToppleTorchTornadoTortoiseTossTotalTouristTowardTowerTownToyTrackTradeTrafficTragicTrainTransferTrapTrashTravelTrayTreatTreeTrendTrialTribeTrickTriggerTrimTripTrophyTroubleTruckTrueTrulyTrumpetTrustTruthTryTubeTuitionTumbleTunaTunnelTurkeyTurnTurtleTwelveTwentyTwiceTwinTwistTwoTypeTypicalUglyUmbrellaUnableUnawareUncleUncoverUnderUndoUnfairUnfoldUnhappyUniformUniqueUnitUniverseUnknownUnlockUntilUnusualUnveilUpdateUpgradeUpholdUponUpperUpsetUrbanUrgeUsageUseUsedUsefulUselessUsualUtilityVacantVacuumVagueValidValleyValveVanVanishVaporVariousVastVaultVehicleVelvetVendorVentureVenueVerbVerifyVersionVeryVesselVeteranViableVibrantViciousVictoryVideoViewVillageVintageViolinVirtualVirusVisaVisitVisualVitalVividVocalVoiceVoidVolcanoVolumeVoteVoyageWageWagonWaitWalkWallWalnutWantWarfareWarmWarriorWashWaspWasteWaterWaveWayWealthWeaponWearWeaselWeatherWebWeddingWeekendWeirdWelcomeWestWetWhaleWhatWheatWheelWhenWhereWhipWhisperWideWidthWifeWildWillWinWindowWineWingWinkWinnerWinterWireWisdomWiseWishWitnessWolfWomanWonderWoodWoolWordWorkWorldWorryWorthWrapWreckWrestleWristWriteWrongYardYearYellowYouYoungYouthZebraZeroZoneZoo";
+let wordlist$6 = null;
+function loadWords$6(lang) {
+  if (wordlist$6 != null) {
+    return;
+  }
+  wordlist$6 = words$3.replace(/([A-Z])/g, " $1").toLowerCase().substring(1).split(" ");
+  if (Wordlist.check(lang) !== "0x3c8acc1e7b08d8e76f9fda015ef48dc8c710a73cb7e0f77b2c18a9b5a7adde60") {
+    wordlist$6 = null;
+    throw new Error("BIP39 Wordlist for en (English) FAILED");
+  }
+}
+class LangEn extends Wordlist {
+  constructor() {
+    super("en");
+  }
+  getWord(index2) {
+    loadWords$6(this);
+    return wordlist$6[index2];
+  }
+  getWordIndex(word) {
+    loadWords$6(this);
+    return wordlist$6.indexOf(word);
+  }
+}
+const langEn = new LangEn();
+Wordlist.register(langEn);
+const words$2 = "A/bacoAbdomenAbejaAbiertoAbogadoAbonoAbortoAbrazoAbrirAbueloAbusoAcabarAcademiaAccesoAccio/nAceiteAcelgaAcentoAceptarA/cidoAclararAcne/AcogerAcosoActivoActoActrizActuarAcudirAcuerdoAcusarAdictoAdmitirAdoptarAdornoAduanaAdultoAe/reoAfectarAficio/nAfinarAfirmarA/gilAgitarAgoni/aAgostoAgotarAgregarAgrioAguaAgudoA/guilaAgujaAhogoAhorroAireAislarAjedrezAjenoAjusteAlacra/nAlambreAlarmaAlbaA/lbumAlcaldeAldeaAlegreAlejarAlertaAletaAlfilerAlgaAlgodo/nAliadoAlientoAlivioAlmaAlmejaAlmi/barAltarAltezaAltivoAltoAlturaAlumnoAlzarAmableAmanteAmapolaAmargoAmasarA/mbarA/mbitoAmenoAmigoAmistadAmorAmparoAmplioAnchoAncianoAnclaAndarAnde/nAnemiaA/nguloAnilloA/nimoAni/sAnotarAntenaAntiguoAntojoAnualAnularAnuncioA~adirA~ejoA~oApagarAparatoApetitoApioAplicarApodoAporteApoyoAprenderAprobarApuestaApuroAradoAra~aArarA/rbitroA/rbolArbustoArchivoArcoArderArdillaArduoA/reaA/ridoAriesArmoni/aArne/sAromaArpaArpo/nArregloArrozArrugaArteArtistaAsaAsadoAsaltoAscensoAsegurarAseoAsesorAsientoAsiloAsistirAsnoAsombroA/speroAstillaAstroAstutoAsumirAsuntoAtajoAtaqueAtarAtentoAteoA/ticoAtletaA/tomoAtraerAtrozAtu/nAudazAudioAugeAulaAumentoAusenteAutorAvalAvanceAvaroAveAvellanaAvenaAvestruzAvio/nAvisoAyerAyudaAyunoAzafra/nAzarAzoteAzu/carAzufreAzulBabaBaborBacheBahi/aBaileBajarBalanzaBalco/nBaldeBambu/BancoBandaBa~oBarbaBarcoBarnizBarroBa/sculaBasto/nBasuraBatallaBateri/aBatirBatutaBau/lBazarBebe/BebidaBelloBesarBesoBestiaBichoBienBingoBlancoBloqueBlusaBoaBobinaBoboBocaBocinaBodaBodegaBoinaBolaBoleroBolsaBombaBondadBonitoBonoBonsa/iBordeBorrarBosqueBoteBoti/nBo/vedaBozalBravoBrazoBrechaBreveBrilloBrincoBrisaBrocaBromaBronceBroteBrujaBruscoBrutoBuceoBucleBuenoBueyBufandaBufo/nBu/hoBuitreBultoBurbujaBurlaBurroBuscarButacaBuzo/nCaballoCabezaCabinaCabraCacaoCada/verCadenaCaerCafe/Cai/daCaima/nCajaCajo/nCalCalamarCalcioCaldoCalidadCalleCalmaCalorCalvoCamaCambioCamelloCaminoCampoCa/ncerCandilCanelaCanguroCanicaCantoCa~aCa~o/nCaobaCaosCapazCapita/nCapoteCaptarCapuchaCaraCarbo/nCa/rcelCaretaCargaCari~oCarneCarpetaCarroCartaCasaCascoCaseroCaspaCastorCatorceCatreCaudalCausaCazoCebollaCederCedroCeldaCe/lebreCelosoCe/lulaCementoCenizaCentroCercaCerdoCerezaCeroCerrarCertezaCe/spedCetroChacalChalecoChampu/ChanclaChapaCharlaChicoChisteChivoChoqueChozaChuletaChuparCiclo/nCiegoCieloCienCiertoCifraCigarroCimaCincoCineCintaCipre/sCircoCiruelaCisneCitaCiudadClamorClanClaroClaseClaveClienteClimaCli/nicaCobreCoccio/nCochinoCocinaCocoCo/digoCodoCofreCogerCoheteCoji/nCojoColaColchaColegioColgarColinaCollarColmoColumnaCombateComerComidaCo/modoCompraCondeConejoCongaConocerConsejoContarCopaCopiaCorazo/nCorbataCorchoCordo/nCoronaCorrerCoserCosmosCostaCra/neoCra/terCrearCrecerCrei/doCremaCri/aCrimenCriptaCrisisCromoCro/nicaCroquetaCrudoCruzCuadroCuartoCuatroCuboCubrirCucharaCuelloCuentoCuerdaCuestaCuevaCuidarCulebraCulpaCultoCumbreCumplirCunaCunetaCuotaCupo/nCu/pulaCurarCuriosoCursoCurvaCutisDamaDanzaDarDardoDa/tilDeberDe/bilDe/cadaDecirDedoDefensaDefinirDejarDelfi/nDelgadoDelitoDemoraDensoDentalDeporteDerechoDerrotaDesayunoDeseoDesfileDesnudoDestinoDesvi/oDetalleDetenerDeudaDi/aDiabloDiademaDiamanteDianaDiarioDibujoDictarDienteDietaDiezDifi/cilDignoDilemaDiluirDineroDirectoDirigirDiscoDise~oDisfrazDivaDivinoDobleDoceDolorDomingoDonDonarDoradoDormirDorsoDosDosisDrago/nDrogaDuchaDudaDueloDue~oDulceDu/oDuqueDurarDurezaDuroE/banoEbrioEcharEcoEcuadorEdadEdicio/nEdificioEditorEducarEfectoEficazEjeEjemploElefanteElegirElementoElevarElipseE/liteElixirElogioEludirEmbudoEmitirEmocio/nEmpateEmpe~oEmpleoEmpresaEnanoEncargoEnchufeEnci/aEnemigoEneroEnfadoEnfermoEnga~oEnigmaEnlaceEnormeEnredoEnsayoEnse~arEnteroEntrarEnvaseEnvi/oE/pocaEquipoErizoEscalaEscenaEscolarEscribirEscudoEsenciaEsferaEsfuerzoEspadaEspejoEspi/aEsposaEspumaEsqui/EstarEsteEstiloEstufaEtapaEternoE/ticaEtniaEvadirEvaluarEventoEvitarExactoExamenExcesoExcusaExentoExigirExilioExistirE/xitoExpertoExplicarExponerExtremoFa/bricaFa/bulaFachadaFa/cilFactorFaenaFajaFaldaFalloFalsoFaltarFamaFamiliaFamosoFarao/nFarmaciaFarolFarsaFaseFatigaFaunaFavorFaxFebreroFechaFelizFeoFeriaFerozFe/rtilFervorFesti/nFiableFianzaFiarFibraFiccio/nFichaFideoFiebreFielFieraFiestaFiguraFijarFijoFilaFileteFilialFiltroFinFincaFingirFinitoFirmaFlacoFlautaFlechaFlorFlotaFluirFlujoFlu/orFobiaFocaFogataFogo/nFolioFolletoFondoFormaForroFortunaForzarFosaFotoFracasoFra/gilFranjaFraseFraudeFrei/rFrenoFresaFri/oFritoFrutaFuegoFuenteFuerzaFugaFumarFuncio/nFundaFurgo/nFuriaFusilFu/tbolFuturoGacelaGafasGaitaGajoGalaGaleri/aGalloGambaGanarGanchoGangaGansoGarajeGarzaGasolinaGastarGatoGavila/nGemeloGemirGenGe/neroGenioGenteGeranioGerenteGermenGestoGiganteGimnasioGirarGiroGlaciarGloboGloriaGolGolfoGolosoGolpeGomaGordoGorilaGorraGotaGoteoGozarGradaGra/ficoGranoGrasaGratisGraveGrietaGrilloGripeGrisGritoGrosorGru/aGruesoGrumoGrupoGuanteGuapoGuardiaGuerraGui/aGui~oGuionGuisoGuitarraGusanoGustarHaberHa/bilHablarHacerHachaHadaHallarHamacaHarinaHazHaza~aHebillaHebraHechoHeladoHelioHembraHerirHermanoHe/roeHervirHieloHierroHi/gadoHigieneHijoHimnoHistoriaHocicoHogarHogueraHojaHombreHongoHonorHonraHoraHormigaHornoHostilHoyoHuecoHuelgaHuertaHuesoHuevoHuidaHuirHumanoHu/medoHumildeHumoHundirHuraca/nHurtoIconoIdealIdiomaI/doloIglesiaIglu/IgualIlegalIlusio/nImagenIma/nImitarImparImperioImponerImpulsoIncapazI/ndiceInerteInfielInformeIngenioInicioInmensoInmuneInnatoInsectoInstanteIntere/sI/ntimoIntuirInu/tilInviernoIraIrisIroni/aIslaIsloteJabali/Jabo/nJamo/nJarabeJardi/nJarraJaulaJazmi/nJefeJeringaJineteJornadaJorobaJovenJoyaJuergaJuevesJuezJugadorJugoJugueteJuicioJuncoJunglaJunioJuntarJu/piterJurarJustoJuvenilJuzgarKiloKoalaLabioLacioLacraLadoLadro/nLagartoLa/grimaLagunaLaicoLamerLa/minaLa/mparaLanaLanchaLangostaLanzaLa/pizLargoLarvaLa/stimaLataLa/texLatirLaurelLavarLazoLealLeccio/nLecheLectorLeerLegio/nLegumbreLejanoLenguaLentoLe~aLeo/nLeopardoLesio/nLetalLetraLeveLeyendaLibertadLibroLicorLi/derLidiarLienzoLigaLigeroLimaLi/miteLimo/nLimpioLinceLindoLi/neaLingoteLinoLinternaLi/quidoLisoListaLiteraLitioLitroLlagaLlamaLlantoLlaveLlegarLlenarLlevarLlorarLloverLluviaLoboLocio/nLocoLocuraLo/gicaLogroLombrizLomoLonjaLoteLuchaLucirLugarLujoLunaLunesLupaLustroLutoLuzMacetaMachoMaderaMadreMaduroMaestroMafiaMagiaMagoMai/zMaldadMaletaMallaMaloMama/MamboMamutMancoMandoManejarMangaManiqui/ManjarManoMansoMantaMa~anaMapaMa/quinaMarMarcoMareaMarfilMargenMaridoMa/rmolMarro/nMartesMarzoMasaMa/scaraMasivoMatarMateriaMatizMatrizMa/ximoMayorMazorcaMechaMedallaMedioMe/dulaMejillaMejorMelenaMelo/nMemoriaMenorMensajeMenteMenu/MercadoMerengueMe/ritoMesMeso/nMetaMeterMe/todoMetroMezclaMiedoMielMiembroMigaMilMilagroMilitarMillo/nMimoMinaMineroMi/nimoMinutoMiopeMirarMisaMiseriaMisilMismoMitadMitoMochilaMocio/nModaModeloMohoMojarMoldeMolerMolinoMomentoMomiaMonarcaMonedaMonjaMontoMo~oMoradaMorderMorenoMorirMorroMorsaMortalMoscaMostrarMotivoMoverMo/vilMozoMuchoMudarMuebleMuelaMuerteMuestraMugreMujerMulaMuletaMultaMundoMu~ecaMuralMuroMu/sculoMuseoMusgoMu/sicaMusloNa/carNacio/nNadarNaipeNaranjaNarizNarrarNasalNatalNativoNaturalNa/useaNavalNaveNavidadNecioNe/ctarNegarNegocioNegroNeo/nNervioNetoNeutroNevarNeveraNichoNidoNieblaNietoNi~ezNi~oNi/tidoNivelNoblezaNocheNo/minaNoriaNormaNorteNotaNoticiaNovatoNovelaNovioNubeNucaNu/cleoNudilloNudoNueraNueveNuezNuloNu/meroNutriaOasisObesoObispoObjetoObraObreroObservarObtenerObvioOcaOcasoOce/anoOchentaOchoOcioOcreOctavoOctubreOcultoOcuparOcurrirOdiarOdioOdiseaOesteOfensaOfertaOficioOfrecerOgroOi/doOi/rOjoOlaOleadaOlfatoOlivoOllaOlmoOlorOlvidoOmbligoOndaOnzaOpacoOpcio/nO/peraOpinarOponerOptarO/pticaOpuestoOracio/nOradorOralO/rbitaOrcaOrdenOrejaO/rganoOrgi/aOrgulloOrienteOrigenOrillaOroOrquestaOrugaOsadi/aOscuroOseznoOsoOstraOto~oOtroOvejaO/vuloO/xidoOxi/genoOyenteOzonoPactoPadrePaellaPa/ginaPagoPai/sPa/jaroPalabraPalcoPaletaPa/lidoPalmaPalomaPalparPanPanalPa/nicoPanteraPa~ueloPapa/PapelPapillaPaquetePararParcelaParedParirParoPa/rpadoParquePa/rrafoPartePasarPaseoPasio/nPasoPastaPataPatioPatriaPausaPautaPavoPayasoPeato/nPecadoPeceraPechoPedalPedirPegarPeinePelarPelda~oPeleaPeligroPellejoPeloPelucaPenaPensarPe~o/nPeo/nPeorPepinoPeque~oPeraPerchaPerderPerezaPerfilPericoPerlaPermisoPerroPersonaPesaPescaPe/simoPesta~aPe/taloPetro/leoPezPezu~aPicarPicho/nPiePiedraPiernaPiezaPijamaPilarPilotoPimientaPinoPintorPinzaPi~aPiojoPipaPirataPisarPiscinaPisoPistaPito/nPizcaPlacaPlanPlataPlayaPlazaPleitoPlenoPlomoPlumaPluralPobrePocoPoderPodioPoemaPoesi/aPoetaPolenPolici/aPolloPolvoPomadaPomeloPomoPompaPonerPorcio/nPortalPosadaPoseerPosiblePostePotenciaPotroPozoPradoPrecozPreguntaPremioPrensaPresoPrevioPrimoPri/ncipePrisio/nPrivarProaProbarProcesoProductoProezaProfesorProgramaProlePromesaProntoPropioPro/ximoPruebaPu/blicoPucheroPudorPuebloPuertaPuestoPulgaPulirPulmo/nPulpoPulsoPumaPuntoPu~alPu~oPupaPupilaPure/QuedarQuejaQuemarQuererQuesoQuietoQui/micaQuinceQuitarRa/banoRabiaRaboRacio/nRadicalRai/zRamaRampaRanchoRangoRapazRa/pidoRaptoRasgoRaspaRatoRayoRazaRazo/nReaccio/nRealidadReba~oReboteRecaerRecetaRechazoRecogerRecreoRectoRecursoRedRedondoReducirReflejoReformaRefra/nRefugioRegaloRegirReglaRegresoRehe/nReinoRei/rRejaRelatoRelevoRelieveRellenoRelojRemarRemedioRemoRencorRendirRentaRepartoRepetirReposoReptilResRescateResinaRespetoRestoResumenRetiroRetornoRetratoReunirReve/sRevistaReyRezarRicoRiegoRiendaRiesgoRifaRi/gidoRigorRinco/nRi~o/nRi/oRiquezaRisaRitmoRitoRizoRobleRoceRociarRodarRodeoRodillaRoerRojizoRojoRomeroRomperRonRoncoRondaRopaRoperoRosaRoscaRostroRotarRubi/RuborRudoRuedaRugirRuidoRuinaRuletaRuloRumboRumorRupturaRutaRutinaSa/badoSaberSabioSableSacarSagazSagradoSalaSaldoSaleroSalirSalmo/nSalo/nSalsaSaltoSaludSalvarSambaSancio/nSandi/aSanearSangreSanidadSanoSantoSapoSaqueSardinaSarte/nSastreSata/nSaunaSaxofo/nSeccio/nSecoSecretoSectaSedSeguirSeisSelloSelvaSemanaSemillaSendaSensorSe~alSe~orSepararSepiaSequi/aSerSerieSermo/nServirSesentaSesio/nSetaSetentaSeveroSexoSextoSidraSiestaSieteSigloSignoSi/labaSilbarSilencioSillaSi/mboloSimioSirenaSistemaSitioSituarSobreSocioSodioSolSolapaSoldadoSoledadSo/lidoSoltarSolucio/nSombraSondeoSonidoSonoroSonrisaSopaSoplarSoporteSordoSorpresaSorteoSoste/nSo/tanoSuaveSubirSucesoSudorSuegraSueloSue~oSuerteSufrirSujetoSulta/nSumarSuperarSuplirSuponerSupremoSurSurcoSure~oSurgirSustoSutilTabacoTabiqueTablaTabu/TacoTactoTajoTalarTalcoTalentoTallaTalo/nTama~oTamborTangoTanqueTapaTapeteTapiaTapo/nTaquillaTardeTareaTarifaTarjetaTarotTarroTartaTatuajeTauroTazaTazo/nTeatroTechoTeclaTe/cnicaTejadoTejerTejidoTelaTele/fonoTemaTemorTemploTenazTenderTenerTenisTensoTeori/aTerapiaTercoTe/rminoTernuraTerrorTesisTesoroTestigoTeteraTextoTezTibioTiburo/nTiempoTiendaTierraTiesoTigreTijeraTildeTimbreTi/midoTimoTintaTi/oTi/picoTipoTiraTiro/nTita/nTi/tereTi/tuloTizaToallaTobilloTocarTocinoTodoTogaToldoTomarTonoTontoToparTopeToqueTo/raxToreroTormentaTorneoToroTorpedoTorreTorsoTortugaTosToscoToserTo/xicoTrabajoTractorTraerTra/ficoTragoTrajeTramoTranceTratoTraumaTrazarTre/bolTreguaTreintaTrenTreparTresTribuTrigoTripaTristeTriunfoTrofeoTrompaTroncoTropaTroteTrozoTrucoTruenoTrufaTuberi/aTuboTuertoTumbaTumorTu/nelTu/nicaTurbinaTurismoTurnoTutorUbicarU/lceraUmbralUnidadUnirUniversoUnoUntarU~aUrbanoUrbeUrgenteUrnaUsarUsuarioU/tilUtopi/aUvaVacaVaci/oVacunaVagarVagoVainaVajillaValeVa/lidoValleValorVa/lvulaVampiroVaraVariarVaro/nVasoVecinoVectorVehi/culoVeinteVejezVelaVeleroVelozVenaVencerVendaVenenoVengarVenirVentaVenusVerVeranoVerboVerdeVeredaVerjaVersoVerterVi/aViajeVibrarVicioVi/ctimaVidaVi/deoVidrioViejoViernesVigorVilVillaVinagreVinoVi~edoVioli/nViralVirgoVirtudVisorVi/speraVistaVitaminaViudoVivazViveroVivirVivoVolca/nVolumenVolverVorazVotarVotoVozVueloVulgarYacerYateYeguaYemaYernoYesoYodoYogaYogurZafiroZanjaZapatoZarzaZonaZorroZumoZurdo";
+const lookup$1 = {};
+let wordlist$5 = null;
+function dropDiacritic$1(word) {
+  logger$c.checkNormalize();
+  return toUtf8String(Array.prototype.filter.call(toUtf8Bytes(word.normalize("NFD").toLowerCase()), (c) => {
+    return c >= 65 && c <= 90 || c >= 97 && c <= 123;
+  }));
+}
+function expand$1(word) {
+  const output = [];
+  Array.prototype.forEach.call(toUtf8Bytes(word), (c) => {
+    if (c === 47) {
+      output.push(204);
+      output.push(129);
+    } else if (c === 126) {
+      output.push(110);
+      output.push(204);
+      output.push(131);
+    } else {
+      output.push(c);
+    }
+  });
+  return toUtf8String(output);
+}
+function loadWords$5(lang) {
+  if (wordlist$5 != null) {
+    return;
+  }
+  wordlist$5 = words$2.replace(/([A-Z])/g, " $1").toLowerCase().substring(1).split(" ").map((w) => expand$1(w));
+  wordlist$5.forEach((word, index2) => {
+    lookup$1[dropDiacritic$1(word)] = index2;
+  });
+  if (Wordlist.check(lang) !== "0xf74fb7092aeacdfbf8959557de22098da512207fb9f109cb526994938cf40300") {
+    wordlist$5 = null;
+    throw new Error("BIP39 Wordlist for es (Spanish) FAILED");
+  }
+}
+class LangEs extends Wordlist {
+  constructor() {
+    super("es");
+  }
+  getWord(index2) {
+    loadWords$5(this);
+    return wordlist$5[index2];
+  }
+  getWordIndex(word) {
+    loadWords$5(this);
+    return lookup$1[dropDiacritic$1(word)];
+  }
+}
+const langEs = new LangEs();
+Wordlist.register(langEs);
+const words$1 = "AbaisserAbandonAbdiquerAbeilleAbolirAborderAboutirAboyerAbrasifAbreuverAbriterAbrogerAbruptAbsenceAbsoluAbsurdeAbusifAbyssalAcade/mieAcajouAcarienAccablerAccepterAcclamerAccoladeAccrocheAccuserAcerbeAchatAcheterAcidulerAcierAcompteAcque/rirAcronymeActeurActifActuelAdepteAde/quatAdhe/sifAdjectifAdjugerAdmettreAdmirerAdopterAdorerAdoucirAdresseAdroitAdulteAdverbeAe/rerAe/ronefAffaireAffecterAfficheAffreuxAffublerAgacerAgencerAgileAgiterAgraferAgre/ableAgrumeAiderAiguilleAilierAimableAisanceAjouterAjusterAlarmerAlchimieAlerteAlge-breAlgueAlie/nerAlimentAlle/gerAlliageAllouerAllumerAlourdirAlpagaAltesseAlve/oleAmateurAmbiguAmbreAme/nagerAmertumeAmidonAmiralAmorcerAmourAmovibleAmphibieAmpleurAmusantAnalyseAnaphoreAnarchieAnatomieAncienAne/antirAngleAngoisseAnguleuxAnimalAnnexerAnnonceAnnuelAnodinAnomalieAnonymeAnormalAntenneAntidoteAnxieuxApaiserApe/ritifAplanirApologieAppareilAppelerApporterAppuyerAquariumAqueducArbitreArbusteArdeurArdoiseArgentArlequinArmatureArmementArmoireArmureArpenterArracherArriverArroserArsenicArte/rielArticleAspectAsphalteAspirerAssautAsservirAssietteAssocierAssurerAsticotAstreAstuceAtelierAtomeAtriumAtroceAttaqueAttentifAttirerAttraperAubaineAubergeAudaceAudibleAugurerAuroreAutomneAutrucheAvalerAvancerAvariceAvenirAverseAveugleAviateurAvideAvionAviserAvoineAvouerAvrilAxialAxiomeBadgeBafouerBagageBaguetteBaignadeBalancerBalconBaleineBalisageBambinBancaireBandageBanlieueBannie-reBanquierBarbierBarilBaronBarqueBarrageBassinBastionBatailleBateauBatterieBaudrierBavarderBeletteBe/lierBeloteBe/ne/ficeBerceauBergerBerlineBermudaBesaceBesogneBe/tailBeurreBiberonBicycleBiduleBijouBilanBilingueBillardBinaireBiologieBiopsieBiotypeBiscuitBisonBistouriBitumeBizarreBlafardBlagueBlanchirBlessantBlinderBlondBloquerBlousonBobardBobineBoireBoiserBolideBonbonBondirBonheurBonifierBonusBordureBorneBotteBoucleBoueuxBougieBoulonBouquinBourseBoussoleBoutiqueBoxeurBrancheBrasierBraveBrebisBre-cheBreuvageBricolerBrigadeBrillantBriocheBriqueBrochureBroderBronzerBrousseBroyeurBrumeBrusqueBrutalBruyantBuffleBuissonBulletinBureauBurinBustierButinerButoirBuvableBuvetteCabanonCabineCachetteCadeauCadreCafe/ineCaillouCaissonCalculerCalepinCalibreCalmerCalomnieCalvaireCamaradeCame/raCamionCampagneCanalCanetonCanonCantineCanularCapableCaporalCapriceCapsuleCapterCapucheCarabineCarboneCaresserCaribouCarnageCarotteCarreauCartonCascadeCasierCasqueCassureCauserCautionCavalierCaverneCaviarCe/dilleCeintureCe/lesteCelluleCendrierCensurerCentralCercleCe/re/bralCeriseCernerCerveauCesserChagrinChaiseChaleurChambreChanceChapitreCharbonChasseurChatonChaussonChavirerChemiseChenilleChe/quierChercherChevalChienChiffreChignonChime-reChiotChlorureChocolatChoisirChoseChouetteChromeChuteCigareCigogneCimenterCine/maCintrerCirculerCirerCirqueCiterneCitoyenCitronCivilClaironClameurClaquerClasseClavierClientClignerClimatClivageClocheClonageCloporteCobaltCobraCocasseCocotierCoderCodifierCoffreCognerCohe/sionCoifferCoincerCole-reColibriCollineColmaterColonelCombatCome/dieCommandeCompactConcertConduireConfierCongelerConnoterConsonneContactConvexeCopainCopieCorailCorbeauCordageCornicheCorpusCorrectCorte-geCosmiqueCostumeCotonCoudeCoupureCourageCouteauCouvrirCoyoteCrabeCrainteCravateCrayonCre/atureCre/diterCre/meuxCreuserCrevetteCriblerCrierCristalCrite-reCroireCroquerCrotaleCrucialCruelCrypterCubiqueCueillirCuille-reCuisineCuivreCulminerCultiverCumulerCupideCuratifCurseurCyanureCycleCylindreCyniqueDaignerDamierDangerDanseurDauphinDe/battreDe/biterDe/borderDe/briderDe/butantDe/calerDe/cembreDe/chirerDe/ciderDe/clarerDe/corerDe/crireDe/cuplerDe/daleDe/ductifDe/esseDe/fensifDe/filerDe/frayerDe/gagerDe/givrerDe/glutirDe/graferDe/jeunerDe/liceDe/logerDemanderDemeurerDe/molirDe/nicherDe/nouerDentelleDe/nuderDe/partDe/penserDe/phaserDe/placerDe/poserDe/rangerDe/roberDe/sastreDescenteDe/sertDe/signerDe/sobe/irDessinerDestrierDe/tacherDe/testerDe/tourerDe/tresseDevancerDevenirDevinerDevoirDiableDialogueDiamantDicterDiffe/rerDige/rerDigitalDigneDiluerDimancheDiminuerDioxydeDirectifDirigerDiscuterDisposerDissiperDistanceDivertirDiviserDocileDocteurDogmeDoigtDomaineDomicileDompterDonateurDonjonDonnerDopamineDortoirDorureDosageDoseurDossierDotationDouanierDoubleDouceurDouterDoyenDragonDraperDresserDribblerDroitureDuperieDuplexeDurableDurcirDynastieE/blouirE/carterE/charpeE/chelleE/clairerE/clipseE/cloreE/cluseE/coleE/conomieE/corceE/couterE/craserE/cre/merE/crivainE/crouE/cumeE/cureuilE/difierE/duquerEffacerEffectifEffigieEffortEffrayerEffusionE/galiserE/garerE/jecterE/laborerE/largirE/lectronE/le/gantE/le/phantE/le-veE/ligibleE/litismeE/logeE/luciderE/luderEmballerEmbellirEmbryonE/meraudeE/missionEmmenerE/motionE/mouvoirEmpereurEmployerEmporterEmpriseE/mulsionEncadrerEnche-reEnclaveEncocheEndiguerEndosserEndroitEnduireE/nergieEnfanceEnfermerEnfouirEngagerEnginEngloberE/nigmeEnjamberEnjeuEnleverEnnemiEnnuyeuxEnrichirEnrobageEnseigneEntasserEntendreEntierEntourerEntraverE/nume/rerEnvahirEnviableEnvoyerEnzymeE/olienE/paissirE/pargneE/patantE/pauleE/picerieE/pide/mieE/pierE/pilogueE/pineE/pisodeE/pitapheE/poqueE/preuveE/prouverE/puisantE/querreE/quipeE/rigerE/rosionErreurE/ruptionEscalierEspadonEspe-ceEspie-gleEspoirEspritEsquiverEssayerEssenceEssieuEssorerEstimeEstomacEstradeE/tage-reE/talerE/tancheE/tatiqueE/teindreE/tendoirE/ternelE/thanolE/thiqueEthnieE/tirerE/tofferE/toileE/tonnantE/tourdirE/trangeE/troitE/tudeEuphorieE/valuerE/vasionE/ventailE/videnceE/viterE/volutifE/voquerExactExage/rerExaucerExcellerExcitantExclusifExcuseExe/cuterExempleExercerExhalerExhorterExigenceExilerExisterExotiqueExpe/dierExplorerExposerExprimerExquisExtensifExtraireExulterFableFabuleuxFacetteFacileFactureFaiblirFalaiseFameuxFamilleFarceurFarfeluFarineFaroucheFascinerFatalFatigueFauconFautifFaveurFavoriFe/brileFe/conderFe/de/rerFe/linFemmeFe/murFendoirFe/odalFermerFe/roceFerveurFestivalFeuilleFeutreFe/vrierFiascoFicelerFictifFide-leFigureFilatureFiletageFilie-reFilleulFilmerFilouFiltrerFinancerFinirFioleFirmeFissureFixerFlairerFlammeFlasqueFlatteurFle/auFle-cheFleurFlexionFloconFloreFluctuerFluideFluvialFolieFonderieFongibleFontaineForcerForgeronFormulerFortuneFossileFoudreFouge-reFouillerFoulureFourmiFragileFraiseFranchirFrapperFrayeurFre/gateFreinerFrelonFre/mirFre/ne/sieFre-reFriableFrictionFrissonFrivoleFroidFromageFrontalFrotterFruitFugitifFuiteFureurFurieuxFurtifFusionFuturGagnerGalaxieGalerieGambaderGarantirGardienGarnirGarrigueGazelleGazonGe/antGe/latineGe/luleGendarmeGe/ne/ralGe/nieGenouGentilGe/ologieGe/ome-treGe/raniumGermeGestuelGeyserGibierGiclerGirafeGivreGlaceGlaiveGlisserGlobeGloireGlorieuxGolfeurGommeGonflerGorgeGorilleGoudronGouffreGoulotGoupilleGourmandGoutteGraduelGraffitiGraineGrandGrappinGratuitGravirGrenatGriffureGrillerGrimperGrognerGronderGrotteGroupeGrugerGrutierGruye-reGue/pardGuerrierGuideGuimauveGuitareGustatifGymnasteGyrostatHabitudeHachoirHalteHameauHangarHannetonHaricotHarmonieHarponHasardHe/liumHe/matomeHerbeHe/rissonHermineHe/ronHe/siterHeureuxHibernerHibouHilarantHistoireHiverHomardHommageHomoge-neHonneurHonorerHonteuxHordeHorizonHorlogeHormoneHorribleHouleuxHousseHublotHuileuxHumainHumbleHumideHumourHurlerHydromelHygie-neHymneHypnoseIdylleIgnorerIguaneIlliciteIllusionImageImbiberImiterImmenseImmobileImmuableImpactImpe/rialImplorerImposerImprimerImputerIncarnerIncendieIncidentInclinerIncoloreIndexerIndiceInductifIne/ditIneptieInexactInfiniInfligerInformerInfusionInge/rerInhalerInhiberInjecterInjureInnocentInoculerInonderInscrireInsecteInsigneInsoliteInspirerInstinctInsulterIntactIntenseIntimeIntrigueIntuitifInutileInvasionInventerInviterInvoquerIroniqueIrradierIrre/elIrriterIsolerIvoireIvresseJaguarJaillirJambeJanvierJardinJaugerJauneJavelotJetableJetonJeudiJeunesseJoindreJoncherJonglerJoueurJouissifJournalJovialJoyauJoyeuxJubilerJugementJuniorJuponJuristeJusticeJuteuxJuve/nileKayakKimonoKiosqueLabelLabialLabourerLace/rerLactoseLaguneLaineLaisserLaitierLambeauLamelleLampeLanceurLangageLanterneLapinLargeurLarmeLaurierLavaboLavoirLectureLe/galLe/gerLe/gumeLessiveLettreLevierLexiqueLe/zardLiasseLibe/rerLibreLicenceLicorneLie-geLie-vreLigatureLigoterLigueLimerLimiteLimonadeLimpideLine/aireLingotLionceauLiquideLisie-reListerLithiumLitigeLittoralLivreurLogiqueLointainLoisirLombricLoterieLouerLourdLoutreLouveLoyalLubieLucideLucratifLueurLugubreLuisantLumie-reLunaireLundiLuronLutterLuxueuxMachineMagasinMagentaMagiqueMaigreMaillonMaintienMairieMaisonMajorerMalaxerMale/ficeMalheurMaliceMalletteMammouthMandaterManiableManquantManteauManuelMarathonMarbreMarchandMardiMaritimeMarqueurMarronMartelerMascotteMassifMate/rielMatie-reMatraqueMaudireMaussadeMauveMaximalMe/chantMe/connuMe/dailleMe/decinMe/diterMe/duseMeilleurMe/langeMe/lodieMembreMe/moireMenacerMenerMenhirMensongeMentorMercrediMe/riteMerleMessagerMesureMe/talMe/te/oreMe/thodeMe/tierMeubleMiaulerMicrobeMietteMignonMigrerMilieuMillionMimiqueMinceMine/ralMinimalMinorerMinuteMiracleMiroiterMissileMixteMobileModerneMoelleuxMondialMoniteurMonnaieMonotoneMonstreMontagneMonumentMoqueurMorceauMorsureMortierMoteurMotifMoucheMoufleMoulinMoussonMoutonMouvantMultipleMunitionMurailleMure-neMurmureMuscleMuse/umMusicienMutationMuterMutuelMyriadeMyrtilleMyste-reMythiqueNageurNappeNarquoisNarrerNatationNationNatureNaufrageNautiqueNavireNe/buleuxNectarNe/fasteNe/gationNe/gligerNe/gocierNeigeNerveuxNettoyerNeuroneNeutronNeveuNicheNickelNitrateNiveauNobleNocifNocturneNoirceurNoisetteNomadeNombreuxNommerNormatifNotableNotifierNotoireNourrirNouveauNovateurNovembreNoviceNuageNuancerNuireNuisibleNume/roNuptialNuqueNutritifObe/irObjectifObligerObscurObserverObstacleObtenirObturerOccasionOccuperOce/anOctobreOctroyerOctuplerOculaireOdeurOdorantOffenserOfficierOffrirOgiveOiseauOisillonOlfactifOlivierOmbrageOmettreOnctueuxOndulerOne/reuxOniriqueOpaleOpaqueOpe/rerOpinionOpportunOpprimerOpterOptiqueOrageuxOrangeOrbiteOrdonnerOreilleOrganeOrgueilOrificeOrnementOrqueOrtieOscillerOsmoseOssatureOtarieOuraganOursonOutilOutragerOuvrageOvationOxydeOxyge-neOzonePaisiblePalacePalmare-sPalourdePalperPanachePandaPangolinPaniquerPanneauPanoramaPantalonPapayePapierPapoterPapyrusParadoxeParcelleParesseParfumerParlerParoleParrainParsemerPartagerParureParvenirPassionPaste-quePaternelPatiencePatronPavillonPavoiserPayerPaysagePeignePeintrePelagePe/licanPellePelousePeluchePendulePe/ne/trerPe/niblePensifPe/nuriePe/pitePe/plumPerdrixPerforerPe/riodePermuterPerplexePersilPertePeserPe/talePetitPe/trirPeuplePharaonPhobiePhoquePhotonPhrasePhysiquePianoPicturalPie-cePierrePieuvrePilotePinceauPipettePiquerPiroguePiscinePistonPivoterPixelPizzaPlacardPlafondPlaisirPlanerPlaquePlastronPlateauPleurerPlexusPliagePlombPlongerPluiePlumagePochettePoe/siePoe-tePointePoirierPoissonPoivrePolairePolicierPollenPolygonePommadePompierPonctuelPonde/rerPoneyPortiquePositionPosse/derPosturePotagerPoteauPotionPoucePoulainPoumonPourprePoussinPouvoirPrairiePratiquePre/cieuxPre/direPre/fixePre/ludePre/nomPre/sencePre/textePre/voirPrimitifPrincePrisonPriverProble-meProce/derProdigeProfondProgre-sProieProjeterProloguePromenerPropreProspe-reProte/gerProuesseProverbePrudencePruneauPsychosePublicPuceronPuiserPulpePulsarPunaisePunitifPupitrePurifierPuzzlePyramideQuasarQuerelleQuestionQuie/tudeQuitterQuotientRacineRaconterRadieuxRagondinRaideurRaisinRalentirRallongeRamasserRapideRasageRatisserRavagerRavinRayonnerRe/actifRe/agirRe/aliserRe/animerRecevoirRe/citerRe/clamerRe/colterRecruterReculerRecyclerRe/digerRedouterRefaireRe/flexeRe/formerRefrainRefugeRe/galienRe/gionRe/glageRe/gulierRe/ite/rerRejeterRejouerRelatifReleverReliefRemarqueReme-deRemiseRemonterRemplirRemuerRenardRenfortReniflerRenoncerRentrerRenvoiReplierReporterRepriseReptileRequinRe/serveRe/sineuxRe/soudreRespectResterRe/sultatRe/tablirRetenirRe/ticuleRetomberRetracerRe/unionRe/ussirRevancheRevivreRe/volteRe/vulsifRichesseRideauRieurRigideRigolerRincerRiposterRisibleRisqueRituelRivalRivie-reRocheuxRomanceRompreRonceRondinRoseauRosierRotatifRotorRotuleRougeRouilleRouleauRoutineRoyaumeRubanRubisRucheRuelleRugueuxRuinerRuisseauRuserRustiqueRythmeSablerSaboterSabreSacocheSafariSagesseSaisirSaladeSaliveSalonSaluerSamediSanctionSanglierSarcasmeSardineSaturerSaugrenuSaumonSauterSauvageSavantSavonnerScalpelScandaleSce/le/ratSce/narioSceptreSche/maScienceScinderScoreScrutinSculpterSe/anceSe/cableSe/cherSecouerSe/cre/terSe/datifSe/duireSeigneurSe/jourSe/lectifSemaineSemblerSemenceSe/minalSe/nateurSensibleSentenceSe/parerSe/quenceSereinSergentSe/rieuxSerrureSe/rumServiceSe/sameSe/virSevrageSextupleSide/ralSie-cleSie/gerSifflerSigleSignalSilenceSiliciumSimpleSince-reSinistreSiphonSiropSismiqueSituerSkierSocialSocleSodiumSoigneuxSoldatSoleilSolitudeSolubleSombreSommeilSomnolerSondeSongeurSonnetteSonoreSorcierSortirSosieSottiseSoucieuxSoudureSouffleSouleverSoupapeSourceSoutirerSouvenirSpacieuxSpatialSpe/cialSphe-reSpiralStableStationSternumStimulusStipulerStrictStudieuxStupeurStylisteSublimeSubstratSubtilSubvenirSucce-sSucreSuffixeSugge/rerSuiveurSulfateSuperbeSupplierSurfaceSuricateSurmenerSurpriseSursautSurvieSuspectSyllabeSymboleSyme/trieSynapseSyntaxeSyste-meTabacTablierTactileTaillerTalentTalismanTalonnerTambourTamiserTangibleTapisTaquinerTarderTarifTartineTasseTatamiTatouageTaupeTaureauTaxerTe/moinTemporelTenailleTendreTeneurTenirTensionTerminerTerneTerribleTe/tineTexteThe-meThe/orieThe/rapieThoraxTibiaTie-deTimideTirelireTiroirTissuTitaneTitreTituberTobogganTole/rantTomateToniqueTonneauToponymeTorcheTordreTornadeTorpilleTorrentTorseTortueTotemToucherTournageTousserToxineTractionTraficTragiqueTrahirTrainTrancherTravailTre-fleTremperTre/sorTreuilTriageTribunalTricoterTrilogieTriompheTriplerTriturerTrivialTromboneTroncTropicalTroupeauTuileTulipeTumulteTunnelTurbineTuteurTutoyerTuyauTympanTyphonTypiqueTyranUbuesqueUltimeUltrasonUnanimeUnifierUnionUniqueUnitaireUniversUraniumUrbainUrticantUsageUsineUsuelUsureUtileUtopieVacarmeVaccinVagabondVagueVaillantVaincreVaisseauValableValiseVallonValveVampireVanilleVapeurVarierVaseuxVassalVasteVecteurVedetteVe/ge/talVe/hiculeVeinardVe/loceVendrediVe/ne/rerVengerVenimeuxVentouseVerdureVe/rinVernirVerrouVerserVertuVestonVe/te/ranVe/tusteVexantVexerViaducViandeVictoireVidangeVide/oVignetteVigueurVilainVillageVinaigreViolonVipe-reVirementVirtuoseVirusVisageViseurVisionVisqueuxVisuelVitalVitesseViticoleVitrineVivaceVivipareVocationVoguerVoileVoisinVoitureVolailleVolcanVoltigerVolumeVoraceVortexVoterVouloirVoyageVoyelleWagonXe/nonYachtZe-breZe/nithZesteZoologie";
+let wordlist$4 = null;
+const lookup = {};
+function dropDiacritic(word) {
+  logger$c.checkNormalize();
+  return toUtf8String(Array.prototype.filter.call(toUtf8Bytes(word.normalize("NFD").toLowerCase()), (c) => {
+    return c >= 65 && c <= 90 || c >= 97 && c <= 123;
+  }));
+}
+function expand(word) {
+  const output = [];
+  Array.prototype.forEach.call(toUtf8Bytes(word), (c) => {
+    if (c === 47) {
+      output.push(204);
+      output.push(129);
+    } else if (c === 45) {
+      output.push(204);
+      output.push(128);
+    } else {
+      output.push(c);
+    }
+  });
+  return toUtf8String(output);
+}
+function loadWords$4(lang) {
+  if (wordlist$4 != null) {
+    return;
+  }
+  wordlist$4 = words$1.replace(/([A-Z])/g, " $1").toLowerCase().substring(1).split(" ").map((w) => expand(w));
+  wordlist$4.forEach((word, index2) => {
+    lookup[dropDiacritic(word)] = index2;
+  });
+  if (Wordlist.check(lang) !== "0x51deb7ae009149dc61a6bd18a918eb7ac78d2775726c68e598b92d002519b045") {
+    wordlist$4 = null;
+    throw new Error("BIP39 Wordlist for fr (French) FAILED");
+  }
+}
+class LangFr extends Wordlist {
+  constructor() {
+    super("fr");
+  }
+  getWord(index2) {
+    loadWords$4(this);
+    return wordlist$4[index2];
+  }
+  getWordIndex(word) {
+    loadWords$4(this);
+    return lookup[dropDiacritic(word)];
+  }
+}
+const langFr = new LangFr();
+Wordlist.register(langFr);
+const data$2 = [
+  "AQRASRAGBAGUAIRAHBAghAURAdBAdcAnoAMEAFBAFCBKFBQRBSFBCXBCDBCHBGFBEQBpBBpQBIkBHNBeOBgFBVCBhBBhNBmOBmRBiHBiFBUFBZDBvFBsXBkFBlcBjYBwDBMBBTBBTRBWBBWXXaQXaRXQWXSRXCFXYBXpHXOQXHRXhRXuRXmXXbRXlXXwDXTRXrCXWQXWGaBWaKcaYgasFadQalmaMBacAKaRKKBKKXKKjKQRKDRKCYKCRKIDKeVKHcKlXKjHKrYNAHNBWNaRNKcNIBNIONmXNsXNdXNnBNMBNRBNrXNWDNWMNFOQABQAHQBrQXBQXFQaRQKXQKDQKOQKFQNBQNDQQgQCXQCDQGBQGDQGdQYXQpBQpQQpHQLXQHuQgBQhBQhCQuFQmXQiDQUFQZDQsFQdRQkHQbRQlOQlmQPDQjDQwXQMBQMDQcFQTBQTHQrDDXQDNFDGBDGQDGRDpFDhFDmXDZXDbRDMYDRdDTRDrXSAhSBCSBrSGQSEQSHBSVRShYShkSyQSuFSiBSdcSoESocSlmSMBSFBSFKSFNSFdSFcCByCaRCKcCSBCSRCCrCGbCEHCYXCpBCpQCIBCIHCeNCgBCgFCVECVcCmkCmwCZXCZFCdRClOClmClFCjDCjdCnXCwBCwXCcRCFQCFjGXhGNhGDEGDMGCDGCHGIFGgBGVXGVEGVRGmXGsXGdYGoSGbRGnXGwXGwDGWRGFNGFLGFOGFdGFkEABEBDEBFEXOEaBEKSENBENDEYXEIgEIkEgBEgQEgHEhFEudEuFEiBEiHEiFEZDEvBEsXEsFEdXEdREkFEbBEbRElFEPCEfkEFNYAEYAhYBNYQdYDXYSRYCEYYoYgQYgRYuRYmCYZTYdBYbEYlXYjQYRbYWRpKXpQopQnpSFpCXpIBpISphNpdBpdRpbRpcZpFBpFNpFDpFopFrLADLBuLXQLXcLaFLCXLEhLpBLpFLHXLeVLhILdHLdRLoDLbRLrXIABIBQIBCIBsIBoIBMIBRIXaIaRIKYIKRINBINuICDIGBIIDIIkIgRIxFIyQIiHIdRIbYIbRIlHIwRIMYIcRIRVITRIFBIFNIFQOABOAFOBQOaFONBONMOQFOSFOCDOGBOEQOpBOLXOIBOIFOgQOgFOyQOycOmXOsXOdIOkHOMEOMkOWWHBNHXNHXWHNXHDuHDRHSuHSRHHoHhkHmRHdRHkQHlcHlRHwBHWcgAEgAggAkgBNgBQgBEgXOgYcgLXgHjgyQgiBgsFgdagMYgWSgFQgFEVBTVXEVKBVKNVKDVKYVKRVNBVNYVDBVDxVSBVSRVCjVGNVLXVIFVhBVhcVsXVdRVbRVlRhBYhKYhDYhGShxWhmNhdahdkhbRhjohMXhTRxAXxXSxKBxNBxEQxeNxeQxhXxsFxdbxlHxjcxFBxFNxFQxFOxFoyNYyYoybcyMYuBQuBRuBruDMuCouHBudQukkuoBulVuMXuFEmCYmCRmpRmeDmiMmjdmTFmFQiADiBOiaRiKRiNBiNRiSFiGkiGFiERipRiLFiIFihYibHijBijEiMXiWBiFBiFCUBQUXFUaRUNDUNcUNRUNFUDBUSHUCDUGBUGFUEqULNULoUIRUeEUeYUgBUhFUuRUiFUsXUdFUkHUbBUjSUjYUwXUMDUcHURdUTBUrBUrXUrQZAFZXZZaRZKFZNBZQFZCXZGBZYdZpBZLDZIFZHXZHNZeQZVRZVFZmXZiBZvFZdFZkFZbHZbFZwXZcCZcRZRBvBQvBGvBLvBWvCovMYsAFsBDsaRsKFsNFsDrsSHsSFsCXsCRsEBsEHsEfspBsLBsLDsIgsIRseGsbRsFBsFQsFSdNBdSRdCVdGHdYDdHcdVbdySduDdsXdlRdwXdWYdWcdWRkBMkXOkaRkNIkNFkSFkCFkYBkpRkeNkgBkhVkmXksFklVkMBkWDkFNoBNoaQoaFoNBoNXoNaoNEoSRoEroYXoYCoYbopRopFomXojkowXorFbBEbEIbdBbjYlaRlDElMXlFDjKjjSRjGBjYBjYkjpRjLXjIBjOFjeVjbRjwBnXQnSHnpFnLXnINnMBnTRwXBwXNwXYwNFwQFwSBwGFwLXwLDweNwgBwuHwjDwnXMBXMpFMIBMeNMTHcaQcNBcDHcSFcCXcpBcLXcLDcgFcuFcnXcwXccDcTQcrFTQErXNrCHrpFrgFrbFrTHrFcWNYWNbWEHWMXWTR",
+  "ABGHABIJAEAVAYJQALZJAIaRAHNXAHdcAHbRAZJMAZJRAZTRAdVJAklmAbcNAjdRAMnRAMWYAWpRAWgRAFgBAFhBAFdcBNJBBNJDBQKBBQhcBQlmBDEJBYJkBYJTBpNBBpJFBIJBBIJDBIcABOKXBOEJBOVJBOiJBOZJBepBBeLXBeIFBegBBgGJBVJXBuocBiJRBUJQBlXVBlITBwNFBMYVBcqXBTlmBWNFBWiJBWnRBFGHBFwXXKGJXNJBXNZJXDTTXSHSXSVRXSlHXCJDXGQJXEhXXYQJXYbRXOfXXeNcXVJFXhQJXhEJXdTRXjdXXMhBXcQTXRGBXTEBXTnQXFCXXFOFXFgFaBaFaBNJaBCJaBpBaBwXaNJKaNJDaQIBaDpRaEPDaHMFamDJalEJaMZJaFaFaFNBaFQJaFLDaFVHKBCYKBEBKBHDKXaFKXGdKXEJKXpHKXIBKXZDKXwXKKwLKNacKNYJKNJoKNWcKDGdKDTRKChXKGaRKGhBKGbRKEBTKEaRKEPTKLMDKLWRKOHDKVJcKdBcKlIBKlOPKFSBKFEPKFpFNBNJNJBQNBGHNBEPNBHXNBgFNBVXNBZDNBsXNBwXNNaRNNJDNNJENNJkNDCJNDVDNGJRNJiDNZJNNsCJNJFNNFSBNFCXNFEPNFLXNFIFQJBFQCaRQJEQQLJDQLJFQIaRQOqXQHaFQHHQQVJXQVJDQhNJQmEIQZJFQsJXQJrFQWbRDJABDBYJDXNFDXCXDXLXDXZDDXsJDQqXDSJFDJCXDEPkDEqXDYmQDpSJDOCkDOGQDHEIDVJDDuDuDWEBDJFgSBNDSBSFSBGHSBIBSBTQSKVYSJQNSJQiSJCXSEqXSJYVSIiJSOMYSHAHSHaQSeCFSepQSegBSHdHSHrFShSJSJuHSJUFSkNRSrSrSWEBSFaHSJFQSFCXSFGDSFYXSFODSFgBSFVXSFhBSFxFSFkFSFbBSFMFCADdCJXBCXaFCXKFCXNFCXCXCXGBCXEJCXYBCXLDCXIBCXOPCXHXCXgBCXhBCXiBCXlDCXcHCJNBCJNFCDCJCDGBCDVXCDhBCDiDCDJdCCmNCpJFCIaRCOqXCHCHCHZJCViJCuCuCmddCJiFCdNBCdHhClEJCnUJCreSCWlgCWTRCFBFCFNBCFYBCFVFCFhFCFdSCFTBCFWDGBNBGBQFGJBCGBEqGBpBGBgQGNBEGNJYGNkOGNJRGDUFGJpQGHaBGJeNGJeEGVBlGVKjGiJDGvJHGsVJGkEBGMIJGWjNGFBFGFCXGFGBGFYXGFpBGFMFEASJEAWpEJNFECJVEIXSEIQJEOqXEOcFEeNcEHEJEHlFEJgFEhlmEmDJEmZJEiMBEUqXEoSREPBFEPXFEPKFEPSFEPEFEPpFEPLXEPIBEJPdEPcFEPTBEJnXEqlHEMpREFCXEFODEFcFYASJYJAFYBaBYBVXYXpFYDhBYCJBYJGFYYbRYeNcYJeVYiIJYZJcYvJgYvJRYJsXYsJFYMYMYreVpBNHpBEJpBwXpQxFpYEJpeNDpJeDpeSFpeCHpHUJpHbBpHcHpmUJpiiJpUJrpsJuplITpFaBpFQqpFGBpFEfpFYBpFpBpFLJpFIDpFgBpFVXpFyQpFuFpFlFpFjDpFnXpFwXpJFMpFTBLXCJLXEFLXhFLXUJLXbFLalmLNJBLSJQLCLCLGJBLLDJLHaFLeNFLeSHLeCXLepFLhaRLZsJLsJDLsJrLocaLlLlLMdbLFNBLFSBLFEHLFkFIBBFIBXFIBaQIBKXIBSFIBpHIBLXIBgBIBhBIBuHIBmXIBiFIBZXIBvFIBbFIBjQIBwXIBWFIKTRIQUJIDGFICjQIYSRIINXIJeCIVaRImEkIZJFIvJRIsJXIdCJIJoRIbBQIjYBIcqXITFVIreVIFKFIFSFIFCJIFGFIFLDIFIBIJFOIFgBIFVXIJFhIFxFIFmXIFdHIFbBIJFrIJFWOBGBOQfXOOKjOUqXOfXBOqXEOcqXORVJOFIBOFlDHBIOHXiFHNTRHCJXHIaRHHJDHHEJHVbRHZJYHbIBHRsJHRkDHWlmgBKFgBSBgBCDgBGHgBpBgBIBgBVJgBuBgBvFgKDTgQVXgDUJgGSJgOqXgmUMgZIJgTUJgWIEgFBFgFNBgFDJgFSFgFGBgFYXgJFOgFgQgFVXgFhBgFbHgJFWVJABVQKcVDgFVOfXVeDFVhaRVmGdViJYVMaRVFNHhBNDhBCXhBEqhBpFhBLXhNJBhSJRheVXhhKEhxlmhZIJhdBQhkIJhbMNhMUJhMZJxNJgxQUJxDEkxDdFxSJRxplmxeSBxeCXxeGFxeYXxepQxegBxWVcxFEQxFLXxFIBxFgBxFxDxFZtxFdcxFbBxFwXyDJXyDlcuASJuDJpuDIBuCpJuGSJuIJFueEFuZIJusJXudWEuoIBuWGJuFBcuFKEuFNFuFQFuFDJuFGJuFVJuFUtuFdHuFTBmBYJmNJYmQhkmLJDmLJomIdXmiJYmvJRmsJRmklmmMBymMuCmclmmcnQiJABiJBNiJBDiBSFiBCJiBEFiBYBiBpFiBLXiBTHiJNciDEfiCZJiECJiJEqiOkHiHKFieNDiHJQieQcieDHieSFieCXieGFieEFieIHiegFihUJixNoioNXiFaBiFKFiFNDiFEPiFYXitFOitFHiFgBiFVEiFmXiFitiFbBiFMFiFrFUCXQUIoQUIJcUHQJUeCEUHwXUUJDUUqXUdWcUcqXUrnQUFNDUFSHUFCFUFEfUFLXUtFOZBXOZXSBZXpFZXVXZEQJZEJkZpDJZOqXZeNHZeCDZUqXZFBQZFEHZFLXvBAFvBKFvBCXvBEPvBpHvBIDvBgFvBuHvQNJvFNFvFGBvFIBvJFcsXCDsXLXsXsXsXlFsXcHsQqXsJQFsEqXseIFsFEHsFjDdBxOdNpRdNJRdEJbdpJRdhZJdnSJdrjNdFNJdFQHdFhNkNJDkYaRkHNRkHSRkVbRkuMRkjSJkcqDoSJFoEiJoYZJoOfXohEBoMGQocqXbBAFbBXFbBaFbBNDbBGBbBLXbBTBbBWDbGJYbIJHbFQqbFpQlDgQlOrFlVJRjGEBjZJRnXvJnXbBnEfHnOPDngJRnxfXnUJWwXEJwNpJwDpBwEfXwrEBMDCJMDGHMDIJMLJDcQGDcQpHcqXccqNFcqCXcFCJRBSBRBGBRBEJRBpQTBNFTBQJTBpBTBVXTFABTFSBTFCFTFGBTFMDrXCJrXLDrDNJrEfHrFQJrFitWNjdWNTR",
+  "AKLJMANOPFASNJIAEJWXAYJNRAIIbRAIcdaAeEfDAgidRAdjNYAMYEJAMIbRAFNJBAFpJFBBIJYBDZJFBSiJhBGdEBBEJfXBEJqXBEJWRBpaUJBLXrXBIYJMBOcfXBeEfFBestXBjNJRBcDJOBFEqXXNvJRXDMBhXCJNYXOAWpXONJWXHDEBXeIaRXhYJDXZJSJXMDJOXcASJXFVJXaBQqXaBZJFasXdQaFSJQaFEfXaFpJHaFOqXKBNSRKXvJBKQJhXKEJQJKEJGFKINJBKIJjNKgJNSKVElmKVhEBKiJGFKlBgJKjnUJKwsJYKMFIJKFNJDKFIJFKFOfXNJBSFNJBCXNBpJFNJBvQNJBMBNJLJXNJOqXNJeCXNJeGFNdsJCNbTKFNwXUJQNFEPQDiJcQDMSJQSFpBQGMQJQJeOcQyCJEQUJEBQJFBrQFEJqDXDJFDJXpBDJXIMDGiJhDIJGRDJeYcDHrDJDVXgFDkAWpDkIgRDjDEqDMvJRDJFNFDJFIBSKclmSJQOFSJQVHSJQjDSJGJBSJGJFSECJoSHEJqSJHTBSJVJDSViJYSZJNBSJsJDSFSJFSFEfXSJFLXCBUJVCJXSBCJXpBCXVJXCJXsXCJXdFCJNJHCLIJgCHiJFCVNJMChCJhCUHEJCsJTRCJdYcCoQJCCFEfXCFIJgCFUJxCFstFGJBaQGJBIDGQJqXGYJNRGJHKFGeQqDGHEJFGJeLXGHIiJGHdBlGUJEBGkIJTGFQPDGJFEqEAGegEJIJBEJVJXEhQJTEiJNcEJZJFEJoEqEjDEqEPDsXEPGJBEPOqXEPeQFEfDiDEJfEFEfepQEfMiJEqXNBEqDIDEqeSFEqVJXEMvJRYXNJDYXEJHYKVJcYYJEBYJeEcYJUqXYFpJFYFstXpAZJMpBSJFpNBNFpeQPDpHLJDpHIJFpHgJFpeitFpHZJFpJFADpFSJFpJFCJpFOqXpFitBpJFZJLXIJFLIJgRLVNJWLVHJMLwNpJLFGJBLFLJDLFOqXLJFUJIBDJXIBGJBIJBYQIJBIBIBOqXIBcqDIEGJFILNJTIIJEBIOiJhIJeNBIJeIBIhiJIIWoTRIJFAHIJFpBIJFuHIFUtFIJFTHOSBYJOEcqXOHEJqOvBpFOkVJrObBVJOncqDOcNJkHhNJRHuHJuHdMhBgBUqXgBsJXgONJBgHNJDgHHJQgJeitgHsJXgJyNagyDJBgZJDrgsVJQgkEJNgkjSJgJFAHgFCJDgFZtMVJXNFVXQfXVJXDJVXoQJVQVJQVDEfXVDvJHVEqNFVeQfXVHpJFVHxfXVVJSRVVmaRVlIJOhCXVJhHjYkhxCJVhWVUJhWiJcxBNJIxeEqDxfXBFxcFEPxFSJFxFYJXyBDQJydaUJyFOPDuYCJYuLvJRuHLJXuZJLDuFOPDuFZJHuFcqXmKHJdmCQJcmOsVJiJAGFitLCFieOfXiestXiZJMEikNJQirXzFiFQqXiFIJFiFZJFiFvtFUHpJFUteIcUteOcUVCJkUhdHcUbEJEUJqXQUMNJhURjYkUFitFZDGJHZJIxDZJVJXZJFDJZJFpQvBNJBvBSJFvJxBrseQqDsVFVJdFLJDkEJNBkmNJYkFLJDoQJOPoGsJRoEAHBoEJfFbBQqDbBZJHbFVJXlFIJBjYIrXjeitcjjCEBjWMNBwXQfXwXOaFwDsJXwCJTRwrCZJMDNJQcDDJFcqDOPRYiJFTBsJXTQIJBTFEfXTFLJDrXEJFrEJXMrFZJFWEJdEWYTlm",
+  "ABCDEFACNJTRAMBDJdAcNJVXBLNJEBXSIdWRXErNJkXYDJMBXZJCJaXMNJaYKKVJKcKDEJqXKDcNJhKVJrNYKbgJVXKFVJSBNBYBwDNJeQfXNJeEqXNhGJWENJFiJRQlIJbEQJfXxDQqXcfXQFNDEJQFwXUJDYcnUJDJIBgQDIUJTRDJFEqDSJQSJFSJQIJFSOPeZtSJFZJHCJXQfXCTDEqFGJBSJFGJBOfXGJBcqXGJHNJDGJRLiJEJfXEqEJFEJPEFpBEJYJBZJFYBwXUJYiJMEBYJZJyTYTONJXpQMFXFpeGIDdpJFstXpJFcPDLBVSJRLHQJqXLJFZJFIJBNJDIJBUqXIBkFDJIJEJPTIYJGWRIJeQPDIJeEfHIJFsJXOqGDSFHXEJqXgJCsJCgGQJqXgdQYJEgFMFNBgJFcqDVJwXUJVJFZJchIgJCCxOEJqXxOwXUJyDJBVRuscisciJBiJBieUtqXiJFDJkiFsJXQUGEZJcUJFsJXZtXIrXZDZJDrZJFNJDZJFstXvJFQqXvJFCJEsJXQJqkhkNGBbDJdTRbYJMEBlDwXUJMEFiJFcfXNJDRcNJWMTBLJXC",
+  "BraFUtHBFSJFdbNBLJXVJQoYJNEBSJBEJfHSJHwXUJCJdAZJMGjaFVJXEJPNJBlEJfFiJFpFbFEJqIJBVJCrIBdHiJhOPFChvJVJZJNJWxGFNIFLueIBQJqUHEJfUFstOZJDrlXEASJRlXVJXSFwVJNJWD",
+  "QJEJNNJDQJEJIBSFQJEJxegBQJEJfHEPSJBmXEJFSJCDEJqXLXNJFQqXIcQsFNJFIFEJqXUJgFsJXIJBUJEJfHNFvJxEqXNJnXUJFQqD",
+  "IJBEJqXZJ"
+];
+const mapping = "~~AzB~X~a~KN~Q~D~S~C~G~E~Y~p~L~I~O~eH~g~V~hxyumi~~U~~Z~~v~~s~~dkoblPjfnqwMcRTr~W~~~F~~~~~Jt";
+let wordlist$3 = null;
+function hex(word) {
+  return hexlify(toUtf8Bytes(word));
+}
+const KiYoKu = "0xe3818de38284e3818f";
+const KyoKu = "0xe3818de38283e3818f";
+function loadWords$3(lang) {
+  if (wordlist$3 !== null) {
+    return;
+  }
+  wordlist$3 = [];
+  const transform = {};
+  transform[toUtf8String([227, 130, 154])] = false;
+  transform[toUtf8String([227, 130, 153])] = false;
+  transform[toUtf8String([227, 130, 133])] = toUtf8String([227, 130, 134]);
+  transform[toUtf8String([227, 129, 163])] = toUtf8String([227, 129, 164]);
+  transform[toUtf8String([227, 130, 131])] = toUtf8String([227, 130, 132]);
+  transform[toUtf8String([227, 130, 135])] = toUtf8String([227, 130, 136]);
+  function normalize2(word) {
+    let result = "";
+    for (let i = 0; i < word.length; i++) {
+      let kana = word[i];
+      const target = transform[kana];
+      if (target === false) {
+        continue;
+      }
+      if (target) {
+        kana = target;
+      }
+      result += kana;
+    }
+    return result;
+  }
+  function sortJapanese(a, b) {
+    a = normalize2(a);
+    b = normalize2(b);
+    if (a < b) {
+      return -1;
+    }
+    if (a > b) {
+      return 1;
+    }
+    return 0;
+  }
+  for (let length = 3; length <= 9; length++) {
+    const d = data$2[length - 3];
+    for (let offset = 0; offset < d.length; offset += length) {
+      const word = [];
+      for (let i = 0; i < length; i++) {
+        const k = mapping.indexOf(d[offset + i]);
+        word.push(227);
+        word.push(k & 64 ? 130 : 129);
+        word.push((k & 63) + 128);
+      }
+      wordlist$3.push(toUtf8String(word));
+    }
+  }
+  wordlist$3.sort(sortJapanese);
+  if (hex(wordlist$3[442]) === KiYoKu && hex(wordlist$3[443]) === KyoKu) {
+    const tmp = wordlist$3[442];
+    wordlist$3[442] = wordlist$3[443];
+    wordlist$3[443] = tmp;
+  }
+  if (Wordlist.check(lang) !== "0xcb36b09e6baa935787fd762ce65e80b0c6a8dabdfbc3a7f86ac0e2c4fd111600") {
+    wordlist$3 = null;
+    throw new Error("BIP39 Wordlist for ja (Japanese) FAILED");
+  }
+}
+class LangJa extends Wordlist {
+  constructor() {
+    super("ja");
+  }
+  getWord(index2) {
+    loadWords$3(this);
+    return wordlist$3[index2];
+  }
+  getWordIndex(word) {
+    loadWords$3(this);
+    return wordlist$3.indexOf(word);
+  }
+  split(mnemonic) {
+    logger$c.checkNormalize();
+    return mnemonic.split(/(?:\u3000| )+/g);
+  }
+  join(words2) {
+    return words2.join("\u3000");
+  }
+}
+const langJa = new LangJa();
+Wordlist.register(langJa);
+const data$1 = [
+  "OYAa",
+  "ATAZoATBl3ATCTrATCl8ATDloATGg3ATHT8ATJT8ATJl3ATLlvATLn4ATMT8ATMX8ATMboATMgoAToLbAToMTATrHgATvHnAT3AnAT3JbAT3MTAT8DbAT8JTAT8LmAT8MYAT8MbAT#LnAUHT8AUHZvAUJXrAUJX8AULnrAXJnvAXLUoAXLgvAXMn6AXRg3AXrMbAX3JTAX3QbAYLn3AZLgvAZrSUAZvAcAZ8AaAZ8AbAZ8AnAZ8HnAZ8LgAZ8MYAZ8MgAZ8OnAaAboAaDTrAaFTrAaJTrAaJboAaLVoAaMXvAaOl8AaSeoAbAUoAbAg8AbAl4AbGnrAbMT8AbMXrAbMn4AbQb8AbSV8AbvRlAb8AUAb8AnAb8HgAb8JTAb8NTAb8RbAcGboAcLnvAcMT8AcMX8AcSToAcrAaAcrFnAc8AbAc8MgAfGgrAfHboAfJnvAfLV8AfLkoAfMT8AfMnoAfQb8AfScrAfSgrAgAZ8AgFl3AgGX8AgHZvAgHgrAgJXoAgJX8AgJboAgLZoAgLn4AgOX8AgoATAgoAnAgoCUAgoJgAgoLXAgoMYAgoSeAgrDUAgrJTAhrFnAhrLjAhrQgAjAgoAjJnrAkMX8AkOnoAlCTvAlCV8AlClvAlFg4AlFl6AlFn3AloSnAlrAXAlrAfAlrFUAlrFbAlrGgAlrOXAlvKnAlvMTAl3AbAl3MnAnATrAnAcrAnCZ3AnCl8AnDg8AnFboAnFl3AnHX4AnHbrAnHgrAnIl3AnJgvAnLXoAnLX4AnLbrAnLgrAnLhrAnMXoAnMgrAnOn3AnSbrAnSeoAnvLnAn3OnCTGgvCTSlvCTvAUCTvKnCTvNTCT3CZCT3GUCT3MTCT8HnCUCZrCULf8CULnvCU3HnCU3JUCY6NUCbDb8CbFZoCbLnrCboOTCboScCbrFnCbvLnCb8AgCb8HgCb$LnCkLfoClBn3CloDUDTHT8DTLl3DTSU8DTrAaDTrLXDTrLjDTrOYDTrOgDTvFXDTvFnDT3HUDT3LfDUCT9DUDT4DUFVoDUFV8DUFkoDUGgrDUJnrDULl8DUMT8DUMXrDUMX4DUMg8DUOUoDUOgvDUOg8DUSToDUSZ8DbDXoDbDgoDbGT8DbJn3DbLg3DbLn4DbMXrDbMg8DbOToDboJXGTClvGTDT8GTFZrGTLVoGTLlvGTLl3GTMg8GTOTvGTSlrGToCUGTrDgGTrJYGTrScGTtLnGTvAnGTvQgGUCZrGUDTvGUFZoGUHXrGULnvGUMT8GUoMgGXoLnGXrMXGXrMnGXvFnGYLnvGZOnvGZvOnGZ8LaGZ8LmGbAl3GbDYvGbDlrGbHX3GbJl4GbLV8GbLn3GbMn4GboJTGboRfGbvFUGb3GUGb4JnGgDX3GgFl$GgJlrGgLX6GgLZoGgLf8GgOXoGgrAgGgrJXGgrMYGgrScGgvATGgvOYGnAgoGnJgvGnLZoGnLg3GnLnrGnQn8GnSbrGnrMgHTClvHTDToHTFT3HTQT8HToJTHToJgHTrDUHTrMnHTvFYHTvRfHT8MnHT8SUHUAZ8HUBb4HUDTvHUoMYHXFl6HXJX6HXQlrHXrAUHXrMnHXrSbHXvFYHXvKXHX3LjHX3MeHYvQlHZrScHZvDbHbAcrHbFT3HbFl3HbJT8HbLTrHbMT8HbMXrHbMbrHbQb8HbSX3HboDbHboJTHbrFUHbrHgHbrJTHb8JTHb8MnHb8QgHgAlrHgDT3HgGgrHgHgrHgJTrHgJT8HgLX@HgLnrHgMT8HgMX8HgMboHgOnrHgQToHgRg3HgoHgHgrCbHgrFnHgrLVHgvAcHgvAfHnAloHnCTrHnCnvHnGTrHnGZ8HnGnvHnJT8HnLf8HnLkvHnMg8HnRTrITvFUITvFnJTAXrJTCV8JTFT3JTFT8JTFn4JTGgvJTHT8JTJT8JTJXvJTJl3JTJnvJTLX4JTLf8JTLhvJTMT8JTMXrJTMnrJTObrJTQT8JTSlvJT8DUJT8FkJT8MTJT8OXJT8OgJT8QUJT8RfJUHZoJXFT4JXFlrJXGZ8JXGnrJXLV8JXLgvJXMXoJXMX3JXNboJXPlvJXoJTJXoLkJXrAXJXrHUJXrJgJXvJTJXvOnJX4KnJYAl3JYJT8JYLhvJYQToJYrQXJY6NUJbAl3JbCZrJbDloJbGT8JbGgrJbJXvJbJboJbLf8JbLhrJbLl3JbMnvJbRg8JbSZ8JboDbJbrCZJbrSUJb3KnJb8LnJfRn8JgAXrJgCZrJgDTrJgGZrJgGZ8JgHToJgJT8JgJXoJgJgvJgLX4JgLZ3JgLZ8JgLn4JgMgrJgMn4JgOgvJgPX6JgRnvJgSToJgoCZJgoJbJgoMYJgrJXJgrJgJgrLjJg6MTJlCn3JlGgvJlJl8Jl4AnJl8FnJl8HgJnAToJnATrJnAbvJnDUoJnGnrJnJXrJnJXvJnLhvJnLnrJnLnvJnMToJnMT8JnMXvJnMX3JnMg8JnMlrJnMn4JnOX8JnST4JnSX3JnoAgJnoAnJnoJTJnoObJnrAbJnrAkJnrHnJnrJTJnrJYJnrOYJnrScJnvCUJnvFaJnvJgJnvJnJnvOYJnvQUJnvRUJn3FnJn3JTKnFl3KnLT6LTDlvLTMnoLTOn3LTRl3LTSb4LTSlrLToAnLToJgLTrAULTrAcLTrCULTrHgLTrMgLT3JnLULnrLUMX8LUoJgLVATrLVDTrLVLb8LVoJgLV8MgLV8RTLXDg3LXFlrLXrCnLXrLXLX3GTLX4GgLX4OYLZAXrLZAcrLZAgrLZAhrLZDXyLZDlrLZFbrLZFl3LZJX6LZJX8LZLc8LZLnrLZSU8LZoJTLZoJnLZrAgLZrAnLZrJYLZrLULZrMgLZrSkLZvAnLZvGULZvJeLZvOTLZ3FZLZ4JXLZ8STLZ8ScLaAT3LaAl3LaHT8LaJTrLaJT8LaJXrLaJgvLaJl4LaLVoLaMXrLaMXvLaMX8LbClvLbFToLbHlrLbJn4LbLZ3LbLhvLbMXrLbMnoLbvSULcLnrLc8HnLc8MTLdrMnLeAgoLeOgvLeOn3LfAl3LfLnvLfMl3LfOX8Lf8AnLf8JXLf8LXLgJTrLgJXrLgJl8LgMX8LgRZrLhCToLhrAbLhrFULhrJXLhvJYLjHTrLjHX4LjJX8LjLhrLjSX3LjSZ4LkFX4LkGZ8LkGgvLkJTrLkMXoLkSToLkSU8LkSZ8LkoOYLl3FfLl3MgLmAZrLmCbrLmGgrLmHboLmJnoLmJn3LmLfoLmLhrLmSToLnAX6LnAb6LnCZ3LnCb3LnDTvLnDb8LnFl3LnGnrLnHZvLnHgvLnITvLnJT8LnJX8LnJlvLnLf8LnLg6LnLhvLnLnoLnMXrLnMg8LnQlvLnSbrLnrAgLnrAnLnrDbLnrFkLnrJdLnrMULnrOYLnrSTLnvAnLnvDULnvHgLnvOYLnvOnLn3GgLn4DULn4JTLn4JnMTAZoMTAloMTDb8MTFT8MTJnoMTJnrMTLZrMTLhrMTLkvMTMX8MTRTrMToATMTrDnMTrOnMT3JnMT4MnMT8FUMT8FaMT8FlMT8GTMT8GbMT8GnMT8HnMT8JTMT8JbMT8OTMUCl8MUJTrMUJU8MUMX8MURTrMUSToMXAX6MXAb6MXCZoMXFXrMXHXrMXLgvMXOgoMXrAUMXrAnMXrHgMXrJYMXrJnMXrMTMXrMgMXrOYMXrSZMXrSgMXvDUMXvOTMX3JgMX3OTMX4JnMX8DbMX8FnMX8HbMX8HgMX8HnMX8LbMX8MnMX8OnMYAb8MYGboMYHTvMYHX4MYLTrMYLnvMYMToMYOgvMYRg3MYSTrMbAToMbAXrMbAl3MbAn8MbGZ8MbJT8MbJXrMbMXvMbMX8MbMnoMbrMUMb8AfMb8FbMb8FkMcJXoMeLnrMgFl3MgGTvMgGXoMgGgrMgGnrMgHT8MgHZrMgJnoMgLnrMgLnvMgMT8MgQUoMgrHnMgvAnMg8HgMg8JYMg8LfMloJnMl8ATMl8AXMl8JYMnAToMnAT4MnAZ8MnAl3MnAl4MnCl8MnHT8MnHg8MnJnoMnLZoMnLhrMnMXoMnMX3MnMnrMnOgvMnrFbMnrFfMnrFnMnrNTMnvJXNTMl8OTCT3OTFV8OTFn3OTHZvOTJXrOTOl3OT3ATOT3JUOT3LZOT3LeOT3MbOT8ATOT8AbOT8AgOT8MbOUCXvOUMX3OXHXvOXLl3OXrMUOXvDbOX6NUOX8JbOYFZoOYLbrOYLkoOYMg8OYSX3ObHTrObHT4ObJgrObLhrObMX3ObOX8Ob8FnOeAlrOeJT8OeJXrOeJnrOeLToOeMb8OgJXoOgLXoOgMnrOgOXrOgOloOgoAgOgoJbOgoMYOgoSTOg8AbOjLX4OjMnoOjSV8OnLVoOnrAgOn3DUPXQlrPXvFXPbvFTPdAT3PlFn3PnvFbQTLn4QToAgQToMTQULV8QURg8QUoJnQXCXvQbFbrQb8AaQb8AcQb8FbQb8MYQb8ScQeAlrQeLhrQjAn3QlFXoQloJgQloSnRTLnvRTrGURTrJTRUJZrRUoJlRUrQnRZrLmRZrMnRZrSnRZ8ATRZ8JbRZ8ScRbMT8RbST3RfGZrRfMX8RfMgrRfSZrRnAbrRnGT8RnvJgRnvLfRnvMTRn8AaSTClvSTJgrSTOXrSTRg3STRnvSToAcSToAfSToAnSToHnSToLjSToMTSTrAaSTrEUST3BYST8AgST8LmSUAZvSUAgrSUDT4SUDT8SUGgvSUJXoSUJXvSULTrSU8JTSU8LjSV8AnSV8JgSXFToSXLf8SYvAnSZrDUSZrMUSZrMnSZ8HgSZ8JTSZ8JgSZ8MYSZ8QUSaQUoSbCT3SbHToSbQYvSbSl4SboJnSbvFbSb8HbSb8JgSb8OTScGZrScHgrScJTvScMT8ScSToScoHbScrMTScvAnSeAZrSeAcrSeHboSeJUoSeLhrSeMT8SeMXrSe6JgSgHTrSkJnoSkLnvSk8CUSlFl3SlrSnSl8GnSmAboSmGT8SmJU8",
+  "ATLnDlATrAZoATrJX4ATrMT8ATrMX4ATrRTrATvDl8ATvJUoATvMl8AT3AToAT3MX8AT8CT3AT8DT8AT8HZrAT8HgoAUAgFnAUCTFnAXoMX8AXrAT8AXrGgvAXrJXvAXrOgoAXvLl3AZvAgoAZvFbrAZvJXoAZvJl8AZvJn3AZvMX8AZvSbrAZ8FZoAZ8LZ8AZ8MU8AZ8OTvAZ8SV8AZ8SX3AbAgFZAboJnoAbvGboAb8ATrAb8AZoAb8AgrAb8Al4Ab8Db8Ab8JnoAb8LX4Ab8LZrAb8LhrAb8MT8Ab8OUoAb8Qb8Ab8ST8AcrAUoAcrAc8AcrCZ3AcrFT3AcrFZrAcrJl4AcrJn3AcrMX3AcrOTvAc8AZ8Ac8MT8AfAcJXAgoFn4AgoGgvAgoGnrAgoLc8AgoMXoAgrLnrAkrSZ8AlFXCTAloHboAlrHbrAlrLhrAlrLkoAl3CZrAl3LUoAl3LZrAnrAl4AnrMT8An3HT4BT3IToBX4MnvBb!Ln$CTGXMnCToLZ4CTrHT8CT3JTrCT3RZrCT#GTvCU6GgvCU8Db8CU8GZrCU8HT8CboLl3CbrGgrCbrMU8Cb8DT3Cb8GnrCb8LX4Cb8MT8Cb8ObrCgrGgvCgrKX4Cl8FZoDTrAbvDTrDboDTrGT6DTrJgrDTrMX3DTrRZrDTrRg8DTvAVvDTvFZoDT3DT8DT3Ln3DT4HZrDT4MT8DT8AlrDT8MT8DUAkGbDUDbJnDYLnQlDbDUOYDbMTAnDbMXSnDboAT3DboFn4DboLnvDj6JTrGTCgFTGTGgFnGTJTMnGTLnPlGToJT8GTrCT3GTrLVoGTrLnvGTrMX3GTrMboGTvKl3GZClFnGZrDT3GZ8DTrGZ8FZ8GZ8MXvGZ8On8GZ8ST3GbCnQXGbMbFnGboFboGboJg3GboMXoGb3JTvGb3JboGb3Mn6Gb3Qb8GgDXLjGgMnAUGgrDloGgrHX4GgrSToGgvAXrGgvAZvGgvFbrGgvLl3GgvMnvGnDnLXGnrATrGnrMboGnuLl3HTATMnHTAgCnHTCTCTHTrGTvHTrHTvHTrJX8HTrLl8HTrMT8HTrMgoHTrOTrHTuOn3HTvAZrHTvDTvHTvGboHTvJU8HTvLl3HTvMXrHTvQb4HT4GT6HT4JT8HT4Jb#HT8Al3HT8GZrHT8GgrHT8HX4HT8Jb8HT8JnoHT8LTrHT8LgvHT8SToHT8SV8HUoJUoHUoJX8HUoLnrHXrLZoHXvAl3HX3LnrHX4FkvHX4LhrHX4MXoHX4OnoHZrAZ8HZrDb8HZrGZ8HZrJnrHZvGZ8HZvLnvHZ8JnvHZ8LhrHbCXJlHbMTAnHboJl4HbpLl3HbrJX8HbrLnrHbrMnvHbvRYrHgoSTrHgrFV8HgrGZ8HgrJXoHgrRnvHgvBb!HgvGTrHgvHX4HgvHn!HgvLTrHgvSU8HnDnLbHnFbJbHnvDn8Hn6GgvHn!BTvJTCTLnJTQgFnJTrAnvJTrLX4JTrOUoJTvFn3JTvLnrJTvNToJT3AgoJT3Jn4JT3LhvJT3ObrJT8AcrJT8Al3JT8JT8JT8JnoJT8LX4JT8LnrJT8MX3JT8Rg3JT8Sc8JUoBTvJU8AToJU8GZ8JU8GgvJU8JTrJU8JXrJU8JnrJU8LnvJU8ScvJXHnJlJXrGgvJXrJU8JXrLhrJXrMT8JXrMXrJXrQUoJXvCTvJXvGZ8JXvGgrJXvQT8JX8Ab8JX8DT8JX8GZ8JX8HZvJX8LnrJX8MT8JX8MXoJX8MnvJX8ST3JYGnCTJbAkGbJbCTAnJbLTAcJboDT3JboLb6JbrAnvJbrCn3JbrDl8JbrGboJbrIZoJbrJnvJbrMnvJbrQb4Jb8RZrJeAbAnJgJnFbJgScAnJgrATrJgvHZ8JgvMn4JlJlFbJlLiQXJlLjOnJlRbOlJlvNXoJlvRl3Jl4AcrJl8AUoJl8MnrJnFnMlJnHgGbJnoDT8JnoFV8JnoGgvJnoIT8JnoQToJnoRg3JnrCZ3JnrGgrJnrHTvJnrLf8JnrOX8JnvAT3JnvFZoJnvGT8JnvJl4JnvMT8JnvMX8JnvOXrJnvPX6JnvSX3JnvSZrJn3MT8Jn3MX8Jn3RTrLTATKnLTJnLTLTMXKnLTRTQlLToGb8LTrAZ8LTrCZ8LTrDb8LTrHT8LT3PX6LT4FZoLT$CTvLT$GgrLUvHX3LVoATrLVoAgoLVoJboLVoMX3LVoRg3LV8CZ3LV8FZoLV8GTvLXrDXoLXrFbrLXvAgvLXvFlrLXvLl3LXvRn6LX4Mb8LX8GT8LYCXMnLYrMnrLZoSTvLZrAZvLZrAloLZrFToLZrJXvLZrJboLZrJl4LZrLnrLZrMT8LZrOgvLZrRnvLZrST4LZvMX8LZvSlvLZ8AgoLZ8CT3LZ8JT8LZ8LV8LZ8LZoLZ8Lg8LZ8SV8LZ8SbrLZ$HT8LZ$Mn4La6CTvLbFbMnLbRYFTLbSnFZLboJT8LbrAT9LbrGb3LbrQb8LcrJX8LcrMXrLerHTvLerJbrLerNboLgrDb8LgrGZ8LgrHTrLgrMXrLgrSU8LgvJTrLgvLl3Lg6Ll3LhrLnrLhrMT8LhvAl4LiLnQXLkoAgrLkoJT8LkoJn4LlrSU8Ll3FZoLl3HTrLl3JX8Ll3JnoLl3LToLmLeFbLnDUFbLnLVAnLnrATrLnrAZoLnrAb8LnrAlrLnrGgvLnrJU8LnrLZrLnrLhrLnrMb8LnrOXrLnrSZ8LnvAb4LnvDTrLnvDl8LnvHTrLnvHbrLnvJT8LnvJU8LnvJbrLnvLhvLnvMX8LnvMb8LnvNnoLnvSU8Ln3Al3Ln4FZoLn4GT6Ln4JgvLn4LhrLn4MT8Ln4SToMToCZrMToJX8MToLX4MToLf8MToRg3MTrEloMTvGb6MT3BTrMT3Lb6MT8AcrMT8AgrMT8GZrMT8JnoMT8LnrMT8MX3MUOUAnMXAbFnMXoAloMXoJX8MXoLf8MXoLl8MXrAb8MXrDTvMXrGT8MXrGgrMXrHTrMXrLf8MXrMU8MXrOXvMXrQb8MXvGT8MXvHTrMXvLVoMX3AX3MX3Jn3MX3LhrMX3MX3MX4AlrMX4OboMX8GTvMX8GZrMX8GgrMX8JT8MX8JX8MX8LhrMX8MT8MYDUFbMYMgDbMbGnFfMbvLX4MbvLl3Mb8Mb8Mb8ST4MgGXCnMg8ATrMg8AgoMg8CZrMg8DTrMg8DboMg8HTrMg8JgrMg8LT8MloJXoMl8AhrMl8JT8MnLgAUMnoJXrMnoLX4MnoLhrMnoMT8MnrAl4MnrDb8MnrOTvMnrOgvMnrQb8MnrSU8MnvGgrMnvHZ8Mn3MToMn4DTrMn4LTrMn4Mg8NnBXAnOTFTFnOToAToOTrGgvOTrJX8OT3JXoOT6MTrOT8GgrOT8HTpOT8MToOUoHT8OUoJT8OUoLn3OXrAgoOXrDg8OXrMT8OXvSToOX6CTvOX8CZrOX8OgrOb6HgvOb8AToOb8MT8OcvLZ8OgvAlrOgvHTvOgvJTrOgvJnrOgvLZrOgvLn4OgvMT8OgvRTrOg8AZoOg8DbvOnrOXoOnvJn4OnvLhvOnvRTrOn3GgoOn3JnvOn6JbvOn8OTrPTGYFTPbBnFnPbGnDnPgDYQTPlrAnvPlrETvPlrLnvPlrMXvPlvFX4QTMTAnQTrJU8QYCnJlQYJlQlQbGTQbQb8JnrQb8LZoQb8LnvQb8MT8Qb8Ml8Qb8ST4QloAl4QloHZvQloJX8QloMn8QnJZOlRTrAZvRTrDTrRTvJn4RTvLhvRT4Jb8RZrAZrRZ8AkrRZ8JU8RZ8LV8RZ8LnvRbJlQXRg3GboRg3MnvRg8AZ8Rg8JboRg8Jl4RnLTCbRnvFl3RnvQb8SToAl4SToCZrSToFZoSToHXrSToJU8SToJgvSToJl4SToLhrSToMX3STrAlvSTrCT9STrCgrSTrGgrSTrHXrSTrHboSTrJnoSTrNboSTvLnrST4AZoST8Ab8ST8JT8SUoJn3SU6HZ#SU6JTvSU8Db8SU8HboSU8LgrSV8JT8SZrAcrSZrAl3SZrJT8SZrJnvSZrMT8SZvLUoSZ4FZoSZ8JnoSZ8RZrScoLnrScoMT8ScoMX8ScrAT4ScrAZ8ScrLZ8ScrLkvScvDb8ScvLf8ScvNToSgrFZrShvKnrSloHUoSloLnrSlrMXoSl8HgrSmrJUoSn3BX6",
+  "ATFlOn3ATLgrDYAT4MTAnAT8LTMnAYJnRTrAbGgJnrAbLV8LnAbvNTAnAeFbLg3AgOYMXoAlQbFboAnDboAfAnJgoJTBToDgAnBUJbAl3BboDUAnCTDlvLnCTFTrSnCYoQTLnDTwAbAnDUDTrSnDUHgHgrDX8LXFnDbJXAcrETvLTLnGTFTQbrGTMnGToGT3DUFbGUJlPX3GbQg8LnGboJbFnGb3GgAYGgAg8ScGgMbAXrGgvAbAnGnJTLnvGnvATFgHTDT6ATHTrDlJnHYLnMn8HZrSbJTHZ8LTFnHbFTJUoHgSeMT8HgrLjAnHgvAbAnHlFUrDlHnDgvAnHnHTFT3HnQTGnrJTAaMXvJTGbCn3JTOgrAnJXvAXMnJbMg8SnJbMnRg3Jb8LTMnJnAl3OnJnGYrQlJnJlQY3LTDlCn3LTJjLg3LTLgvFXLTMg3GTLV8HUOgLXFZLg3LXNXrMnLX8QXFnLX9AlMYLYLXPXrLZAbJU8LZDUJU8LZMXrSnLZ$AgFnLaPXrDULbFYrMnLbMn8LXLboJgJgLeFbLg3LgLZrSnLgOYAgoLhrRnJlLkCTrSnLkOnLhrLnFX%AYLnFZoJXLnHTvJbLnLloAbMTATLf8MTHgJn3MTMXrAXMT3MTFnMUITvFnMXFX%AYMXMXvFbMXrFTDbMYAcMX3MbLf8SnMb8JbFnMgMXrMTMgvAXFnMgvGgCmMnAloSnMnFnJTrOXvMXSnOX8HTMnObJT8ScObLZFl3ObMXCZoPTLgrQXPUFnoQXPU3RXJlPX3RkQXPbrJXQlPlrJbFnQUAhrDbQXGnCXvQYLnHlvQbLfLnvRTOgvJbRXJYrQlRYLnrQlRbLnrQlRlFT8JlRlFnrQXSTClCn3STHTrAnSTLZQlrSTMnGTrSToHgGbSTrGTDnSTvGXCnST3HgFbSU3HXAXSbAnJn3SbFT8LnScLfLnv",
+  "AT3JgJX8AT8FZoSnAT8JgFV8AT8LhrDbAZ8JT8DbAb8GgLhrAb8SkLnvAe8MT8SnAlMYJXLVAl3GYDTvAl3LfLnvBUDTvLl3CTOn3HTrCT3DUGgrCU8MT8AbCbFTrJUoCgrDb8MTDTLV8JX8DTLnLXQlDT8LZrSnDUQb8FZ8DUST4JnvDb8ScOUoDj6GbJl4GTLfCYMlGToAXvFnGboAXvLnGgAcrJn3GgvFnSToGnLf8JnvGn#HTDToHTLnFXJlHTvATFToHTvHTDToHTvMTAgoHT3STClvHT4AlFl6HT8HTDToHUoDgJTrHUoScMX3HbRZrMXoHboJg8LTHgDb8JTrHgMToLf8HgvLnLnoHnHn3HT4Hn6MgvAnJTJU8ScvJT3AaQT8JT8HTrAnJXrRg8AnJbAloMXoJbrATFToJbvMnoSnJgDb6GgvJgDb8MXoJgSX3JU8JguATFToJlPYLnQlJlQkDnLbJlQlFYJlJl8Lf8OTJnCTFnLbJnLTHXMnJnLXGXCnJnoFfRg3JnrMYRg3Jn3HgFl3KT8Dg8LnLTRlFnPTLTvPbLbvLVoSbrCZLXMY6HT3LXNU7DlrLXNXDTATLX8DX8LnLZDb8JU8LZMnoLhrLZSToJU8LZrLaLnrLZvJn3SnLZ8LhrSnLaJnoMT8LbFlrHTvLbrFTLnrLbvATLlvLb6OTFn3LcLnJZOlLeAT6Mn4LeJT3ObrLg6LXFlrLhrJg8LnLhvDlPX4LhvLfLnvLj6JTFT3LnFbrMXoLnQluCTvLnrQXCY6LnvLfLnvLnvMgLnvLnvSeLf8MTMbrJn3MT3JgST3MT8AnATrMT8LULnrMUMToCZrMUScvLf8MXoDT8SnMX6ATFToMX8AXMT8MX8FkMT8MX8HTrDUMX8ScoSnMYJT6CTvMgAcrMXoMg8SToAfMlvAXLg3MnFl3AnvOT3AnFl3OUoATHT8OU3RnLXrOXrOXrSnObPbvFn6Og8HgrSnOg8OX8DbPTvAgoJgPU3RYLnrPXrDnJZrPb8CTGgvPlrLTDlvPlvFUJnoQUvFXrQlQeMnoAl3QlrQlrSnRTFTrJUoSTDlLiLXSTFg6HT3STJgoMn4STrFTJTrSTrLZFl3ST4FnMXoSUrDlHUoScvHTvSnSfLkvMXo",
+  "AUoAcrMXoAZ8HboAg8AbOg6ATFgAg8AloMXoAl3AT8JTrAl8MX8MXoCT3SToJU8Cl8Db8MXoDT8HgrATrDboOT8MXoGTOTrATMnGT8LhrAZ8GnvFnGnQXHToGgvAcrHTvAXvLl3HbrAZoMXoHgBlFXLg3HgMnFXrSnHgrSb8JUoHn6HT8LgvITvATrJUoJUoLZrRnvJU8HT8Jb8JXvFX8QT8JXvLToJTrJYrQnGnQXJgrJnoATrJnoJU8ScvJnvMnvMXoLTCTLgrJXLTJlRTvQlLbRnJlQYvLbrMb8LnvLbvFn3RnoLdCVSTGZrLeSTvGXCnLg3MnoLn3MToLlrETvMT8SToAl3MbrDU6GTvMb8LX4LhrPlrLXGXCnSToLf8Rg3STrDb8LTrSTvLTHXMnSb3RYLnMnSgOg6ATFg",
+  "HUDlGnrQXrJTrHgLnrAcJYMb8DULc8LTvFgGnCk3Mg8JbAnLX4QYvFYHnMXrRUoJnGnvFnRlvFTJlQnoSTrBXHXrLYSUJgLfoMT8Se8DTrHbDb",
+  "AbDl8SToJU8An3RbAb8ST8DUSTrGnrAgoLbFU6Db8LTrMg8AaHT8Jb8ObDl8SToJU8Pb3RlvFYoJl"
+];
+const codes$1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+function getHangul(code) {
+  if (code >= 40) {
+    code = code + 168 - 40;
+  } else if (code >= 19) {
+    code = code + 97 - 19;
+  }
+  return toUtf8String([225, (code >> 6) + 132, (code & 63) + 128]);
+}
+let wordlist$2 = null;
+function loadWords$2(lang) {
+  if (wordlist$2 != null) {
+    return;
+  }
+  wordlist$2 = [];
+  data$1.forEach((data2, length) => {
+    length += 4;
+    for (let i = 0; i < data2.length; i += length) {
+      let word = "";
+      for (let j = 0; j < length; j++) {
+        word += getHangul(codes$1.indexOf(data2[i + j]));
+      }
+      wordlist$2.push(word);
+    }
+  });
+  wordlist$2.sort();
+  if (Wordlist.check(lang) !== "0xf9eddeace9c5d3da9c93cf7d3cd38f6a13ed3affb933259ae865714e8a3ae71a") {
+    wordlist$2 = null;
+    throw new Error("BIP39 Wordlist for ko (Korean) FAILED");
+  }
+}
+class LangKo extends Wordlist {
+  constructor() {
+    super("ko");
+  }
+  getWord(index2) {
+    loadWords$2(this);
+    return wordlist$2[index2];
+  }
+  getWordIndex(word) {
+    loadWords$2(this);
+    return wordlist$2.indexOf(word);
+  }
+}
+const langKo = new LangKo();
+Wordlist.register(langKo);
+const words = "AbacoAbbaglioAbbinatoAbeteAbissoAbolireAbrasivoAbrogatoAccadereAccennoAccusatoAcetoneAchilleAcidoAcquaAcreAcrilicoAcrobataAcutoAdagioAddebitoAddomeAdeguatoAderireAdipeAdottareAdulareAffabileAffettoAffissoAffrantoAforismaAfosoAfricanoAgaveAgenteAgevoleAggancioAgireAgitareAgonismoAgricoloAgrumetoAguzzoAlabardaAlatoAlbatroAlberatoAlboAlbumeAlceAlcolicoAlettoneAlfaAlgebraAlianteAlibiAlimentoAllagatoAllegroAllievoAllodolaAllusivoAlmenoAlogenoAlpacaAlpestreAltalenaAlternoAlticcioAltroveAlunnoAlveoloAlzareAmalgamaAmanitaAmarenaAmbitoAmbratoAmebaAmericaAmetistaAmicoAmmassoAmmendaAmmirareAmmonitoAmoreAmpioAmpliareAmuletoAnacardoAnagrafeAnalistaAnarchiaAnatraAncaAncellaAncoraAndareAndreaAnelloAngeloAngolareAngustoAnimaAnnegareAnnidatoAnnoAnnuncioAnonimoAnticipoAnziApaticoAperturaApodeApparireAppetitoAppoggioApprodoAppuntoAprileArabicaArachideAragostaAraldicaArancioAraturaArazzoArbitroArchivioArditoArenileArgentoArgineArgutoAriaArmoniaArneseArredatoArringaArrostoArsenicoArsoArteficeArzilloAsciuttoAscoltoAsepsiAsetticoAsfaltoAsinoAsolaAspiratoAsproAssaggioAsseAssolutoAssurdoAstaAstenutoAsticeAstrattoAtavicoAteismoAtomicoAtonoAttesaAttivareAttornoAttritoAttualeAusilioAustriaAutistaAutonomoAutunnoAvanzatoAvereAvvenireAvvisoAvvolgereAzioneAzotoAzzimoAzzurroBabeleBaccanoBacinoBacoBadessaBadilataBagnatoBaitaBalconeBaldoBalenaBallataBalzanoBambinoBandireBaraondaBarbaroBarcaBaritonoBarlumeBaroccoBasilicoBassoBatostaBattutoBauleBavaBavosaBeccoBeffaBelgioBelvaBendaBenevoleBenignoBenzinaBereBerlinaBetaBibitaBiciBidoneBifidoBigaBilanciaBimboBinocoloBiologoBipedeBipolareBirbanteBirraBiscottoBisestoBisnonnoBisonteBisturiBizzarroBlandoBlattaBollitoBonificoBordoBoscoBotanicoBottinoBozzoloBraccioBradipoBramaBrancaBravuraBretellaBrevettoBrezzaBrigliaBrillanteBrindareBroccoloBrodoBronzinaBrulloBrunoBubboneBucaBudinoBuffoneBuioBulboBuonoBurloneBurrascaBussolaBustaCadettoCaducoCalamaroCalcoloCalesseCalibroCalmoCaloriaCambusaCamerataCamiciaCamminoCamolaCampaleCanapaCandelaCaneCaninoCanottoCantinaCapaceCapelloCapitoloCapogiroCapperoCapraCapsulaCarapaceCarcassaCardoCarismaCarovanaCarrettoCartolinaCasaccioCascataCasermaCasoCassoneCastelloCasualeCatastaCatenaCatrameCautoCavilloCedibileCedrataCefaloCelebreCellulareCenaCenoneCentesimoCeramicaCercareCertoCerumeCervelloCesoiaCespoCetoChelaChiaroChiccaChiedereChimeraChinaChirurgoChitarraCiaoCiclismoCifrareCignoCilindroCiottoloCircaCirrosiCitricoCittadinoCiuffoCivettaCivileClassicoClinicaCloroCoccoCodardoCodiceCoerenteCognomeCollareColmatoColoreColposoColtivatoColzaComaCometaCommandoComodoComputerComuneConcisoCondurreConfermaCongelareConiugeConnessoConoscereConsumoContinuoConvegnoCopertoCopioneCoppiaCopricapoCorazzaCordataCoricatoCorniceCorollaCorpoCorredoCorsiaCorteseCosmicoCostanteCotturaCovatoCratereCravattaCreatoCredereCremosoCrescitaCretaCricetoCrinaleCrisiCriticoCroceCronacaCrostataCrucialeCruscaCucireCuculoCuginoCullatoCupolaCuratoreCursoreCurvoCuscinoCustodeDadoDainoDalmataDamerinoDanielaDannosoDanzareDatatoDavantiDavveroDebuttoDecennioDecisoDeclinoDecolloDecretoDedicatoDefinitoDeformeDegnoDelegareDelfinoDelirioDeltaDemenzaDenotatoDentroDepositoDerapataDerivareDerogaDescrittoDesertoDesiderioDesumereDetersivoDevotoDiametroDicembreDiedroDifesoDiffusoDigerireDigitaleDiluvioDinamicoDinnanziDipintoDiplomaDipoloDiradareDireDirottoDirupoDisagioDiscretoDisfareDisgeloDispostoDistanzaDisumanoDitoDivanoDiveltoDividereDivoratoDobloneDocenteDoganaleDogmaDolceDomatoDomenicaDominareDondoloDonoDormireDoteDottoreDovutoDozzinaDragoDruidoDubbioDubitareDucaleDunaDuomoDupliceDuraturoEbanoEccessoEccoEclissiEconomiaEderaEdicolaEdileEditoriaEducareEgemoniaEgliEgoismoEgregioElaboratoElargireEleganteElencatoElettoElevareElficoElicaElmoElsaElusoEmanatoEmblemaEmessoEmiroEmotivoEmozioneEmpiricoEmuloEndemicoEnduroEnergiaEnfasiEnotecaEntrareEnzimaEpatiteEpilogoEpisodioEpocaleEppureEquatoreErarioErbaErbosoEredeEremitaErigereErmeticoEroeErosivoErranteEsagonoEsameEsanimeEsaudireEscaEsempioEsercitoEsibitoEsigenteEsistereEsitoEsofagoEsortatoEsosoEspansoEspressoEssenzaEssoEstesoEstimareEstoniaEstrosoEsultareEtilicoEtnicoEtruscoEttoEuclideoEuropaEvasoEvidenzaEvitatoEvolutoEvvivaFabbricaFaccendaFachiroFalcoFamigliaFanaleFanfaraFangoFantasmaFareFarfallaFarinosoFarmacoFasciaFastosoFasulloFaticareFatoFavolosoFebbreFecolaFedeFegatoFelpaFeltroFemminaFendereFenomenoFermentoFerroFertileFessuraFestivoFettaFeudoFiabaFiduciaFifaFiguratoFiloFinanzaFinestraFinireFioreFiscaleFisicoFiumeFlaconeFlamencoFleboFlemmaFloridoFluenteFluoroFobicoFocacciaFocosoFoderatoFoglioFolataFolcloreFolgoreFondenteFoneticoFoniaFontanaForbitoForchettaForestaFormicaFornaioForoFortezzaForzareFosfatoFossoFracassoFranaFrassinoFratelloFreccettaFrenataFrescoFrigoFrollinoFrondeFrugaleFruttaFucilataFucsiaFuggenteFulmineFulvoFumanteFumettoFumosoFuneFunzioneFuocoFurboFurgoneFuroreFusoFutileGabbianoGaffeGalateoGallinaGaloppoGamberoGammaGaranziaGarboGarofanoGarzoneGasdottoGasolioGastricoGattoGaudioGazeboGazzellaGecoGelatinaGelsoGemelloGemmatoGeneGenitoreGennaioGenotipoGergoGhepardoGhiaccioGhisaGialloGildaGineproGiocareGioielloGiornoGioveGiratoGironeGittataGiudizioGiuratoGiustoGlobuloGlutineGnomoGobbaGolfGomitoGommoneGonfioGonnaGovernoGracileGradoGraficoGrammoGrandeGrattareGravosoGraziaGrecaGreggeGrifoneGrigioGrinzaGrottaGruppoGuadagnoGuaioGuantoGuardareGufoGuidareIbernatoIconaIdenticoIdillioIdoloIdraIdricoIdrogenoIgieneIgnaroIgnoratoIlareIllesoIllogicoIlludereImballoImbevutoImboccoImbutoImmaneImmersoImmolatoImpaccoImpetoImpiegoImportoImprontaInalareInarcareInattivoIncantoIncendioInchinoIncisivoInclusoIncontroIncrocioIncuboIndagineIndiaIndoleIneditoInfattiInfilareInflittoIngaggioIngegnoIngleseIngordoIngrossoInnescoInodoreInoltrareInondatoInsanoInsettoInsiemeInsonniaInsulinaIntasatoInteroIntonacoIntuitoInumidireInvalidoInveceInvitoIperboleIpnoticoIpotesiIppicaIrideIrlandaIronicoIrrigatoIrrorareIsolatoIsotopoIstericoIstitutoIstriceItaliaIterareLabbroLabirintoLaccaLaceratoLacrimaLacunaLaddoveLagoLampoLancettaLanternaLardosoLargaLaringeLastraLatenzaLatinoLattugaLavagnaLavoroLegaleLeggeroLemboLentezzaLenzaLeoneLepreLesivoLessatoLestoLetteraleLevaLevigatoLiberoLidoLievitoLillaLimaturaLimitareLimpidoLineareLinguaLiquidoLiraLiricaLiscaLiteLitigioLivreaLocandaLodeLogicaLombareLondraLongevoLoquaceLorenzoLotoLotteriaLuceLucidatoLumacaLuminosoLungoLupoLuppoloLusingaLussoLuttoMacabroMacchinaMaceroMacinatoMadamaMagicoMagliaMagneteMagroMaiolicaMalafedeMalgradoMalintesoMalsanoMaltoMalumoreManaManciaMandorlaMangiareManifestoMannaroManovraMansardaMantideManubrioMappaMaratonaMarcireMarettaMarmoMarsupioMascheraMassaiaMastinoMaterassoMatricolaMattoneMaturoMazurcaMeandroMeccanicoMecenateMedesimoMeditareMegaMelassaMelisMelodiaMeningeMenoMensolaMercurioMerendaMerloMeschinoMeseMessereMestoloMetalloMetodoMettereMiagolareMicaMicelioMicheleMicroboMidolloMieleMiglioreMilanoMiliteMimosaMineraleMiniMinoreMirinoMirtilloMiscelaMissivaMistoMisurareMitezzaMitigareMitraMittenteMnemonicoModelloModificaModuloMoganoMogioMoleMolossoMonasteroMoncoMondinaMonetarioMonileMonotonoMonsoneMontatoMonvisoMoraMordereMorsicatoMostroMotivatoMotosegaMottoMovenzaMovimentoMozzoMuccaMucosaMuffaMughettoMugnaioMulattoMulinelloMultiploMummiaMuntoMuovereMuraleMusaMuscoloMusicaMutevoleMutoNababboNaftaNanometroNarcisoNariceNarratoNascereNastrareNaturaleNauticaNaviglioNebulosaNecrosiNegativoNegozioNemmenoNeofitaNerettoNervoNessunoNettunoNeutraleNeveNevroticoNicchiaNinfaNitidoNobileNocivoNodoNomeNominaNordicoNormaleNorvegeseNostranoNotareNotiziaNotturnoNovellaNucleoNullaNumeroNuovoNutrireNuvolaNuzialeOasiObbedireObbligoObeliscoOblioOboloObsoletoOccasioneOcchioOccidenteOccorrereOccultareOcraOculatoOdiernoOdorareOffertaOffrireOffuscatoOggettoOggiOgnunoOlandeseOlfattoOliatoOlivaOlogrammaOltreOmaggioOmbelicoOmbraOmegaOmissioneOndosoOnereOniceOnnivoroOnorevoleOntaOperatoOpinioneOppostoOracoloOrafoOrdineOrecchinoOreficeOrfanoOrganicoOrigineOrizzonteOrmaOrmeggioOrnativoOrologioOrrendoOrribileOrtensiaOrticaOrzataOrzoOsareOscurareOsmosiOspedaleOspiteOssaOssidareOstacoloOsteOtiteOtreOttagonoOttimoOttobreOvaleOvestOvinoOviparoOvocitoOvunqueOvviareOzioPacchettoPacePacificoPadellaPadronePaesePagaPaginaPalazzinaPalesarePallidoPaloPaludePandoroPannelloPaoloPaonazzoPapricaParabolaParcellaParerePargoloPariParlatoParolaPartireParvenzaParzialePassivoPasticcaPataccaPatologiaPattumePavonePeccatoPedalarePedonalePeggioPelosoPenarePendicePenisolaPennutoPenombraPensarePentolaPepePepitaPerbenePercorsoPerdonatoPerforarePergamenaPeriodoPermessoPernoPerplessoPersuasoPertugioPervasoPesatorePesistaPesoPestiferoPetaloPettinePetulantePezzoPiacerePiantaPiattinoPiccinoPicozzaPiegaPietraPifferoPigiamaPigolioPigroPilaPiliferoPillolaPilotaPimpantePinetaPinnaPinoloPioggiaPiomboPiramidePireticoPiritePirolisiPitonePizzicoPlaceboPlanarePlasmaPlatanoPlenarioPochezzaPoderosoPodismoPoesiaPoggiarePolentaPoligonoPollicePolmonitePolpettaPolsoPoltronaPolverePomicePomodoroPontePopolosoPorfidoPorosoPorporaPorrePortataPosaPositivoPossessoPostulatoPotassioPoterePranzoPrassiPraticaPreclusoPredicaPrefissoPregiatoPrelievoPremerePrenotarePreparatoPresenzaPretestoPrevalsoPrimaPrincipePrivatoProblemaProcuraProdurreProfumoProgettoProlungaPromessaPronomePropostaProrogaProtesoProvaPrudentePrugnaPruritoPsichePubblicoPudicaPugilatoPugnoPulcePulitoPulsantePuntarePupazzoPupillaPuroQuadroQualcosaQuasiQuerelaQuotaRaccoltoRaddoppioRadicaleRadunatoRafficaRagazzoRagioneRagnoRamarroRamingoRamoRandagioRantolareRapatoRapinaRappresoRasaturaRaschiatoRasenteRassegnaRastrelloRataRavvedutoRealeRecepireRecintoReclutaReconditoRecuperoRedditoRedimereRegalatoRegistroRegolaRegressoRelazioneRemareRemotoRennaReplicaReprimereReputareResaResidenteResponsoRestauroReteRetinaRetoricaRettificaRevocatoRiassuntoRibadireRibelleRibrezzoRicaricaRiccoRicevereRiciclatoRicordoRicredutoRidicoloRidurreRifasareRiflessoRiformaRifugioRigareRigettatoRighelloRilassatoRilevatoRimanereRimbalzoRimedioRimorchioRinascitaRincaroRinforzoRinnovoRinomatoRinsavitoRintoccoRinunciaRinvenireRiparatoRipetutoRipienoRiportareRipresaRipulireRisataRischioRiservaRisibileRisoRispettoRistoroRisultatoRisvoltoRitardoRitegnoRitmicoRitrovoRiunioneRivaRiversoRivincitaRivoltoRizomaRobaRoboticoRobustoRocciaRocoRodaggioRodereRoditoreRogitoRollioRomanticoRompereRonzioRosolareRospoRotanteRotondoRotulaRovescioRubizzoRubricaRugaRullinoRumineRumorosoRuoloRupeRussareRusticoSabatoSabbiareSabotatoSagomaSalassoSaldaturaSalgemmaSalivareSalmoneSaloneSaltareSalutoSalvoSapereSapidoSaporitoSaracenoSarcasmoSartoSassosoSatelliteSatiraSatolloSaturnoSavanaSavioSaziatoSbadiglioSbalzoSbancatoSbarraSbattereSbavareSbendareSbirciareSbloccatoSbocciatoSbrinareSbruffoneSbuffareScabrosoScadenzaScalaScambiareScandaloScapolaScarsoScatenareScavatoSceltoScenicoScettroSchedaSchienaSciarpaScienzaScindereScippoSciroppoScivoloSclerareScodellaScolpitoScompartoSconfortoScoprireScortaScossoneScozzeseScribaScrollareScrutinioScuderiaScultoreScuolaScuroScusareSdebitareSdoganareSeccaturaSecondoSedanoSeggiolaSegnalatoSegregatoSeguitoSelciatoSelettivoSellaSelvaggioSemaforoSembrareSemeSeminatoSempreSensoSentireSepoltoSequenzaSerataSerbatoSerenoSerioSerpenteSerraglioServireSestinaSetolaSettimanaSfaceloSfaldareSfamatoSfarzosoSfaticatoSferaSfidaSfilatoSfingeSfocatoSfoderareSfogoSfoltireSforzatoSfrattoSfruttatoSfuggitoSfumareSfusoSgabelloSgarbatoSgonfiareSgorbioSgrassatoSguardoSibiloSiccomeSierraSiglaSignoreSilenzioSillabaSimboloSimpaticoSimulatoSinfoniaSingoloSinistroSinoSintesiSinusoideSiparioSismaSistoleSituatoSlittaSlogaturaSlovenoSmarritoSmemoratoSmentitoSmeraldoSmilzoSmontareSmottatoSmussatoSnellireSnervatoSnodoSobbalzoSobrioSoccorsoSocialeSodaleSoffittoSognoSoldatoSolenneSolidoSollazzoSoloSolubileSolventeSomaticoSommaSondaSonettoSonniferoSopireSoppesoSopraSorgereSorpassoSorrisoSorsoSorteggioSorvolatoSospiroSostaSottileSpadaSpallaSpargereSpatolaSpaventoSpazzolaSpecieSpedireSpegnereSpelaturaSperanzaSpessoreSpettraleSpezzatoSpiaSpigolosoSpillatoSpinosoSpiraleSplendidoSportivoSposoSprangaSprecareSpronatoSpruzzoSpuntinoSquilloSradicareSrotolatoStabileStaccoStaffaStagnareStampatoStantioStarnutoStaseraStatutoSteloSteppaSterzoStilettoStimaStirpeStivaleStizzosoStonatoStoricoStrappoStregatoStriduloStrozzareStruttoStuccareStufoStupendoSubentroSuccosoSudoreSuggeritoSugoSultanoSuonareSuperboSupportoSurgelatoSurrogatoSussurroSuturaSvagareSvedeseSveglioSvelareSvenutoSveziaSviluppoSvistaSvizzeraSvoltaSvuotareTabaccoTabulatoTacciareTaciturnoTaleTalismanoTamponeTanninoTaraTardivoTargatoTariffaTarpareTartarugaTastoTatticoTavernaTavolataTazzaTecaTecnicoTelefonoTemerarioTempoTemutoTendoneTeneroTensioneTentacoloTeoremaTermeTerrazzoTerzettoTesiTesseratoTestatoTetroTettoiaTifareTigellaTimbroTintoTipicoTipografoTiraggioTiroTitanioTitoloTitubanteTizioTizzoneToccareTollerareToltoTombolaTomoTonfoTonsillaTopazioTopologiaToppaTorbaTornareTorroneTortoraToscanoTossireTostaturaTotanoTraboccoTracheaTrafilaTragediaTralcioTramontoTransitoTrapanoTrarreTraslocoTrattatoTraveTrecciaTremolioTrespoloTributoTrichecoTrifoglioTrilloTrinceaTrioTristezzaTrituratoTrivellaTrombaTronoTroppoTrottolaTrovareTruccatoTubaturaTuffatoTulipanoTumultoTunisiaTurbareTurchinoTutaTutelaUbicatoUccelloUccisoreUdireUditivoUffaUfficioUgualeUlisseUltimatoUmanoUmileUmorismoUncinettoUngereUnghereseUnicornoUnificatoUnisonoUnitarioUnteUovoUpupaUraganoUrgenzaUrloUsanzaUsatoUscitoUsignoloUsuraioUtensileUtilizzoUtopiaVacanteVaccinatoVagabondoVagliatoValangaValgoValicoVallettaValorosoValutareValvolaVampataVangareVanitosoVanoVantaggioVanveraVaporeVaranoVarcatoVarianteVascaVedettaVedovaVedutoVegetaleVeicoloVelcroVelinaVellutoVeloceVenatoVendemmiaVentoVeraceVerbaleVergognaVerificaVeroVerrucaVerticaleVescicaVessilloVestaleVeteranoVetrinaVetustoViandanteVibranteVicendaVichingoVicinanzaVidimareVigiliaVignetoVigoreVileVillanoViminiVincitoreViolaViperaVirgolaVirologoVirulentoViscosoVisioneVispoVissutoVisuraVitaVitelloVittimaVivandaVividoViziareVoceVogaVolatileVolereVolpeVoragineVulcanoZampognaZannaZappatoZatteraZavorraZefiroZelanteZeloZenzeroZerbinoZibettoZincoZirconeZittoZollaZoticoZuccheroZufoloZuluZuppa";
+let wordlist$1 = null;
+function loadWords$1(lang) {
+  if (wordlist$1 != null) {
+    return;
+  }
+  wordlist$1 = words.replace(/([A-Z])/g, " $1").toLowerCase().substring(1).split(" ");
+  if (Wordlist.check(lang) !== "0x5c1362d88fd4cf614a96f3234941d29f7d37c08c5292fde03bf62c2db6ff7620") {
+    wordlist$1 = null;
+    throw new Error("BIP39 Wordlist for it (Italian) FAILED");
+  }
+}
+class LangIt extends Wordlist {
+  constructor() {
+    super("it");
+  }
+  getWord(index2) {
+    loadWords$1(this);
+    return wordlist$1[index2];
+  }
+  getWordIndex(word) {
+    loadWords$1(this);
+    return wordlist$1.indexOf(word);
+  }
+}
+const langIt = new LangIt();
+Wordlist.register(langIt);
+const data = "}aE#4A=Yv&co#4N#6G=cJ&SM#66|/Z#4t&kn~46#4K~4q%b9=IR#7l,mB#7W_X2*dl}Uo~7s}Uf&Iw#9c&cw~6O&H6&wx&IG%v5=IQ~8a&Pv#47$PR&50%Ko&QM&3l#5f,D9#4L|/H&tQ;v0~6n]nN<di,AM=W5%QO&ka&ua,hM^tm=zV=JA=wR&+X]7P&NB#4J#5L|/b[dA}tJ<Do&6m&u2[U1&Kb.HM&mC=w0&MW<rY,Hq#6M}QG,13&wP}Jp]Ow%ue&Kg<HP<D9~4k~9T&I2_c6$9T#9/[C5~7O~4a=cs&O7=KK=An&l9$6U$8A&uD&QI|/Y&bg}Ux&F2#6b}E2&JN&kW&kp=U/&bb=Xl<Cj}k+~5J#6L&5z&9i}b4&Fo,ho(X0_g3~4O$Fz&QE<HN=Ww]6/%GF-Vw=tj&/D&PN#9g=YO}cL&Of&PI~5I&Ip=vU=IW#9G;0o-wU}ss&QR<BT&R9=tk$PY_dh&Pq-yh]7T,nj.Xu=EP&76=cI&Fs*Xg}z7$Gb&+I=DF,AF=cA}rL#7j=Dz&3y<Aa$52=PQ}b0(iY$Fa}oL&xV#6U=ec=WZ,xh%RY<dp#9N&Fl&44=WH*A7=sh&TB&8P=07;u+&PK}uh}J5#72)V/=xC,AB$k0&f6;1E|+5=1B,3v]6n&wR%b+&xx]7f=Ol}fl;+D^wG]7E;nB;uh^Ir&l5=JL,nS=cf=g5;u6|/Q$Gc=MH%Hg#5d%M6^86=U+$Gz,l/,ir^5y&Ba&/F-IY&FI&be%IZ#77&PW_Nu$kE(Yf&NX]7Z,Jy&FJ(Xo&Nz#/d=y7&MX<Ag}Z+;nE]Dt(iG#4D=13&Pj~4c%v8&Zo%OL&/X#4W<HR&ie~6J_1O(Y2=y5=Ad*cv_eB#6k&PX:BU#7A;uk&Ft&Fx_dD=U2;vB=U5=4F}+O&GN.HH:9s=b0%NV(jO&IH=JT}Z9=VZ<Af,Kx^4m&uJ%c6,6r;9m#+L}cf%Kh&F3~4H=vP}bu,Hz|++,1w]nv}k6;uu$jw*Kl*WX&uM[x7&Fr[m7$NO&QN]hu=JN}nR^8g#/h(ps|KC;vd}xz=V0}p6&FD$G1#7K<bG_4p~8g&cf;u4=tl}+k%5/}fz;uw<cA=u1}gU}VM=LJ=eX&+L&Pr#4U}p2:nC,2K]7H:jF&9x}uX#9O=MB<fz~8X~5m&4D&kN&u5%E/(h7(ZF&VG<de(qM|/e-Wt=3x(a+,/R]f/&ND$Ro&nU}0g=KA%kH&NK$Ke<dS}cB&IX~5g$TN]6m=Uv,Is&Py=Ef%Kz#+/%bi&+A<F4$OG&4C&FL#9V<Zk=2I_eE&6c]nw&kq$HG}y+&A8$P3}OH=XP]70%IS(AJ_gH%GZ&tY&AZ=vb~6y&/r=VI=Wv<Zi=fl=xf&eL}c8}OL=MJ=g8$F7=YT}9u=0+^xC}JH&nL^N0~4T]K2,Cy%OC#6s;vG(AC^xe^cG&MF}Br#9P;wD-7h$O/&xA}Fn^PC]6i]7G&8V$Qs;vl(TB~73~4l<mW&6V=2y&uY&+3)aP}XF;LP&kx$wU=t7;uy<FN&lz)7E=Oo*Y+;wI}9q}le;J6&Ri&4t&Qr#8B=cb&vG=J5|Ql(h5<Yy~4+}QD,Lx=wn%K/&RK=dO&Pw,Q9=co%4u;9u}g0@6a^4I%b0=zo|/c&tX=dQ=OS#+b=yz_AB&wB&Pm=W9$HP_gR=62=AO=ti=hI,oA&jr&dH=tm&b6$P2(x8=zi;nG~7F;05]0n[Ix&3m}rg=Xp=cd&uz]7t;97=cN;vV<jf&FF&F1=6Q&Ik*Kk&P4,2z=fQ]7D&3u,H0=d/}Uw<ZN<7R}Kv;0f$H7,MD]7n$F0#88~9Z%da=by;+T#/u=VF&fO&kr^kf<AB]sU,I5$Ng&Pz;0i&QD&vM=Yl:BM;nJ_xJ]U7&Kf&30,3f|Z9*dC)je_jA&Q4&Kp$NH(Yz#6S&Id%Ib=KX,AD=KV%dP}tW&Pk^+E_Ni=cq,3R}VZ(Si=b+}rv;0j}rZ]uA,/w(Sx&Jv$w9&4d&wE,NJ$Gy=J/]Ls#7k<ZQ<Y/&uj]Ov$PM;v3,2F&+u:up=On&3e,Jv;90=J+&Qm]6q}bK#+d~8Y(h2]hA;99&AS=I/}qB&dQ}yJ-VM}Vl&ui,iB&G3|Dc]7d=eQ%dX%JC_1L~4d^NP;vJ&/1)ZI#7N]9X[bQ&PL=0L(UZ,Lm&kc&IR}n7(iR<AQ<dg=33=vN}ft}au]7I,Ba=x9=dR~6R&Tq=Xi,3d$Nr&Bc}DI&ku&vf]Dn,/F&iD,Ll&Nw=0y&I7=Ls=/A&tU=Qe}Ua&uk&+F=g4=gh=Vj#+1&Qn}Uy*44#5F,Pc&Rz*Xn=oh=5W;0n_Nf(iE<Y7=vr=Zu]oz#5Z%mI=kN=Bv_Jp(T2;vt_Ml<FS&uI=L/&6P]64$M7}86<bo%QX(SI%IY&VK=Al&Ux;vv;ut*E/%uh<ZE|O3,M2(yc]yu=Wk&tp:Ex}hr,Cl&WE)+Z=8U}I2_4Q,hA_si=iw=OM=tM=yZ%Ia=U7;wT}b+;uo=Za}yS!5x}HD}fb#5O_dA;Nv%uB(yB;01(Sf}Fk;v7}Pt#8v<mZ#7L,/r&Pl~4w&f5=Ph$Fw_LF&8m,bL=yJ&BH}p/*Jn}tU~5Q;wB(h6]Df]8p^+B;E4&Wc=d+;Ea&bw$8C&FN,DM=Yf}mP~5w=fT#6V=mC=Fi=AV}jB&AN}lW}aH#/D)dZ;hl;vE}/7,CJ;31&w8,hj%u9_Js=jJ&4M~8k=TN&eC}nL&uc-wi&lX}dj=Mv=e2#6u=cr$uq$6G]8W}Jb:nm=Yg<b3(UA;vX&6n&xF=KT,jC,De&R8&oY=Zv&oB]7/=Z2&Oa}bf,hh(4h^tZ&72&Nx;D2&xL~5h~40)ZG)h+=OJ&RA]Bv$yB=Oq=df,AQ%Jn}OJ;11,3z&Tl&tj;v+^Hv,Dh(id=s+]7N&N3)9Q~8f,S4=uW=w4&uX,LX&3d]CJ&yp&8x<b2_do&lP=y/<cy_dG=Oi=7R(VH(lt_1T,Iq_AA;12^6T%k6#8K[B1{oO<AU[Bt;1b$9S&Ps<8T=St{bY,jB(Zp&63&Uv$9V,PM]6v&Af}zW[bW_oq}sm}nB&Kq&gC&ff_eq_2m&5F&TI}rf}Gf;Zr_z9;ER&jk}iz_sn<BN~+n&vo=Vi%97|ZR=Wc,WE&6t]6z%85(ly#84=KY)6m_5/=aX,N3}Tm&he&6K]tR_B2-I3;u/&hU&lH<AP=iB&IA=XL;/5&Nh=wv<BH#79=vS=zl<AA=0X_RG}Bw&9p$NW,AX&kP_Lp&/Z(Tc]Mu}hs#6I}5B&cI<bq&H9#6m=K9}vH(Y1(Y0#4B&w6,/9&gG<bE,/O=zb}I4_l8<B/;wL%Qo<HO[Mq=XX}0v&BP&F4(mG}0i}nm,EC=9u{I3,xG&/9=JY*DK&hR)BX=EI=cx=b/{6k}yX%A+&wa}Xb=la;wi^lL;0t}jo&Qb=xg=XB}iO<qo{bR=NV&8f=a0&Jy;0v=uK)HK;vN#6h&jB(h/%ud&NI%wY.X7=Pt}Cu-uL&Gs_hl%mH,tm]78=Lb^Q0#7Y=1u<Bt&+Q=Co_RH,w3;1e}ux<aU;ui}U3&Q5%bt]63&UQ|0l&uL}O7&3o,AV&dm|Nj(Xt*5+(Uu&Hh(p7(UF=VR=Bp^Jl&Hd[ix)9/=Iq]C8<67]66}mB%6f}bb}JI]8T$HA}db=YM&pa=2J}tS&Y0=PS&y4=cX$6E,hX,XP&nR;04,FQ&l0&Vm_Dv#5Y~8Z=Bi%MA]6x=JO:+p,Az&9q,Hj~6/}SD=K1:EJ}nA;Qo#/E]9R,Ie&6X%W3]61&v4=xX_MC=0q;06(Xq=fs}IG}Dv=0l}o7$iZ;9v&LH&DP-7a&OY,SZ,Kz,Cv&dh=fx|Nh,F/~7q=XF&w+;9n&Gw;0h}Z7<7O&JK(S7&LS<AD<ac=wo<Dt&zw%4B=4v#8P;9o~6p*vV=Tm,Or&I6=1q}nY=P0=gq&Bl&Uu,Ch%yb}UY=zh}dh}rl(T4_xk(YA#8R*xH,IN}Jn]7V}C4&Ty}j3]7p=cL=3h&wW%Qv<Z3=f0&RI&+S(ic_zq}oN&/Y=z1;Td=LW=0e=OI(Vc,+b^ju(UL;0r:Za%8v=Rp=zw&58&73&wK}qX]6y&8E)a2}WR=wP^ur&nQ<cH}Re=Aq&wk}Q0&+q=PP,Gc|/d^k5,Fw]8Y}Pg]p3=ju=ed}r5_yf&Cs]7z$/G<Cm&Jp&54_1G_gP_Ll}JZ;0u]k8_7k(Sg]65{9i=LN&Sx&WK,iW&fD&Lk{9a}Em-9c#8N&io=sy]8d&nT&IK(lx#7/$lW(Td<s8~49,3o<7Y=MW(T+_Jr&Wd,iL}Ct=xh&5V;v4&8n%Kx=iF&l2_0B{B+,If(J0,Lv;u8=Kx-vB=HC&vS=Z6&fU&vE^xK;3D=4h=MR#45:Jw;0d}iw=LU}I5=I0]gB*im,K9}GU,1k_4U&Tt=Vs(iX&lU(TF#7y,ZO}oA&m5#5P}PN}Uz=hM<B1&FB<aG,e6~7T<tP(UQ_ZT=wu&F8)aQ]iN,1r_Lo&/g:CD}84{J1_Ki&Na&3n$jz&FE=dc;uv;va}in}ll=fv(h1&3h}fp=Cy}BM(+E~8m}lo%v7=hC(T6$cj=BQ=Bw(DR,2j=Ks,NS|F+;00=fU=70}Mb(YU;+G&m7&hr=Sk%Co]t+(X5_Jw}0r}gC(AS-IP&QK<Z2#8Q$WC]WX}T2&pG_Ka,HC=R4&/N;Z+;ch(C7,D4$3p_Mk&B2$8D=n9%Ky#5z(CT&QJ#7B]DC]gW}nf~5M;Iw#80}Tc_1F#4Z-aC}Hl=ph=fz,/3=aW}JM}nn;DG;vm}wn,4P}T3;wx&RG$u+}zK=0b;+J_Ek{re<aZ=AS}yY#5D]7q,Cp}xN=VP*2C}GZ}aG~+m_Cs=OY#6r]6g<GS}LC(UB=3A=Bo}Jy<c4}Is;1P<AG}Op<Z1}ld}nS=1Z,yM&95&98=CJ(4t:2L$Hk=Zo}Vc;+I}np&N1}9y=iv}CO*7p=jL)px]tb^zh&GS&Vl%v/;vR=14=zJ&49|/f]hF}WG;03=8P}o/&Gg&rp;DB,Kv}Ji&Pb;aA^ll(4j%yt}+K$Ht#4y&hY]7Y<F1,eN}bG(Uh%6Z]t5%G7;+F_RE;it}tL=LS&Da=Xx(S+(4f=8G=yI}cJ}WP=37=jS}pX}hd)fp<A8=Jt~+o$HJ=M6}iX=g9}CS=dv=Cj(mP%Kd,xq|+9&LD(4/=Xm&QP=Lc}LX&fL;+K=Op(lu=Qs.qC:+e&L+=Jj#8w;SL]7S(b+#4I=c1&nG_Lf&uH;+R)ZV<bV%B/,TE&0H&Jq&Ah%OF&Ss(p2,Wv&I3=Wl}Vq;1L&lJ#9b_1H=8r=b8=JH(SZ=hD=J2#7U,/U#/X~6P,FU<eL=jx,mG=hG=CE&PU=Se(qX&LY=X6=y4&tk&QQ&tf=4g&xI}W+&mZ=Dc#7w}Lg;DA;wQ_Kb(cJ=hR%yX&Yb,hw{bX_4X;EP;1W_2M}Uc=b5(YF,CM&Tp^OJ{DD]6s=vF=Yo~8q}XH}Fu%P5(SJ=Qt;MO]s8<F3&B3&8T(Ul-BS*dw&dR<87}/8]62$PZ]Lx<Au}9Q]7c=ja=KR,Go,Us&v6(qk}pG&G2=ev^GM%w4&H4]7F&dv]J6}Ew:9w=sj-ZL}Ym$+h(Ut(Um~4n=Xs(U7%eE=Qc_JR<CA#6t<Fv|/I,IS,EG<F2(Xy$/n<Fa(h9}+9_2o&N4#7X<Zq|+f_Dp=dt&na,Ca=NJ)jY=8C=YG=s6&Q+<DO}D3=xB&R1(lw;Qn<bF(Cu|/B}HV=SS&n7,10&u0]Dm%A6^4Q=WR(TD=Xo<GH,Rj(l8)bP&n/=LM&CF,F5&ml=PJ;0k=LG=tq,Rh,D6@4i=1p&+9=YC%er_Mh;nI;0q=Fw]80=xq=FM$Gv;v6&nc;wK%H2&Kj;vs,AA=YP,66}bI(qR~5U=6q~4b$Ni=K5.X3$So&Iu(p+]8G=Cf=RY(TS_O3(iH&57=fE=Dg_Do#9z#7H;FK{qd_2k%JR}en&gh_z8;Rx}9p<cN_Ne,DO;LN_7o~/p=NF=5Y}gN<ce<C1,QE]Wv=3u<BC}GK]yq}DY&u/_hj=II(pz&rC,jV&+Z}ut=NQ;Cg-SR_ZS,+o=u/;Oy_RK_QF(Fx&xP}Wr&TA,Uh&g1=yr{ax[VF$Pg(YB;Ox=Vy;+W(Sp}XV%dd&33(l/]l4#4Y}OE=6c=bw(A7&9t%wd&N/&mo,JH&Qe)fm=Ao}fu=tH";
+const deltaData = "FAZDC6BALcLZCA+GBARCW8wNCcDDZ8LVFBOqqDUiou+M42TFAyERXFb7EjhP+vmBFpFrUpfDV2F7eB+eCltCHJFWLFCED+pWTojEIHFXc3aFn4F68zqjEuKidS1QBVPDEhE7NA4mhMF7oThD49ot3FgtzHFCK0acW1x8DH1EmLoIlrWFBLE+y5+NA3Cx65wJHTaEZVaK1mWAmPGxgYCdxwOjTDIt/faOEhTl1vqNsKtJCOhJWuio2g07KLZEQsFBUpNtwEByBgxFslFheFbiEPvi61msDvApxCzB6rBCzox7joYA5UdDc+Cb4FSgIabpXFAj3bjkmFAxCZE+mD/SFf/0ELecYCt3nLoxC6WEZf2tKDB4oZvrEmqFkKk7BwILA7gtYBpsTq//D4jD0F0wEB9pyQ1BD5Ba0oYHDI+sbDFhvrHXdDHfgFEIJLi5r8qercNFBgFLC4bo5ERJtamWBDFy73KCEb6M8VpmEt330ygCTK58EIIFkYgF84gtGA9Uyh3m68iVrFbWFbcbqiCYHZ9J1jeRPbL8yswhMiDbhEhdNoSwFbZrLT740ABEqgCkO8J1BLd1VhKKR4sD1yUo0z+FF59Mvg71CFbyEhbHSFBKEIKyoQNgQppq9T0KAqePu0ZFGrXOHdKJqkoTFhYvpDNyuuznrN84thJbsCoO6Cu6Xlvntvy0QYuAExQEYtTUBf3CoCqwgGFZ4u1HJFzDVwEy3cjcpV4QvsPaBC3rCGyCF23o4K3pp2gberGgFEJEHo4nHICtyKH2ZqyxhN05KBBJIQlKh/Oujv/DH32VrlqFdIFC7Fz9Ct4kaqFME0UETLprnN9kfy+kFmtQBB0+5CFu0N9Ij8l/VvJDh2oq3hT6EzjTHKFN7ZjZwoTsAZ4Exsko6Fpa6WC+sduz8jyrLpegTv2h1EBeYpLpm2czQW0KoCcS0bCVXCmuWJDBjN1nQNLdF58SFJ0h7i3pC3oEOKy/FjBklL70XvBEEIWp2yZ04xObzAWDDJG7f+DbqBEA7LyiR95j7MDVdDViz2RE5vWlBMv5e4+VfhP3aXNPhvLSynb9O2x4uFBV+3jqu6d5pCG28/sETByvmu/+IJ0L3wb4rj9DNOLBF6XPIODr4L19U9RRofAG6Nxydi8Bki8BhGJbBAJKzbJxkZSlF9Q2Cu8oKqggB9hBArwLLqEBWEtFowy8XK8bEyw9snT+BeyFk1ZCSrdmgfEwFePTgCjELBEnIbjaDDPJm36rG9pztcEzT8dGk23SBhXBB1H4z+OWze0ooFzz8pDBYFvp9j9tvFByf9y4EFdVnz026CGR5qMr7fxMHN8UUdlyJAzlTBDRC28k+L4FB8078ljyD91tUj1ocnTs8vdEf7znbzm+GIjEZnoZE5rnLL700Xc7yHfz05nWxy03vBB9YGHYOWxgMQGBCR24CVYNE1hpfKxN0zKnfJDmmMgMmBWqNbjfSyFCBWSCGCgR8yFXiHyEj+VtD1FB3FpC1zI0kFbzifiKTLm9yq5zFmur+q8FHqjoOBWsBPiDbnCC2ErunV6cJ6TygXFYHYp7MKN9RUlSIS8/xBAGYLzeqUnBF4QbsTuUkUqGs6CaiDWKWjQK9EJkjpkTmNCPYXL";
+const wordlist = {
+  zh_cn: null,
+  zh_tw: null
+};
+const Checks = {
+  zh_cn: "0x17bcc4d8547e5a7135e365d1ab443aaae95e76d8230c2782c67305d4f21497a1",
+  zh_tw: "0x51e720e90c7b87bec1d70eb6e74a21a449bd3ec9c020b01d3a40ed991b60ce5d"
+};
+const codes = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const style = "~!@#$%^&*_-=[]{}|;:,.()<>?";
+function loadWords(lang) {
+  if (wordlist[lang.locale] !== null) {
+    return;
+  }
+  wordlist[lang.locale] = [];
+  let deltaOffset = 0;
+  for (let i = 0; i < 2048; i++) {
+    const s2 = style.indexOf(data[i * 3]);
+    const bytes = [
+      228 + (s2 >> 2),
+      128 + codes.indexOf(data[i * 3 + 1]),
+      128 + codes.indexOf(data[i * 3 + 2])
+    ];
+    if (lang.locale === "zh_tw") {
+      const common2 = s2 % 4;
+      for (let i2 = common2; i2 < 3; i2++) {
+        bytes[i2] = codes.indexOf(deltaData[deltaOffset++]) + (i2 == 0 ? 228 : 128);
+      }
+    }
+    wordlist[lang.locale].push(toUtf8String(bytes));
+  }
+  if (Wordlist.check(lang) !== Checks[lang.locale]) {
+    wordlist[lang.locale] = null;
+    throw new Error("BIP39 Wordlist for " + lang.locale + " (Chinese) FAILED");
+  }
+}
+class LangZh extends Wordlist {
+  constructor(country) {
+    super("zh_" + country);
+  }
+  getWord(index2) {
+    loadWords(this);
+    return wordlist[this.locale][index2];
+  }
+  getWordIndex(word) {
+    loadWords(this);
+    return wordlist[this.locale].indexOf(word);
+  }
+  split(mnemonic) {
+    mnemonic = mnemonic.replace(/(?:\u3000| )+/g, "");
+    return mnemonic.split("");
+  }
+}
+const langZhCn = new LangZh("cn");
+Wordlist.register(langZhCn);
+Wordlist.register(langZhCn, "zh");
+const langZhTw = new LangZh("tw");
+Wordlist.register(langZhTw);
+const wordlists = {
+  cz: langCz,
+  en: langEn,
+  es: langEs,
+  fr: langFr,
+  it: langIt,
+  ja: langJa,
+  ko: langKo,
+  zh: langZhCn,
+  zh_cn: langZhCn,
+  zh_tw: langZhTw
+};
+const version$6 = "hdnode/5.1.0";
+const logger$b = new Logger(version$6);
+const N = BigNumber.from("0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141");
+const MasterSecret = toUtf8Bytes("Bitcoin seed");
+const HardenedBit = 2147483648;
+function getUpperMask(bits) {
+  return (1 << bits) - 1 << 8 - bits;
+}
+function getLowerMask(bits) {
+  return (1 << bits) - 1;
+}
+function bytes32(value) {
+  return hexZeroPad(hexlify(value), 32);
+}
+function base58check(data2) {
+  return Base58.encode(concat([data2, hexDataSlice(sha256$1(sha256$1(data2)), 0, 4)]));
+}
+function getWordlist(wordlist2) {
+  if (wordlist2 == null) {
+    return wordlists["en"];
+  }
+  if (typeof wordlist2 === "string") {
+    const words2 = wordlists[wordlist2];
+    if (words2 == null) {
+      logger$b.throwArgumentError("unknown locale", "wordlist", wordlist2);
+    }
+    return words2;
+  }
+  return wordlist2;
+}
+const _constructorGuard$1 = {};
+const defaultPath = "m/44'/60'/0'/0/0";
+class HDNode {
+  constructor(constructorGuard, privateKey, publicKey, parentFingerprint, chainCode, index2, depth, mnemonicOrPath) {
+    logger$b.checkNew(new.target, HDNode);
+    if (constructorGuard !== _constructorGuard$1) {
+      throw new Error("HDNode constructor cannot be called directly");
+    }
+    if (privateKey) {
+      const signingKey = new SigningKey(privateKey);
+      defineReadOnly(this, "privateKey", signingKey.privateKey);
+      defineReadOnly(this, "publicKey", signingKey.compressedPublicKey);
+    } else {
+      defineReadOnly(this, "privateKey", null);
+      defineReadOnly(this, "publicKey", hexlify(publicKey));
+    }
+    defineReadOnly(this, "parentFingerprint", parentFingerprint);
+    defineReadOnly(this, "fingerprint", hexDataSlice(ripemd160(sha256$1(this.publicKey)), 0, 4));
+    defineReadOnly(this, "address", computeAddress(this.publicKey));
+    defineReadOnly(this, "chainCode", chainCode);
+    defineReadOnly(this, "index", index2);
+    defineReadOnly(this, "depth", depth);
+    if (mnemonicOrPath == null) {
+      defineReadOnly(this, "mnemonic", null);
+      defineReadOnly(this, "path", null);
+    } else if (typeof mnemonicOrPath === "string") {
+      defineReadOnly(this, "mnemonic", null);
+      defineReadOnly(this, "path", mnemonicOrPath);
+    } else {
+      defineReadOnly(this, "mnemonic", mnemonicOrPath);
+      defineReadOnly(this, "path", mnemonicOrPath.path);
+    }
+  }
+  get extendedKey() {
+    if (this.depth >= 256) {
+      throw new Error("Depth too large!");
+    }
+    return base58check(concat([
+      this.privateKey != null ? "0x0488ADE4" : "0x0488B21E",
+      hexlify(this.depth),
+      this.parentFingerprint,
+      hexZeroPad(hexlify(this.index), 4),
+      this.chainCode,
+      this.privateKey != null ? concat(["0x00", this.privateKey]) : this.publicKey
+    ]));
+  }
+  neuter() {
+    return new HDNode(_constructorGuard$1, null, this.publicKey, this.parentFingerprint, this.chainCode, this.index, this.depth, this.path);
+  }
+  _derive(index2) {
+    if (index2 > 4294967295) {
+      throw new Error("invalid index - " + String(index2));
+    }
+    let path = this.path;
+    if (path) {
+      path += "/" + (index2 & ~HardenedBit);
+    }
+    const data2 = new Uint8Array(37);
+    if (index2 & HardenedBit) {
+      if (!this.privateKey) {
+        throw new Error("cannot derive child of neutered node");
+      }
+      data2.set(arrayify(this.privateKey), 1);
+      if (path) {
+        path += "'";
+      }
+    } else {
+      data2.set(arrayify(this.publicKey));
+    }
+    for (let i = 24; i >= 0; i -= 8) {
+      data2[33 + (i >> 3)] = index2 >> 24 - i & 255;
+    }
+    const I = arrayify(computeHmac(SupportedAlgorithm.sha512, this.chainCode, data2));
+    const IL = I.slice(0, 32);
+    const IR = I.slice(32);
+    let ki = null;
+    let Ki = null;
+    if (this.privateKey) {
+      ki = bytes32(BigNumber.from(IL).add(this.privateKey).mod(N));
+    } else {
+      const ek = new SigningKey(hexlify(IL));
+      Ki = ek._addPoint(this.publicKey);
+    }
+    let mnemonicOrPath = path;
+    const srcMnemonic = this.mnemonic;
+    if (srcMnemonic) {
+      mnemonicOrPath = Object.freeze({
+        phrase: srcMnemonic.phrase,
+        path,
+        locale: srcMnemonic.locale || "en"
+      });
+    }
+    return new HDNode(_constructorGuard$1, ki, Ki, this.fingerprint, bytes32(IR), index2, this.depth + 1, mnemonicOrPath);
+  }
+  derivePath(path) {
+    const components2 = path.split("/");
+    if (components2.length === 0 || components2[0] === "m" && this.depth !== 0) {
+      throw new Error("invalid path - " + path);
+    }
+    if (components2[0] === "m") {
+      components2.shift();
+    }
+    let result = this;
+    for (let i = 0; i < components2.length; i++) {
+      const component = components2[i];
+      if (component.match(/^[0-9]+'$/)) {
+        const index2 = parseInt(component.substring(0, component.length - 1));
+        if (index2 >= HardenedBit) {
+          throw new Error("invalid path index - " + component);
+        }
+        result = result._derive(HardenedBit + index2);
+      } else if (component.match(/^[0-9]+$/)) {
+        const index2 = parseInt(component);
+        if (index2 >= HardenedBit) {
+          throw new Error("invalid path index - " + component);
+        }
+        result = result._derive(index2);
+      } else {
+        throw new Error("invalid path component - " + component);
+      }
+    }
+    return result;
+  }
+  static _fromSeed(seed, mnemonic) {
+    const seedArray = arrayify(seed);
+    if (seedArray.length < 16 || seedArray.length > 64) {
+      throw new Error("invalid seed");
+    }
+    const I = arrayify(computeHmac(SupportedAlgorithm.sha512, MasterSecret, seedArray));
+    return new HDNode(_constructorGuard$1, bytes32(I.slice(0, 32)), null, "0x00000000", bytes32(I.slice(32)), 0, 0, mnemonic);
+  }
+  static fromMnemonic(mnemonic, password, wordlist2) {
+    wordlist2 = getWordlist(wordlist2);
+    mnemonic = entropyToMnemonic(mnemonicToEntropy(mnemonic, wordlist2), wordlist2);
+    return HDNode._fromSeed(mnemonicToSeed(mnemonic, password), {
+      phrase: mnemonic,
+      path: "m",
+      locale: wordlist2.locale
+    });
+  }
+  static fromSeed(seed) {
+    return HDNode._fromSeed(seed, null);
+  }
+  static fromExtendedKey(extendedKey) {
+    const bytes = Base58.decode(extendedKey);
+    if (bytes.length !== 82 || base58check(bytes.slice(0, 78)) !== extendedKey) {
+      logger$b.throwArgumentError("invalid extended key", "extendedKey", "[REDACTED]");
+    }
+    const depth = bytes[4];
+    const parentFingerprint = hexlify(bytes.slice(5, 9));
+    const index2 = parseInt(hexlify(bytes.slice(9, 13)).substring(2), 16);
+    const chainCode = hexlify(bytes.slice(13, 45));
+    const key2 = bytes.slice(45, 78);
+    switch (hexlify(bytes.slice(0, 4))) {
+      case "0x0488b21e":
+      case "0x043587cf":
+        return new HDNode(_constructorGuard$1, null, hexlify(key2), parentFingerprint, chainCode, index2, depth, null);
+      case "0x0488ade4":
+      case "0x04358394 ":
+        if (key2[0] !== 0) {
+          break;
+        }
+        return new HDNode(_constructorGuard$1, hexlify(key2.slice(1)), null, parentFingerprint, chainCode, index2, depth, null);
+    }
+    return logger$b.throwArgumentError("invalid extended key", "extendedKey", "[REDACTED]");
+  }
+}
+function mnemonicToSeed(mnemonic, password) {
+  if (!password) {
+    password = "";
+  }
+  const salt = toUtf8Bytes("mnemonic" + password, UnicodeNormalizationForm.NFKD);
+  return pbkdf2(toUtf8Bytes(mnemonic, UnicodeNormalizationForm.NFKD), salt, 2048, 64, "sha512");
+}
+function mnemonicToEntropy(mnemonic, wordlist2) {
+  wordlist2 = getWordlist(wordlist2);
+  logger$b.checkNormalize();
+  const words2 = wordlist2.split(mnemonic);
+  if (words2.length % 3 !== 0) {
+    throw new Error("invalid mnemonic");
+  }
+  const entropy = arrayify(new Uint8Array(Math.ceil(11 * words2.length / 8)));
+  let offset = 0;
+  for (let i = 0; i < words2.length; i++) {
+    let index2 = wordlist2.getWordIndex(words2[i].normalize("NFKD"));
+    if (index2 === -1) {
+      throw new Error("invalid mnemonic");
+    }
+    for (let bit = 0; bit < 11; bit++) {
+      if (index2 & 1 << 10 - bit) {
+        entropy[offset >> 3] |= 1 << 7 - offset % 8;
+      }
+      offset++;
+    }
+  }
+  const entropyBits = 32 * words2.length / 3;
+  const checksumBits = words2.length / 3;
+  const checksumMask = getUpperMask(checksumBits);
+  const checksum = arrayify(sha256$1(entropy.slice(0, entropyBits / 8)))[0] & checksumMask;
+  if (checksum !== (entropy[entropy.length - 1] & checksumMask)) {
+    throw new Error("invalid checksum");
+  }
+  return hexlify(entropy.slice(0, entropyBits / 8));
+}
+function entropyToMnemonic(entropy, wordlist2) {
+  wordlist2 = getWordlist(wordlist2);
+  entropy = arrayify(entropy);
+  if (entropy.length % 4 !== 0 || entropy.length < 16 || entropy.length > 32) {
+    throw new Error("invalid entropy");
+  }
+  const indices = [0];
+  let remainingBits = 11;
+  for (let i = 0; i < entropy.length; i++) {
+    if (remainingBits > 8) {
+      indices[indices.length - 1] <<= 8;
+      indices[indices.length - 1] |= entropy[i];
+      remainingBits -= 8;
+    } else {
+      indices[indices.length - 1] <<= remainingBits;
+      indices[indices.length - 1] |= entropy[i] >> 8 - remainingBits;
+      indices.push(entropy[i] & getLowerMask(8 - remainingBits));
+      remainingBits += 3;
+    }
+  }
+  const checksumBits = entropy.length / 4;
+  const checksum = arrayify(sha256$1(entropy))[0] & getUpperMask(checksumBits);
+  indices[indices.length - 1] <<= checksumBits;
+  indices[indices.length - 1] |= checksum >> 8 - checksumBits;
+  return wordlist2.join(indices.map((index2) => wordlist2.getWord(index2)));
+}
+function isValidMnemonic(mnemonic, wordlist2) {
+  try {
+    mnemonicToEntropy(mnemonic, wordlist2);
+    return true;
+  } catch (error2) {
+  }
+  return false;
+}
+const version$5 = "random/5.1.0";
+const logger$a = new Logger(version$5);
+let anyGlobal = null;
+try {
+  anyGlobal = window;
+  if (anyGlobal == null) {
+    throw new Error("try next");
+  }
+} catch (error2) {
+  try {
+    anyGlobal = global;
+    if (anyGlobal == null) {
+      throw new Error("try next");
+    }
+  } catch (error3) {
+    anyGlobal = {};
+  }
+}
+let crypto = anyGlobal.crypto || anyGlobal.msCrypto;
+if (!crypto || !crypto.getRandomValues) {
+  logger$a.warn("WARNING: Missing strong random number source");
+  crypto = {
+    getRandomValues: function(buffer) {
+      return logger$a.throwError("no secure random source avaialble", Logger.errors.UNSUPPORTED_OPERATION, {
+        operation: "crypto.getRandomValues"
+      });
+    }
+  };
+}
+function randomBytes(length) {
+  if (length <= 0 || length > 1024 || length % 1) {
+    logger$a.throwArgumentError("invalid length", "length", length);
+  }
+  const result = new Uint8Array(length);
+  crypto.getRandomValues(result);
+  return arrayify(result);
 }
 function shuffled(array) {
   array = array.slice();
@@ -17291,8 +18482,81 @@ function shuffled(array) {
   }
   return array;
 }
+function isCrowdsaleWallet(json) {
+  let data2 = null;
+  try {
+    data2 = JSON.parse(json);
+  } catch (error2) {
+    return false;
+  }
+  return data2.encseed && data2.ethaddr;
+}
+function isKeystoreWallet(json) {
+  let data2 = null;
+  try {
+    data2 = JSON.parse(json);
+  } catch (error2) {
+    return false;
+  }
+  if (!data2.version || parseInt(data2.version) !== data2.version || parseInt(data2.version) !== 3) {
+    return false;
+  }
+  return true;
+}
+function getJsonWalletAddress(json) {
+  if (isCrowdsaleWallet(json)) {
+    try {
+      return getAddress(JSON.parse(json).ethaddr);
+    } catch (error2) {
+      return null;
+    }
+  }
+  if (isKeystoreWallet(json)) {
+    try {
+      return getAddress(JSON.parse(json).address);
+    } catch (error2) {
+      return null;
+    }
+  }
+  return null;
+}
+const version$4 = "wallet/5.1.0";
+(function(thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function(resolve2) {
+      resolve2(value);
+    });
+  }
+  return new (P || (P = Promise))(function(resolve2, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function step(result) {
+      result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+});
+new Logger(version$4);
+function verifyMessage(message, signature2) {
+  return recoverAddress(hashMessage(message), signature2);
+}
+function verifyTypedData(domain, types, value, signature2) {
+  return recoverAddress(TypedDataEncoder.hash(domain, types, value), signature2);
+}
 const version$3 = "networks/5.1.0";
-const logger$g = new Logger(version$3);
+const logger$9 = new Logger(version$3);
 function isRenetworkable(value) {
   return value && typeof value.renetwork === "function";
 }
@@ -17317,9 +18581,9 @@ function ethDefaultProvider(network) {
     if (providers.AlchemyProvider) {
       const skip = ["goerli", "ropsten", "rinkeby"];
       try {
-        const provider = new providers.AlchemyProvider(network, options.alchemy);
-        if (provider.network && skip.indexOf(provider.network.name) === -1) {
-          providerList.push(provider);
+        const provider2 = new providers.AlchemyProvider(network, options.alchemy);
+        if (provider2.network && skip.indexOf(provider2.network.name) === -1) {
+          providerList.push(provider2);
         }
       } catch (error2) {
       }
@@ -17327,9 +18591,9 @@ function ethDefaultProvider(network) {
     if (providers.PocketProvider) {
       const skip = ["goerli", "ropsten", "rinkeby"];
       try {
-        const provider = new providers.PocketProvider(network);
-        if (provider.network && skip.indexOf(provider.network.name) === -1) {
-          providerList.push(provider);
+        const provider2 = new providers.PocketProvider(network);
+        if (provider2.network && skip.indexOf(provider2.network.name) === -1) {
+          providerList.push(provider2);
         }
       } catch (error2) {
       }
@@ -17471,12 +18735,12 @@ function getNetwork(network) {
   const standard = networks[network.name];
   if (!standard) {
     if (typeof network.chainId !== "number") {
-      logger$g.throwArgumentError("invalid network chainId", "network", network);
+      logger$9.throwArgumentError("invalid network chainId", "network", network);
     }
     return network;
   }
   if (network.chainId !== 0 && network.chainId !== standard.chainId) {
-    logger$g.throwArgumentError("network chainId mismatch", "network", network);
+    logger$9.throwArgumentError("network chainId mismatch", "network", network);
   }
   let defaultProvider = network._defaultProvider || null;
   if (defaultProvider == null && standard._defaultProvider) {
@@ -17493,16 +18757,30 @@ function getNetwork(network) {
     _defaultProvider: defaultProvider
   };
 }
-function encode$1(data) {
-  data = arrayify(data);
+function decode$1(textData) {
+  textData = atob(textData);
+  const data2 = [];
+  for (let i = 0; i < textData.length; i++) {
+    data2.push(textData.charCodeAt(i));
+  }
+  return arrayify(data2);
+}
+function encode$1(data2) {
+  data2 = arrayify(data2);
   let textData = "";
-  for (let i = 0; i < data.length; i++) {
-    textData += String.fromCharCode(data[i]);
+  for (let i = 0; i < data2.length; i++) {
+    textData += String.fromCharCode(data2[i]);
   }
   return btoa(textData);
 }
+var index = /* @__PURE__ */ Object.freeze({
+  __proto__: null,
+  [Symbol.toStringTag]: "Module",
+  decode: decode$1,
+  encode: encode$1
+});
 const version$2 = "web/5.1.0";
-var __awaiter$8 = function(thisArg, _arguments, P, generator) {
+var __awaiter$5 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -17530,7 +18808,7 @@ var __awaiter$8 = function(thisArg, _arguments, P, generator) {
   });
 };
 function getUrl(href, options) {
-  return __awaiter$8(this, void 0, void 0, function* () {
+  return __awaiter$5(this, void 0, void 0, function* () {
     if (options == null) {
       options = {};
     }
@@ -17564,7 +18842,7 @@ function getUrl(href, options) {
     };
   });
 }
-var __awaiter$7 = function(thisArg, _arguments, P, generator) {
+var __awaiter$4 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -17591,7 +18869,7 @@ var __awaiter$7 = function(thisArg, _arguments, P, generator) {
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 };
-const logger$f = new Logger(version$2);
+const logger$8 = new Logger(version$2);
 function staller(duration) {
   return new Promise((resolve2) => {
     setTimeout(resolve2, duration);
@@ -17617,10 +18895,10 @@ function bodyify(value, type) {
 }
 function _fetchData(connection, body, processFunc) {
   const attemptLimit = typeof connection === "object" && connection.throttleLimit != null ? connection.throttleLimit : 12;
-  logger$f.assertArgument(attemptLimit > 0 && attemptLimit % 1 === 0, "invalid connection throttle limit", "connection.throttleLimit", attemptLimit);
+  logger$8.assertArgument(attemptLimit > 0 && attemptLimit % 1 === 0, "invalid connection throttle limit", "connection.throttleLimit", attemptLimit);
   const throttleCallback = typeof connection === "object" ? connection.throttleCallback : null;
   const throttleSlotInterval = typeof connection === "object" && typeof connection.throttleSlotInterval === "number" ? connection.throttleSlotInterval : 100;
-  logger$f.assertArgument(throttleSlotInterval > 0 && throttleSlotInterval % 1 === 0, "invalid connection throttle slot interval", "connection.throttleSlotInterval", throttleSlotInterval);
+  logger$8.assertArgument(throttleSlotInterval > 0 && throttleSlotInterval % 1 === 0, "invalid connection throttle slot interval", "connection.throttleSlotInterval", throttleSlotInterval);
   const headers = {};
   let url2 = null;
   const options = {
@@ -17632,7 +18910,7 @@ function _fetchData(connection, body, processFunc) {
     url2 = connection;
   } else if (typeof connection === "object") {
     if (connection == null || connection.url == null) {
-      logger$f.throwArgumentError("missing URL", "connection.url", connection);
+      logger$8.throwArgumentError("missing URL", "connection.url", connection);
     }
     url2 = connection.url;
     if (typeof connection.timeout === "number" && connection.timeout > 0) {
@@ -17649,7 +18927,7 @@ function _fetchData(connection, body, processFunc) {
     options.allowGzip = !!connection.allowGzip;
     if (connection.user != null && connection.password != null) {
       if (url2.substring(0, 6) !== "https:" && connection.allowInsecureAuthentication !== true) {
-        logger$f.throwError("basic authentication requires a secure https url", Logger.errors.INVALID_ARGUMENT, {argument: "url", url: url2, user: connection.user, password: "[REDACTED]"});
+        logger$8.throwError("basic authentication requires a secure https url", Logger.errors.INVALID_ARGUMENT, {argument: "url", url: url2, user: connection.user, password: "[REDACTED]"});
       }
       const authorization = connection.user + ":" + connection.password;
       headers["authorization"] = {
@@ -17683,7 +18961,7 @@ function _fetchData(connection, body, processFunc) {
             return;
           }
           timer2 = null;
-          reject(logger$f.makeError("timeout", Logger.errors.TIMEOUT, {
+          reject(logger$8.makeError("timeout", Logger.errors.TIMEOUT, {
             requestBody: bodyify(options.body, flatHeaders["content-type"]),
             requestMethod: options.method,
             timeout,
@@ -17702,7 +18980,7 @@ function _fetchData(connection, body, processFunc) {
     return {promise, cancel};
   }();
   const runningFetch = function() {
-    return __awaiter$7(this, void 0, void 0, function* () {
+    return __awaiter$4(this, void 0, void 0, function* () {
       for (let attempt = 0; attempt < attemptLimit; attempt++) {
         let response = null;
         try {
@@ -17728,7 +19006,7 @@ function _fetchData(connection, body, processFunc) {
           response = error2.response;
           if (response == null) {
             runningTimeout.cancel();
-            logger$f.throwError("missing response", Logger.errors.SERVER_ERROR, {
+            logger$8.throwError("missing response", Logger.errors.SERVER_ERROR, {
               requestBody: bodyify(options.body, flatHeaders["content-type"]),
               requestMethod: options.method,
               serverError: error2,
@@ -17741,7 +19019,7 @@ function _fetchData(connection, body, processFunc) {
           body2 = null;
         } else if (response.statusCode < 200 || response.statusCode >= 300) {
           runningTimeout.cancel();
-          logger$f.throwError("bad response", Logger.errors.SERVER_ERROR, {
+          logger$8.throwError("bad response", Logger.errors.SERVER_ERROR, {
             status: response.statusCode,
             headers: response.headers,
             body: bodyify(body2, response.headers ? response.headers["content-type"] : null),
@@ -17768,7 +19046,7 @@ function _fetchData(connection, body, processFunc) {
               }
             }
             runningTimeout.cancel();
-            logger$f.throwError("processing response error", Logger.errors.SERVER_ERROR, {
+            logger$8.throwError("processing response error", Logger.errors.SERVER_ERROR, {
               body: bodyify(body2, response.headers ? response.headers["content-type"] : null),
               error: error2,
               requestBody: bodyify(options.body, flatHeaders["content-type"]),
@@ -17780,7 +19058,7 @@ function _fetchData(connection, body, processFunc) {
         runningTimeout.cancel();
         return body2;
       }
-      return logger$f.throwError("failed response", Logger.errors.SERVER_ERROR, {
+      return logger$8.throwError("failed response", Logger.errors.SERVER_ERROR, {
         requestBody: bodyify(options.body, flatHeaders["content-type"]),
         requestMethod: options.method,
         url: url2
@@ -17796,7 +19074,7 @@ function fetchJson(connection, json, processFunc) {
       try {
         result = JSON.parse(toUtf8String(value));
       } catch (error2) {
-        logger$f.throwError("invalid JSON", Logger.errors.SERVER_ERROR, {
+        logger$8.throwError("invalid JSON", Logger.errors.SERVER_ERROR, {
           body: value,
           error: error2
         });
@@ -17924,17 +19202,17 @@ function prefixChk(prefix) {
   }
   return chk;
 }
-function encode2(prefix, words, LIMIT) {
+function encode2(prefix, words2, LIMIT) {
   LIMIT = LIMIT || 90;
-  if (prefix.length + 7 + words.length > LIMIT)
+  if (prefix.length + 7 + words2.length > LIMIT)
     throw new TypeError("Exceeds length limit");
   prefix = prefix.toLowerCase();
   var chk = prefixChk(prefix);
   if (typeof chk === "string")
     throw new Error(chk);
   var result = prefix + "1";
-  for (var i = 0; i < words.length; ++i) {
-    var x = words[i];
+  for (var i = 0; i < words2.length; ++i) {
+    var x = words2[i];
     if (x >> 5 !== 0)
       throw new Error("Non 5-bit word");
     chk = polymodStep(chk) ^ x;
@@ -17973,7 +19251,7 @@ function __decode(str, LIMIT) {
   var chk = prefixChk(prefix);
   if (typeof chk === "string")
     return chk;
-  var words = [];
+  var words2 = [];
   for (var i = 0; i < wordChars.length; ++i) {
     var c = wordChars.charAt(i);
     var v = ALPHABET_MAP[c];
@@ -17982,11 +19260,11 @@ function __decode(str, LIMIT) {
     chk = polymodStep(chk) ^ v;
     if (i + 6 >= wordChars.length)
       continue;
-    words.push(v);
+    words2.push(v);
   }
   if (chk !== 1)
     return "Invalid checksum for " + str;
-  return {prefix, words};
+  return {prefix, words: words2};
 }
 function decodeUnsafe() {
   var res = __decode.apply(null, arguments);
@@ -17999,13 +19277,13 @@ function decode(str) {
     return res;
   throw new Error(res);
 }
-function convert(data, inBits, outBits, pad3) {
+function convert(data2, inBits, outBits, pad3) {
   var value = 0;
   var bits = 0;
   var maxV = (1 << outBits) - 1;
   var result = [];
-  for (var i = 0; i < data.length; ++i) {
-    value = value << inBits | data[i];
+  for (var i = 0; i < data2.length; ++i) {
+    value = value << inBits | data2[i];
     bits += inBits;
     while (bits >= outBits) {
       bits -= outBits;
@@ -18035,13 +19313,13 @@ function toWords(bytes) {
     return res;
   throw new Error(res);
 }
-function fromWordsUnsafe(words) {
-  var res = convert(words, 5, 8, false);
+function fromWordsUnsafe(words2) {
+  var res = convert(words2, 5, 8, false);
   if (Array.isArray(res))
     return res;
 }
-function fromWords(words) {
-  var res = convert(words, 5, 8, false);
+function fromWords(words2) {
+  var res = convert(words2, 5, 8, false);
   if (Array.isArray(res))
     return res;
   throw new Error(res);
@@ -18056,10 +19334,10 @@ var bech32 = {
   fromWords
 };
 const version$1 = "providers/5.1.0";
-const logger$e = new Logger(version$1);
+const logger$7 = new Logger(version$1);
 class Formatter {
   constructor() {
-    logger$e.checkNew(new.target, Formatter);
+    logger$7.checkNew(new.target, Formatter);
     this.formats = this.getDefaultFormats();
   }
   getDefaultFormats() {
@@ -18067,9 +19345,9 @@ class Formatter {
     const address = this.address.bind(this);
     const bigNumber = this.bigNumber.bind(this);
     const blockTag = this.blockTag.bind(this);
-    const data = this.data.bind(this);
+    const data2 = this.data.bind(this);
     const hash = this.hash.bind(this);
-    const hex = this.hex.bind(this);
+    const hex2 = this.hex.bind(this);
     const number = this.number.bind(this);
     const strictData = (v) => {
       return this.data(v, true);
@@ -18088,12 +19366,12 @@ class Formatter {
       to: Formatter.allowNull(address, null),
       value: bigNumber,
       nonce: number,
-      data,
+      data: data2,
       r: Formatter.allowNull(this.uint256),
       s: Formatter.allowNull(this.uint256),
       v: Formatter.allowNull(number),
       creates: Formatter.allowNull(address, null),
-      raw: Formatter.allowNull(data)
+      raw: Formatter.allowNull(data2)
     };
     formats.transactionRequest = {
       from: Formatter.allowNull(address),
@@ -18112,7 +19390,7 @@ class Formatter {
       transactionHash: hash,
       address,
       topics: Formatter.arrayOf(hash),
-      data,
+      data: data2,
       logIndex: number,
       blockHash: hash
     };
@@ -18121,9 +19399,9 @@ class Formatter {
       from: Formatter.allowNull(this.address, null),
       contractAddress: Formatter.allowNull(address, null),
       transactionIndex: number,
-      root: Formatter.allowNull(hex),
+      root: Formatter.allowNull(hex2),
       gasUsed: bigNumber,
-      logsBloom: Formatter.allowNull(data),
+      logsBloom: Formatter.allowNull(data2),
       blockHash: hash,
       transactionHash: hash,
       logs: Formatter.arrayOf(this.receiptLog.bind(this)),
@@ -18137,12 +19415,12 @@ class Formatter {
       parentHash: hash,
       number,
       timestamp: number,
-      nonce: Formatter.allowNull(hex),
+      nonce: Formatter.allowNull(hex2),
       difficulty: this.difficulty.bind(this),
       gasLimit: bigNumber,
       gasUsed: bigNumber,
       miner: address,
-      extraData: data,
+      extraData: data2,
       transactions: Formatter.allowNull(Formatter.arrayOf(hash))
     };
     formats.blockWithTransactions = shallowCopy(formats.block);
@@ -18160,7 +19438,7 @@ class Formatter {
       transactionIndex: number,
       removed: Formatter.allowNull(this.boolean.bind(this)),
       address,
-      data: Formatter.allowFalsish(data, "0x"),
+      data: Formatter.allowFalsish(data2, "0x"),
       topics: Formatter.arrayOf(hash),
       transactionHash: hash,
       logIndex: number
@@ -18203,7 +19481,7 @@ class Formatter {
         return value.toLowerCase();
       }
     }
-    return logger$e.throwArgumentError("invalid hash", "value", value);
+    return logger$7.throwArgumentError("invalid hash", "value", value);
   }
   data(value, strict) {
     const result = this.hex(value, strict);
@@ -18243,7 +19521,7 @@ class Formatter {
   hash(value, strict) {
     const result = this.hex(value, strict);
     if (hexDataLength(result) !== 32) {
-      return logger$e.throwArgumentError("invalid hash", "value", value);
+      return logger$7.throwArgumentError("invalid hash", "value", value);
     }
     return result;
   }
@@ -18340,15 +19618,15 @@ class Formatter {
         const value2 = BigNumber.from(result.root).toNumber();
         if (value2 === 0 || value2 === 1) {
           if (result.status != null && result.status !== value2) {
-            logger$e.throwArgumentError("alt-root-status/status mismatch", "value", {root: result.root, status: result.status});
+            logger$7.throwArgumentError("alt-root-status/status mismatch", "value", {root: result.root, status: result.status});
           }
           result.status = value2;
           delete result.root;
         } else {
-          logger$e.throwArgumentError("invalid alt-root-status", "value.root", result.root);
+          logger$7.throwArgumentError("invalid alt-root-status", "value.root", result.root);
         }
       } else if (result.root.length !== 66) {
-        logger$e.throwArgumentError("invalid root hash", "value.root", result.root);
+        logger$7.throwArgumentError("invalid root hash", "value.root", result.root);
       }
     }
     if (result.status != null) {
@@ -18415,12 +19693,6 @@ class Formatter {
     };
   }
 }
-function isCommunityResourcable(value) {
-  return value && typeof value.isCommunityResource === "function";
-}
-function isCommunityResource(value) {
-  return isCommunityResourcable(value) && value.isCommunityResource();
-}
 let throttleMessage = false;
 function showThrottleMessage() {
   if (throttleMessage) {
@@ -18440,7 +19712,7 @@ function showThrottleMessage() {
   console.log("For more details: https://docs.ethers.io/api-keys/");
   console.log("==========================");
 }
-var __awaiter$6 = function(thisArg, _arguments, P, generator) {
+var __awaiter$3 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -18467,13 +19739,13 @@ var __awaiter$6 = function(thisArg, _arguments, P, generator) {
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 };
-const logger$d = new Logger(version$1);
+const logger$6 = new Logger(version$1);
 function checkTopic(topic) {
   if (topic == null) {
     return "null";
   }
   if (hexDataLength(topic) !== 32) {
-    logger$d.throwArgumentError("invalid topic", "topic", topic);
+    logger$6.throwArgumentError("invalid topic", "topic", topic);
   }
   return topic.toLowerCase();
 }
@@ -18496,11 +19768,11 @@ function serializeTopics(topics) {
     }
   }).join("&");
 }
-function deserializeTopics(data) {
-  if (data === "") {
+function deserializeTopics(data2) {
+  if (data2 === "") {
     return [];
   }
-  return data.split(/&/g).map((topic) => {
+  return data2.split(/&/g).map((topic) => {
     if (topic === "") {
       return [];
     }
@@ -18522,7 +19794,7 @@ function getEventTag(eventName) {
   } else if (Array.isArray(eventName)) {
     return "filter:*:" + serializeTopics(eventName);
   } else if (ForkEvent.isForkEvent(eventName)) {
-    logger$d.warn("not implemented");
+    logger$6.warn("not implemented");
     throw new Error("not implemented");
   } else if (eventName && typeof eventName === "object") {
     return "filter:" + (eventName.address || "*") + ":" + serializeTopics(eventName.topics || []);
@@ -18532,7 +19804,7 @@ function getEventTag(eventName) {
 function getTime() {
   return new Date().getTime();
 }
-function stall$1(duration) {
+function stall(duration) {
   return new Promise((resolve2) => {
     setTimeout(resolve2, duration);
   });
@@ -18594,17 +19866,17 @@ const coinInfos = {
 function bytes32ify(value) {
   return hexZeroPad(BigNumber.from(value).toHexString(), 32);
 }
-function base58Encode(data) {
-  return Base58.encode(concat([data, hexDataSlice(sha256(sha256(data)), 0, 4)]));
+function base58Encode(data2) {
+  return Base58.encode(concat([data2, hexDataSlice(sha256$1(sha256$1(data2)), 0, 4)]));
 }
 class Resolver {
-  constructor(provider, address, name2) {
-    defineReadOnly(this, "provider", provider);
+  constructor(provider2, address, name2) {
+    defineReadOnly(this, "provider", provider2);
     defineReadOnly(this, "name", name2);
-    defineReadOnly(this, "address", provider.formatter.address(address));
+    defineReadOnly(this, "address", provider2.formatter.address(address));
   }
   _fetchBytes(selector, parameters) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       const transaction = {
         to: this.address,
         data: hexConcat([selector, namehash(this.name), parameters || "0x"])
@@ -18621,7 +19893,7 @@ class Resolver {
   _getAddress(coinType, hexBytes) {
     const coinInfo = coinInfos[String(coinType)];
     if (coinInfo == null) {
-      logger$d.throwError(`unsupported coin type: ${coinType}`, Logger.errors.UNSUPPORTED_OPERATION, {
+      logger$6.throwError(`unsupported coin type: ${coinType}`, Logger.errors.UNSUPPORTED_OPERATION, {
         operation: `getAddress(${coinType})`
       });
     }
@@ -18658,15 +19930,15 @@ class Resolver {
         version2 = -1;
       }
       if (version2 >= 0 && bytes.length === 2 + length && length >= 1 && length <= 75) {
-        const words = bech32.toWords(bytes.slice(2));
-        words.unshift(version2);
-        return bech32.encode(coinInfo.prefix, words);
+        const words2 = bech32.toWords(bytes.slice(2));
+        words2.unshift(version2);
+        return bech32.encode(coinInfo.prefix, words2);
       }
     }
     return null;
   }
   getAddress(coinType) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       if (coinType == null) {
         coinType = 60;
       }
@@ -18687,7 +19959,7 @@ class Resolver {
       }
       const address = this._getAddress(coinType, hexBytes);
       if (address == null) {
-        logger$d.throwError(`invalid or unsupported coin data`, Logger.errors.UNSUPPORTED_OPERATION, {
+        logger$6.throwError(`invalid or unsupported coin data`, Logger.errors.UNSUPPORTED_OPERATION, {
           operation: `getAddress(${coinType})`,
           coinType,
           data: hexBytes
@@ -18697,7 +19969,7 @@ class Resolver {
     });
   }
   getContentHash() {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       const hexBytes = yield this._fetchBytes("0xbc1c58d1");
       if (hexBytes == null || hexBytes === "0x") {
         return null;
@@ -18715,14 +19987,14 @@ class Resolver {
           return "bzz://" + swarm[1];
         }
       }
-      return logger$d.throwError(`invalid or unsupported content hash data`, Logger.errors.UNSUPPORTED_OPERATION, {
+      return logger$6.throwError(`invalid or unsupported content hash data`, Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "getContentHash()",
         data: hexBytes
       });
     });
   }
   getText(key2) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       let keyBytes = toUtf8Bytes(key2);
       keyBytes = concat([bytes32ify(64), bytes32ify(keyBytes.length), keyBytes]);
       if (keyBytes.length % 32 !== 0) {
@@ -18740,7 +20012,7 @@ let defaultFormatter = null;
 let nextPollId = 1;
 class BaseProvider extends Provider {
   constructor(network) {
-    logger$d.checkNew(new.target, Provider);
+    logger$6.checkNew(new.target, Provider);
     super();
     this._events = [];
     this._emitted = {block: -2};
@@ -18761,7 +20033,7 @@ class BaseProvider extends Provider {
         defineReadOnly(this, "_network", knownNetwork);
         this.emit("network", knownNetwork, null);
       } else {
-        logger$d.throwArgumentError("invalid network", "network", network);
+        logger$6.throwArgumentError("invalid network", "network", network);
       }
     }
     this._maxInternalBlockNumber = -1024;
@@ -18770,7 +20042,7 @@ class BaseProvider extends Provider {
     this._fastQueryDate = 0;
   }
   _ready() {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       if (this._network == null) {
         let network = null;
         if (this._networkPromise) {
@@ -18783,7 +20055,7 @@ class BaseProvider extends Provider {
           network = yield this.detectNetwork();
         }
         if (!network) {
-          logger$d.throwError("no network detected", Logger.errors.UNKNOWN_ERROR, {});
+          logger$6.throwError("no network detected", Logger.errors.UNKNOWN_ERROR, {});
         }
         if (this._network == null) {
           if (this.anyNetwork) {
@@ -18819,7 +20091,7 @@ class BaseProvider extends Provider {
     return getNetwork(network == null ? "homestead" : network);
   }
   _getInternalBlockNumber(maxAge) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this._ready();
       if (maxAge > 0) {
         while (this._internalBlockNumber) {
@@ -18867,7 +20139,7 @@ class BaseProvider extends Provider {
     });
   }
   poll() {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       const pollId = nextPollId++;
       const runners = [];
       let blockNumber = null;
@@ -18887,8 +20159,8 @@ class BaseProvider extends Provider {
         this._emitted.block = blockNumber - 1;
       }
       if (Math.abs(this._emitted.block - blockNumber) > 1e3) {
-        logger$d.warn("network block skew detected; skipping block events");
-        this.emit("error", logger$d.makeError("network block skew detected", Logger.errors.NETWORK_ERROR, {
+        logger$6.warn("network block skew detected; skipping block events");
+        this.emit("error", logger$6.makeError("network block skew detected", Logger.errors.NETWORK_ERROR, {
           blockNumber,
           event: "blockSkew",
           previousBlockNumber: this._emitted.block
@@ -18974,14 +20246,14 @@ class BaseProvider extends Provider {
     return this._network;
   }
   detectNetwork() {
-    return __awaiter$6(this, void 0, void 0, function* () {
-      return logger$d.throwError("provider does not support network detection", Logger.errors.UNSUPPORTED_OPERATION, {
+    return __awaiter$3(this, void 0, void 0, function* () {
+      return logger$6.throwError("provider does not support network detection", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "provider.detectNetwork"
       });
     });
   }
   getNetwork() {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       const network = yield this._ready();
       const currentNetwork = yield this.detectNetwork();
       if (network.chainId !== currentNetwork.chainId) {
@@ -18995,10 +20267,10 @@ class BaseProvider extends Provider {
           this._maxInternalBlockNumber = -1024;
           this._internalBlockNumber = null;
           this.emit("network", currentNetwork, network);
-          yield stall$1(0);
+          yield stall(0);
           return this._network;
         }
-        const error2 = logger$d.makeError("underlying network changed", Logger.errors.NETWORK_ERROR, {
+        const error2 = logger$6.makeError("underlying network changed", Logger.errors.NETWORK_ERROR, {
           event: "changed",
           network,
           detectedNetwork: currentNetwork
@@ -19056,9 +20328,9 @@ class BaseProvider extends Provider {
     }
   }
   _getFastBlockNumber() {
-    const now2 = getTime();
-    if (now2 - this._fastQueryDate > 2 * this._pollingInterval) {
-      this._fastQueryDate = now2;
+    const now = getTime();
+    if (now - this._fastQueryDate > 2 * this._pollingInterval) {
+      this._fastQueryDate = now;
       this._fastBlockNumberPromise = this.getBlockNumber().then((blockNumber) => {
         if (this._fastBlockNumber == null || blockNumber > this._fastBlockNumber) {
           this._fastBlockNumber = blockNumber;
@@ -19079,7 +20351,7 @@ class BaseProvider extends Provider {
     }
   }
   waitForTransaction(transactionHash, confirmations, timeout) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       if (confirmations == null) {
         confirmations = 1;
       }
@@ -19113,7 +20385,7 @@ class BaseProvider extends Provider {
             timer2 = null;
             done = true;
             this.removeListener(transactionHash, handler);
-            reject(logger$d.makeError("timeout exceeded", Logger.errors.TIMEOUT, {timeout}));
+            reject(logger$6.makeError("timeout exceeded", Logger.errors.TIMEOUT, {timeout}));
           }, timeout);
           if (timer2.unref) {
             timer2.unref();
@@ -19123,18 +20395,18 @@ class BaseProvider extends Provider {
     });
   }
   getBlockNumber() {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       return this._getInternalBlockNumber(0);
     });
   }
   getGasPrice() {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       const result = yield this.perform("getGasPrice", {});
       try {
         return BigNumber.from(result);
       } catch (error2) {
-        return logger$d.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
+        return logger$6.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
           method: "getGasPrice",
           result,
           error: error2
@@ -19143,7 +20415,7 @@ class BaseProvider extends Provider {
     });
   }
   getBalance(addressOrName, blockTag) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       const params = yield resolveProperties({
         address: this._getAddress(addressOrName),
@@ -19153,7 +20425,7 @@ class BaseProvider extends Provider {
       try {
         return BigNumber.from(result);
       } catch (error2) {
-        return logger$d.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
+        return logger$6.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
           method: "getBalance",
           params,
           result,
@@ -19163,7 +20435,7 @@ class BaseProvider extends Provider {
     });
   }
   getTransactionCount(addressOrName, blockTag) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       const params = yield resolveProperties({
         address: this._getAddress(addressOrName),
@@ -19173,7 +20445,7 @@ class BaseProvider extends Provider {
       try {
         return BigNumber.from(result).toNumber();
       } catch (error2) {
-        return logger$d.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
+        return logger$6.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
           method: "getTransactionCount",
           params,
           result,
@@ -19183,7 +20455,7 @@ class BaseProvider extends Provider {
     });
   }
   getCode(addressOrName, blockTag) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       const params = yield resolveProperties({
         address: this._getAddress(addressOrName),
@@ -19193,7 +20465,7 @@ class BaseProvider extends Provider {
       try {
         return hexlify(result);
       } catch (error2) {
-        return logger$d.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
+        return logger$6.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
           method: "getCode",
           params,
           result,
@@ -19203,7 +20475,7 @@ class BaseProvider extends Provider {
     });
   }
   getStorageAt(addressOrName, position, blockTag) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       const params = yield resolveProperties({
         address: this._getAddress(addressOrName),
@@ -19214,7 +20486,7 @@ class BaseProvider extends Provider {
       try {
         return hexlify(result);
       } catch (error2) {
-        return logger$d.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
+        return logger$6.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
           method: "getStorageAt",
           params,
           result,
@@ -19229,9 +20501,9 @@ class BaseProvider extends Provider {
     }
     const result = tx;
     if (hash != null && tx.hash !== hash) {
-      logger$d.throwError("Transaction hash mismatch from Provider.sendTransaction.", Logger.errors.UNKNOWN_ERROR, {expectedHash: tx.hash, returnedHash: hash});
+      logger$6.throwError("Transaction hash mismatch from Provider.sendTransaction.", Logger.errors.UNKNOWN_ERROR, {expectedHash: tx.hash, returnedHash: hash});
     }
-    result.wait = (confirmations) => __awaiter$6(this, void 0, void 0, function* () {
+    result.wait = (confirmations) => __awaiter$3(this, void 0, void 0, function* () {
       if (confirmations !== 0) {
         this._emitted["t:" + tx.hash] = "pending";
       }
@@ -19241,7 +20513,7 @@ class BaseProvider extends Provider {
       }
       this._emitted["t:" + tx.hash] = receipt.blockNumber;
       if (receipt.status === 0) {
-        logger$d.throwError("transaction failed", Logger.errors.CALL_EXCEPTION, {
+        logger$6.throwError("transaction failed", Logger.errors.CALL_EXCEPTION, {
           transactionHash: tx.hash,
           transaction: tx,
           receipt
@@ -19252,7 +20524,7 @@ class BaseProvider extends Provider {
     return result;
   }
   sendTransaction(signedTransaction) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       const hexTx = yield Promise.resolve(signedTransaction).then((t) => hexlify(t));
       const tx = this.formatter.transaction(signedTransaction);
@@ -19267,7 +20539,7 @@ class BaseProvider extends Provider {
     });
   }
   _getTransactionRequest(transaction) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       const values = yield transaction;
       const tx = {};
       ["from", "to"].forEach((key2) => {
@@ -19301,7 +20573,7 @@ class BaseProvider extends Provider {
     });
   }
   _getFilter(filter) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       filter = yield filter;
       const result = {};
       if (filter.address != null) {
@@ -19323,7 +20595,7 @@ class BaseProvider extends Provider {
     });
   }
   call(transaction, blockTag) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       const params = yield resolveProperties({
         transaction: this._getTransactionRequest(transaction),
@@ -19333,7 +20605,7 @@ class BaseProvider extends Provider {
       try {
         return hexlify(result);
       } catch (error2) {
-        return logger$d.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
+        return logger$6.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
           method: "call",
           params,
           result,
@@ -19343,7 +20615,7 @@ class BaseProvider extends Provider {
     });
   }
   estimateGas(transaction) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       const params = yield resolveProperties({
         transaction: this._getTransactionRequest(transaction)
@@ -19352,7 +20624,7 @@ class BaseProvider extends Provider {
       try {
         return BigNumber.from(result);
       } catch (error2) {
-        return logger$d.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
+        return logger$6.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
           method: "estimateGas",
           params,
           result,
@@ -19362,10 +20634,10 @@ class BaseProvider extends Provider {
     });
   }
   _getAddress(addressOrName) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       const address = yield this.resolveName(addressOrName);
       if (address == null) {
-        logger$d.throwError("ENS name not configured", Logger.errors.UNSUPPORTED_OPERATION, {
+        logger$6.throwError("ENS name not configured", Logger.errors.UNSUPPORTED_OPERATION, {
           operation: `resolveName(${JSON.stringify(addressOrName)})`
         });
       }
@@ -19373,7 +20645,7 @@ class BaseProvider extends Provider {
     });
   }
   _getBlock(blockHashOrBlockTag, includeTransactions) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       blockHashOrBlockTag = yield blockHashOrBlockTag;
       let blockNumber = -128;
@@ -19389,10 +20661,10 @@ class BaseProvider extends Provider {
             blockNumber = parseInt(params.blockTag.substring(2), 16);
           }
         } catch (error2) {
-          logger$d.throwArgumentError("invalid block hash or block tag", "blockHashOrBlockTag", blockHashOrBlockTag);
+          logger$6.throwArgumentError("invalid block hash or block tag", "blockHashOrBlockTag", blockHashOrBlockTag);
         }
       }
-      return poll(() => __awaiter$6(this, void 0, void 0, function* () {
+      return poll(() => __awaiter$3(this, void 0, void 0, function* () {
         const block = yield this.perform("getBlock", params);
         if (block == null) {
           if (params.blockHash != null) {
@@ -19437,11 +20709,11 @@ class BaseProvider extends Provider {
     return this._getBlock(blockHashOrBlockTag, true);
   }
   getTransaction(transactionHash) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       transactionHash = yield transactionHash;
       const params = {transactionHash: this.formatter.hash(transactionHash, true)};
-      return poll(() => __awaiter$6(this, void 0, void 0, function* () {
+      return poll(() => __awaiter$3(this, void 0, void 0, function* () {
         const result = yield this.perform("getTransaction", params);
         if (result == null) {
           if (this._emitted["t:" + transactionHash] == null) {
@@ -19465,11 +20737,11 @@ class BaseProvider extends Provider {
     });
   }
   getTransactionReceipt(transactionHash) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       transactionHash = yield transactionHash;
       const params = {transactionHash: this.formatter.hash(transactionHash, true)};
-      return poll(() => __awaiter$6(this, void 0, void 0, function* () {
+      return poll(() => __awaiter$3(this, void 0, void 0, function* () {
         const result = yield this.perform("getTransactionReceipt", params);
         if (result == null) {
           if (this._emitted["t:" + transactionHash] == null) {
@@ -19496,7 +20768,7 @@ class BaseProvider extends Provider {
     });
   }
   getLogs(filter) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       const params = yield resolveProperties({filter: this._getFilter(filter)});
       const logs = yield this.perform("getLogs", params);
@@ -19509,17 +20781,17 @@ class BaseProvider extends Provider {
     });
   }
   getEtherPrice() {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       yield this.getNetwork();
       return this.perform("getEtherPrice", {});
     });
   }
   _getBlockTag(blockTag) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       blockTag = yield blockTag;
       if (typeof blockTag === "number" && blockTag < 0) {
         if (blockTag % 1) {
-          logger$d.throwArgumentError("invalid BlockTag", "blockTag", blockTag);
+          logger$6.throwArgumentError("invalid BlockTag", "blockTag", blockTag);
         }
         let blockNumber = yield this._getInternalBlockNumber(100 + 2 * this.pollingInterval);
         blockNumber += blockTag;
@@ -19532,7 +20804,7 @@ class BaseProvider extends Provider {
     });
   }
   getResolver(name2) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       const address = yield this._getResolver(name2);
       if (address == null) {
         return null;
@@ -19541,10 +20813,10 @@ class BaseProvider extends Provider {
     });
   }
   _getResolver(name2) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       const network = yield this.getNetwork();
       if (!network.ensAddress) {
-        logger$d.throwError("network does not support ENS", Logger.errors.UNSUPPORTED_OPERATION, {operation: "ENS", network: network.name});
+        logger$6.throwError("network does not support ENS", Logger.errors.UNSUPPORTED_OPERATION, {operation: "ENS", network: network.name});
       }
       const transaction = {
         to: network.ensAddress,
@@ -19554,7 +20826,7 @@ class BaseProvider extends Provider {
     });
   }
   resolveName(name2) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       name2 = yield name2;
       try {
         return Promise.resolve(this.formatter.address(name2));
@@ -19564,7 +20836,7 @@ class BaseProvider extends Provider {
         }
       }
       if (typeof name2 !== "string") {
-        logger$d.throwArgumentError("invalid ENS name", "name", name2);
+        logger$6.throwArgumentError("invalid ENS name", "name", name2);
       }
       const resolver = yield this.getResolver(name2);
       if (!resolver) {
@@ -19574,7 +20846,7 @@ class BaseProvider extends Provider {
     });
   }
   lookupAddress(address) {
-    return __awaiter$6(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       address = yield address;
       address = this.formatter.address(address);
       const reverseName = address.substring(2).toLowerCase() + ".addr.reverse";
@@ -19607,7 +20879,7 @@ class BaseProvider extends Provider {
     });
   }
   perform(method, params) {
-    return logger$d.throwError(method + " not implemented", Logger.errors.NOT_IMPLEMENTED, {operation: method});
+    return logger$6.throwError(method + " not implemented", Logger.errors.NOT_IMPLEMENTED, {operation: method});
   }
   _startEvent(event) {
     this.polling = this._events.filter((e) => e.pollable()).length > 0;
@@ -19710,7 +20982,7 @@ class BaseProvider extends Provider {
     return this;
   }
 }
-var __awaiter$5 = function(thisArg, _arguments, P, generator) {
+var __awaiter$2 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -19737,9 +21009,9 @@ var __awaiter$5 = function(thisArg, _arguments, P, generator) {
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 };
-const logger$c = new Logger(version$1);
+const logger$5 = new Logger(version$1);
 const errorGas = ["call", "estimateGas"];
-function checkError$1(method, error2, params) {
+function checkError(method, error2, params) {
   if (method === "call" && error2.code === Logger.errors.SERVER_ERROR) {
     const e = error2.error;
     if (e && e.message.match("reverted") && isHexString(e.data)) {
@@ -19757,28 +21029,28 @@ function checkError$1(method, error2, params) {
   message = (message || "").toLowerCase();
   const transaction = params.transaction || params.signedTransaction;
   if (message.match(/insufficient funds/)) {
-    logger$c.throwError("insufficient funds for intrinsic transaction cost", Logger.errors.INSUFFICIENT_FUNDS, {
+    logger$5.throwError("insufficient funds for intrinsic transaction cost", Logger.errors.INSUFFICIENT_FUNDS, {
       error: error2,
       method,
       transaction
     });
   }
   if (message.match(/nonce too low/)) {
-    logger$c.throwError("nonce has already been used", Logger.errors.NONCE_EXPIRED, {
+    logger$5.throwError("nonce has already been used", Logger.errors.NONCE_EXPIRED, {
       error: error2,
       method,
       transaction
     });
   }
   if (message.match(/replacement transaction underpriced/)) {
-    logger$c.throwError("replacement fee too low", Logger.errors.REPLACEMENT_UNDERPRICED, {
+    logger$5.throwError("replacement fee too low", Logger.errors.REPLACEMENT_UNDERPRICED, {
       error: error2,
       method,
       transaction
     });
   }
   if (errorGas.indexOf(method) >= 0 && message.match(/gas required exceeds allowance|always failing transaction|execution reverted/)) {
-    logger$c.throwError("cannot estimate gas; transaction may fail or may require manual gas limit", Logger.errors.UNPREDICTABLE_GAS_LIMIT, {
+    logger$5.throwError("cannot estimate gas; transaction may fail or may require manual gas limit", Logger.errors.UNPREDICTABLE_GAS_LIMIT, {
       error: error2,
       method,
       transaction
@@ -19791,7 +21063,7 @@ function timer(timeout) {
     setTimeout(resolve2, timeout);
   });
 }
-function getResult$1(payload) {
+function getResult(payload) {
   if (payload.error) {
     const error2 = new Error(payload.error.message);
     error2.code = payload.error.code;
@@ -19808,13 +21080,13 @@ function getLowerCase(value) {
 }
 const _constructorGuard = {};
 class JsonRpcSigner extends Signer {
-  constructor(constructorGuard, provider, addressOrIndex) {
-    logger$c.checkNew(new.target, JsonRpcSigner);
+  constructor(constructorGuard, provider2, addressOrIndex) {
+    logger$5.checkNew(new.target, JsonRpcSigner);
     super();
     if (constructorGuard !== _constructorGuard) {
       throw new Error("do not call the JsonRpcSigner constructor directly; use provider.getSigner");
     }
-    defineReadOnly(this, "provider", provider);
+    defineReadOnly(this, "provider", provider2);
     if (addressOrIndex == null) {
       addressOrIndex = 0;
     }
@@ -19825,11 +21097,11 @@ class JsonRpcSigner extends Signer {
       defineReadOnly(this, "_index", addressOrIndex);
       defineReadOnly(this, "_address", null);
     } else {
-      logger$c.throwArgumentError("invalid address or index", "addressOrIndex", addressOrIndex);
+      logger$5.throwArgumentError("invalid address or index", "addressOrIndex", addressOrIndex);
     }
   }
-  connect(provider) {
-    return logger$c.throwError("cannot alter JSON-RPC Signer connection", Logger.errors.UNSUPPORTED_OPERATION, {
+  connect(provider2) {
+    return logger$5.throwError("cannot alter JSON-RPC Signer connection", Logger.errors.UNSUPPORTED_OPERATION, {
       operation: "connect"
     });
   }
@@ -19842,7 +21114,7 @@ class JsonRpcSigner extends Signer {
     }
     return this.provider.send("eth_accounts", []).then((accounts) => {
       if (accounts.length <= this._index) {
-        logger$c.throwError("unknown account #" + this._index, Logger.errors.UNSUPPORTED_OPERATION, {
+        logger$5.throwError("unknown account #" + this._index, Logger.errors.UNSUPPORTED_OPERATION, {
           operation: "getAddress"
         });
       }
@@ -19868,7 +21140,7 @@ class JsonRpcSigner extends Signer {
     }).then(({tx, sender}) => {
       if (tx.from != null) {
         if (tx.from.toLowerCase() !== sender) {
-          logger$c.throwArgumentError("from address mismatch", "transaction", transaction);
+          logger$5.throwArgumentError("from address mismatch", "transaction", transaction);
         }
       } else {
         tx.from = sender;
@@ -19877,12 +21149,12 @@ class JsonRpcSigner extends Signer {
       return this.provider.send("eth_sendTransaction", [hexTx]).then((hash) => {
         return hash;
       }, (error2) => {
-        return checkError$1("sendTransaction", error2, hexTx);
+        return checkError("sendTransaction", error2, hexTx);
       });
     });
   }
   signTransaction(transaction) {
-    return logger$c.throwError("signing transactions is unsupported", Logger.errors.UNSUPPORTED_OPERATION, {
+    return logger$5.throwError("signing transactions is unsupported", Logger.errors.UNSUPPORTED_OPERATION, {
       operation: "signTransaction"
     });
   }
@@ -19902,14 +21174,14 @@ class JsonRpcSigner extends Signer {
     });
   }
   signMessage(message) {
-    return __awaiter$5(this, void 0, void 0, function* () {
-      const data = typeof message === "string" ? toUtf8Bytes(message) : message;
+    return __awaiter$2(this, void 0, void 0, function* () {
+      const data2 = typeof message === "string" ? toUtf8Bytes(message) : message;
       const address = yield this.getAddress();
-      return yield this.provider.send("eth_sign", [address.toLowerCase(), hexlify(data)]);
+      return yield this.provider.send("eth_sign", [address.toLowerCase(), hexlify(data2)]);
     });
   }
   _signTypedData(domain, types, value) {
-    return __awaiter$5(this, void 0, void 0, function* () {
+    return __awaiter$2(this, void 0, void 0, function* () {
       const populated = yield TypedDataEncoder.resolveNames(domain, types, value, (name2) => {
         return this.provider.resolveName(name2);
       });
@@ -19921,10 +21193,10 @@ class JsonRpcSigner extends Signer {
     });
   }
   unlock(password) {
-    return __awaiter$5(this, void 0, void 0, function* () {
-      const provider = this.provider;
+    return __awaiter$2(this, void 0, void 0, function* () {
+      const provider2 = this.provider;
       const address = yield this.getAddress();
-      return provider.send("personal_unlockAccount", [address.toLowerCase(), password, null]);
+      return provider2.send("personal_unlockAccount", [address.toLowerCase(), password, null]);
     });
   }
 }
@@ -19961,7 +21233,7 @@ const allowedTransactionKeys = {
 };
 class JsonRpcProvider extends BaseProvider {
   constructor(url2, network) {
-    logger$c.checkNew(new.target, JsonRpcProvider);
+    logger$5.checkNew(new.target, JsonRpcProvider);
     let networkOrReady = network;
     if (networkOrReady == null) {
       networkOrReady = new Promise((resolve2, reject) => {
@@ -19991,7 +21263,7 @@ class JsonRpcProvider extends BaseProvider {
     return "http://localhost:8545";
   }
   detectNetwork() {
-    return __awaiter$5(this, void 0, void 0, function* () {
+    return __awaiter$2(this, void 0, void 0, function* () {
       yield timer(0);
       let chainId = null;
       try {
@@ -20007,14 +21279,14 @@ class JsonRpcProvider extends BaseProvider {
         try {
           return getNetwork2(BigNumber.from(chainId).toNumber());
         } catch (error2) {
-          return logger$c.throwError("could not detect network", Logger.errors.NETWORK_ERROR, {
+          return logger$5.throwError("could not detect network", Logger.errors.NETWORK_ERROR, {
             chainId,
             event: "invalidNetwork",
             serverError: error2
           });
         }
       }
-      return logger$c.throwError("could not detect network", Logger.errors.NETWORK_ERROR, {
+      return logger$5.throwError("could not detect network", Logger.errors.NETWORK_ERROR, {
         event: "noNetwork"
       });
     });
@@ -20042,7 +21314,7 @@ class JsonRpcProvider extends BaseProvider {
       request: deepCopy(request),
       provider: this
     });
-    return fetchJson(this.connection, JSON.stringify(request), getResult$1).then((result) => {
+    return fetchJson(this.connection, JSON.stringify(request), getResult).then((result) => {
       this.emit("debug", {
         action: "response",
         request,
@@ -20104,15 +21376,15 @@ class JsonRpcProvider extends BaseProvider {
     return null;
   }
   perform(method, params) {
-    return __awaiter$5(this, void 0, void 0, function* () {
+    return __awaiter$2(this, void 0, void 0, function* () {
       const args = this.prepareRequest(method, params);
       if (args == null) {
-        logger$c.throwError(method + " not implemented", Logger.errors.NOT_IMPLEMENTED, {operation: method});
+        logger$5.throwError(method + " not implemented", Logger.errors.NOT_IMPLEMENTED, {operation: method});
       }
       try {
         return yield this.send(args[0], args[1]);
       } catch (error2) {
-        return checkError$1(method, error2, params);
+        return checkError(method, error2, params);
       }
     });
   }
@@ -20218,7 +21490,7 @@ try {
     });
   };
 }
-var __awaiter$4 = function(thisArg, _arguments, P, generator) {
+var __awaiter$1 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -20245,12 +21517,12 @@ var __awaiter$4 = function(thisArg, _arguments, P, generator) {
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 };
-const logger$b = new Logger(version$1);
+const logger$4 = new Logger(version$1);
 let NextId = 1;
 class WebSocketProvider extends JsonRpcProvider {
   constructor(url2, network) {
     if (network === "any") {
-      logger$b.throwError("WebSocketProvider does not support 'any' network yet", Logger.errors.UNSUPPORTED_OPERATION, {
+      logger$4.throwError("WebSocketProvider does not support 'any' network yet", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "network:any"
       });
     }
@@ -20269,8 +21541,8 @@ class WebSocketProvider extends JsonRpcProvider {
       });
     };
     this._websocket.onmessage = (messageEvent) => {
-      const data = messageEvent.data;
-      const result = JSON.parse(data);
+      const data2 = messageEvent.data;
+      const result = JSON.parse(data2);
       if (result.id != null) {
         const id2 = String(result.id);
         const request = this._requests[id2];
@@ -20288,7 +21560,7 @@ class WebSocketProvider extends JsonRpcProvider {
           if (result.error) {
             error2 = new Error(result.error.message || "unknown error");
             defineReadOnly(error2, "code", result.error.code || null);
-            defineReadOnly(error2, "response", data);
+            defineReadOnly(error2, "response", data2);
           } else {
             error2 = new Error("unknown error");
           }
@@ -20323,17 +21595,17 @@ class WebSocketProvider extends JsonRpcProvider {
     return 0;
   }
   resetEventsBlock(blockNumber) {
-    logger$b.throwError("cannot reset events block on WebSocketProvider", Logger.errors.UNSUPPORTED_OPERATION, {
+    logger$4.throwError("cannot reset events block on WebSocketProvider", Logger.errors.UNSUPPORTED_OPERATION, {
       operation: "resetEventBlock"
     });
   }
   set pollingInterval(value) {
-    logger$b.throwError("cannot set polling interval on WebSocketProvider", Logger.errors.UNSUPPORTED_OPERATION, {
+    logger$4.throwError("cannot set polling interval on WebSocketProvider", Logger.errors.UNSUPPORTED_OPERATION, {
       operation: "setPollingInterval"
     });
   }
   poll() {
-    return __awaiter$4(this, void 0, void 0, function* () {
+    return __awaiter$1(this, void 0, void 0, function* () {
       return null;
     });
   }
@@ -20341,7 +21613,7 @@ class WebSocketProvider extends JsonRpcProvider {
     if (!value) {
       return;
     }
-    logger$b.throwError("cannot set polling on WebSocketProvider", Logger.errors.UNSUPPORTED_OPERATION, {
+    logger$4.throwError("cannot set polling on WebSocketProvider", Logger.errors.UNSUPPORTED_OPERATION, {
       operation: "setPolling"
     });
   }
@@ -20375,7 +21647,7 @@ class WebSocketProvider extends JsonRpcProvider {
     return "ws://localhost:8546";
   }
   _subscribe(tag, param, processFunc) {
-    return __awaiter$4(this, void 0, void 0, function* () {
+    return __awaiter$1(this, void 0, void 0, function* () {
       let subIdPromise = this._subIds[tag];
       if (subIdPromise == null) {
         subIdPromise = Promise.all(param).then((param2) => {
@@ -20460,7 +21732,7 @@ class WebSocketProvider extends JsonRpcProvider {
     });
   }
   destroy() {
-    return __awaiter$4(this, void 0, void 0, function* () {
+    return __awaiter$1(this, void 0, void 0, function* () {
       if (this._websocket.readyState === WS.CONNECTING) {
         yield new Promise((resolve2) => {
           this._websocket.onopen = function() {
@@ -20473,637 +21745,6 @@ class WebSocketProvider extends JsonRpcProvider {
       }
       this._websocket.close(1e3);
     });
-  }
-}
-var __awaiter$3 = function(thisArg, _arguments, P, generator) {
-  function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve2) {
-      resolve2(value);
-    });
-  }
-  return new (P || (P = Promise))(function(resolve2, reject) {
-    function fulfilled(value) {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    }
-    function rejected(value) {
-      try {
-        step(generator["throw"](value));
-      } catch (e) {
-        reject(e);
-      }
-    }
-    function step(result) {
-      result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-    }
-    step((generator = generator.apply(thisArg, _arguments || [])).next());
-  });
-};
-const logger$a = new Logger(version$1);
-class StaticJsonRpcProvider extends JsonRpcProvider {
-  detectNetwork() {
-    const _super = Object.create(null, {
-      detectNetwork: {get: () => super.detectNetwork}
-    });
-    return __awaiter$3(this, void 0, void 0, function* () {
-      let network = this.network;
-      if (network == null) {
-        network = yield _super.detectNetwork.call(this);
-        if (!network) {
-          logger$a.throwError("no network detected", Logger.errors.UNKNOWN_ERROR, {});
-        }
-        if (this._network == null) {
-          defineReadOnly(this, "_network", network);
-          this.emit("network", network, null);
-        }
-      }
-      return network;
-    });
-  }
-}
-class UrlJsonRpcProvider extends StaticJsonRpcProvider {
-  constructor(network, apiKey) {
-    logger$a.checkAbstract(new.target, UrlJsonRpcProvider);
-    network = getStatic(new.target, "getNetwork")(network);
-    apiKey = getStatic(new.target, "getApiKey")(apiKey);
-    const connection = getStatic(new.target, "getUrl")(network, apiKey);
-    super(connection, network);
-    if (typeof apiKey === "string") {
-      defineReadOnly(this, "apiKey", apiKey);
-    } else if (apiKey != null) {
-      Object.keys(apiKey).forEach((key2) => {
-        defineReadOnly(this, key2, apiKey[key2]);
-      });
-    }
-  }
-  _startPending() {
-    logger$a.warn("WARNING: API provider does not support pending filters");
-  }
-  isCommunityResource() {
-    return false;
-  }
-  getSigner(address) {
-    return logger$a.throwError("API provider does not support signing", Logger.errors.UNSUPPORTED_OPERATION, {operation: "getSigner"});
-  }
-  listAccounts() {
-    return Promise.resolve([]);
-  }
-  static getApiKey(apiKey) {
-    return apiKey;
-  }
-  static getUrl(network, apiKey) {
-    return logger$a.throwError("not implemented; sub-classes must override getUrl", Logger.errors.NOT_IMPLEMENTED, {
-      operation: "getUrl"
-    });
-  }
-}
-const logger$9 = new Logger(version$1);
-const defaultApiKey$2 = "_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC";
-class AlchemyWebSocketProvider extends WebSocketProvider {
-  constructor(network, apiKey) {
-    const provider = new AlchemyProvider(network, apiKey);
-    const url2 = provider.connection.url.replace(/^http/i, "ws").replace(".alchemyapi.", ".ws.alchemyapi.");
-    super(url2, provider.network);
-    defineReadOnly(this, "apiKey", provider.apiKey);
-  }
-  isCommunityResource() {
-    return this.apiKey === defaultApiKey$2;
-  }
-}
-class AlchemyProvider extends UrlJsonRpcProvider {
-  static getWebSocketProvider(network, apiKey) {
-    return new AlchemyWebSocketProvider(network, apiKey);
-  }
-  static getApiKey(apiKey) {
-    if (apiKey == null) {
-      return defaultApiKey$2;
-    }
-    if (apiKey && typeof apiKey !== "string") {
-      logger$9.throwArgumentError("invalid apiKey", "apiKey", apiKey);
-    }
-    return apiKey;
-  }
-  static getUrl(network, apiKey) {
-    let host = null;
-    switch (network.name) {
-      case "homestead":
-        host = "eth-mainnet.alchemyapi.io/v2/";
-        break;
-      case "ropsten":
-        host = "eth-ropsten.alchemyapi.io/v2/";
-        break;
-      case "rinkeby":
-        host = "eth-rinkeby.alchemyapi.io/v2/";
-        break;
-      case "goerli":
-        host = "eth-goerli.alchemyapi.io/v2/";
-        break;
-      case "kovan":
-        host = "eth-kovan.alchemyapi.io/v2/";
-        break;
-      default:
-        logger$9.throwArgumentError("unsupported network", "network", arguments[0]);
-    }
-    return {
-      allowGzip: true,
-      url: "https://" + host + apiKey,
-      throttleCallback: (attempt, url2) => {
-        if (apiKey === defaultApiKey$2) {
-          showThrottleMessage();
-        }
-        return Promise.resolve(true);
-      }
-    };
-  }
-  isCommunityResource() {
-    return this.apiKey === defaultApiKey$2;
-  }
-}
-var __awaiter$2 = function(thisArg, _arguments, P, generator) {
-  function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve2) {
-      resolve2(value);
-    });
-  }
-  return new (P || (P = Promise))(function(resolve2, reject) {
-    function fulfilled(value) {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    }
-    function rejected(value) {
-      try {
-        step(generator["throw"](value));
-      } catch (e) {
-        reject(e);
-      }
-    }
-    function step(result) {
-      result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-    }
-    step((generator = generator.apply(thisArg, _arguments || [])).next());
-  });
-};
-const logger$8 = new Logger(version$1);
-class CloudflareProvider extends UrlJsonRpcProvider {
-  static getApiKey(apiKey) {
-    if (apiKey != null) {
-      logger$8.throwArgumentError("apiKey not supported for cloudflare", "apiKey", apiKey);
-    }
-    return null;
-  }
-  static getUrl(network, apiKey) {
-    let host = null;
-    switch (network.name) {
-      case "homestead":
-        host = "https://cloudflare-eth.com/";
-        break;
-      default:
-        logger$8.throwArgumentError("unsupported network", "network", arguments[0]);
-    }
-    return host;
-  }
-  perform(method, params) {
-    const _super = Object.create(null, {
-      perform: {get: () => super.perform}
-    });
-    return __awaiter$2(this, void 0, void 0, function* () {
-      if (method === "getBlockNumber") {
-        const block = yield _super.perform.call(this, "getBlock", {blockTag: "latest"});
-        return block.number;
-      }
-      return _super.perform.call(this, method, params);
-    });
-  }
-}
-var __awaiter$1 = function(thisArg, _arguments, P, generator) {
-  function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve2) {
-      resolve2(value);
-    });
-  }
-  return new (P || (P = Promise))(function(resolve2, reject) {
-    function fulfilled(value) {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    }
-    function rejected(value) {
-      try {
-        step(generator["throw"](value));
-      } catch (e) {
-        reject(e);
-      }
-    }
-    function step(result) {
-      result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-    }
-    step((generator = generator.apply(thisArg, _arguments || [])).next());
-  });
-};
-const logger$7 = new Logger(version$1);
-function getTransactionPostData(transaction) {
-  const result = {};
-  for (let key2 in transaction) {
-    if (transaction[key2] == null) {
-      continue;
-    }
-    let value = transaction[key2];
-    if ({type: true, gasLimit: true, gasPrice: true, nonce: true, value: true}[key2]) {
-      value = hexValue(hexlify(value));
-    } else if (key2 === "accessList") {
-      value = value;
-    } else {
-      value = hexlify(value);
-    }
-    result[key2] = value;
-  }
-  return result;
-}
-function getResult(result) {
-  if (result.status == 0 && (result.message === "No records found" || result.message === "No transactions found")) {
-    return result.result;
-  }
-  if (result.status != 1 || result.message != "OK") {
-    const error2 = new Error("invalid response");
-    error2.result = JSON.stringify(result);
-    if ((result.result || "").toLowerCase().indexOf("rate limit") >= 0) {
-      error2.throttleRetry = true;
-    }
-    throw error2;
-  }
-  return result.result;
-}
-function getJsonResult(result) {
-  if (result && result.status == 0 && result.message == "NOTOK" && (result.result || "").toLowerCase().indexOf("rate limit") >= 0) {
-    const error2 = new Error("throttled response");
-    error2.result = JSON.stringify(result);
-    error2.throttleRetry = true;
-    throw error2;
-  }
-  if (result.jsonrpc != "2.0") {
-    const error2 = new Error("invalid response");
-    error2.result = JSON.stringify(result);
-    throw error2;
-  }
-  if (result.error) {
-    const error2 = new Error(result.error.message || "unknown error");
-    if (result.error.code) {
-      error2.code = result.error.code;
-    }
-    if (result.error.data) {
-      error2.data = result.error.data;
-    }
-    throw error2;
-  }
-  return result.result;
-}
-function checkLogTag(blockTag) {
-  if (blockTag === "pending") {
-    throw new Error("pending not supported");
-  }
-  if (blockTag === "latest") {
-    return blockTag;
-  }
-  return parseInt(blockTag.substring(2), 16);
-}
-const defaultApiKey$1 = "9D13ZE7XSBTJ94N9BNJ2MA33VMAY2YPIRB";
-function checkError(method, error2, transaction) {
-  if (method === "call" && error2.code === Logger.errors.SERVER_ERROR) {
-    const e = error2.error;
-    if (e && e.message.match("reverted") && isHexString(e.data)) {
-      return e.data;
-    }
-  }
-  let message = error2.message;
-  if (error2.code === Logger.errors.SERVER_ERROR) {
-    if (error2.error && typeof error2.error.message === "string") {
-      message = error2.error.message;
-    } else if (typeof error2.body === "string") {
-      message = error2.body;
-    } else if (typeof error2.responseText === "string") {
-      message = error2.responseText;
-    }
-  }
-  message = (message || "").toLowerCase();
-  if (message.match(/insufficient funds/)) {
-    logger$7.throwError("insufficient funds for intrinsic transaction cost", Logger.errors.INSUFFICIENT_FUNDS, {
-      error: error2,
-      method,
-      transaction
-    });
-  }
-  if (message.match(/same hash was already imported|transaction nonce is too low/)) {
-    logger$7.throwError("nonce has already been used", Logger.errors.NONCE_EXPIRED, {
-      error: error2,
-      method,
-      transaction
-    });
-  }
-  if (message.match(/another transaction with same nonce/)) {
-    logger$7.throwError("replacement fee too low", Logger.errors.REPLACEMENT_UNDERPRICED, {
-      error: error2,
-      method,
-      transaction
-    });
-  }
-  if (message.match(/execution failed due to an exception/)) {
-    logger$7.throwError("cannot estimate gas; transaction may fail or may require manual gas limit", Logger.errors.UNPREDICTABLE_GAS_LIMIT, {
-      error: error2,
-      method,
-      transaction
-    });
-  }
-  throw error2;
-}
-class EtherscanProvider extends BaseProvider {
-  constructor(network, apiKey) {
-    logger$7.checkNew(new.target, EtherscanProvider);
-    super(network);
-    let name2 = "invalid";
-    if (this.network) {
-      name2 = this.network.name;
-    }
-    let baseUrl = null;
-    switch (name2) {
-      case "homestead":
-        baseUrl = "https://api.etherscan.io";
-        break;
-      case "ropsten":
-        baseUrl = "https://api-ropsten.etherscan.io";
-        break;
-      case "rinkeby":
-        baseUrl = "https://api-rinkeby.etherscan.io";
-        break;
-      case "kovan":
-        baseUrl = "https://api-kovan.etherscan.io";
-        break;
-      case "goerli":
-        baseUrl = "https://api-goerli.etherscan.io";
-        break;
-      default:
-        throw new Error("unsupported network");
-    }
-    defineReadOnly(this, "baseUrl", baseUrl);
-    defineReadOnly(this, "apiKey", apiKey || defaultApiKey$1);
-  }
-  detectNetwork() {
-    return __awaiter$1(this, void 0, void 0, function* () {
-      return this.network;
-    });
-  }
-  perform(method, params) {
-    const _super = Object.create(null, {
-      perform: {get: () => super.perform}
-    });
-    return __awaiter$1(this, void 0, void 0, function* () {
-      let url2 = this.baseUrl + "/api";
-      let apiKey = "";
-      if (this.apiKey) {
-        apiKey += "&apikey=" + this.apiKey;
-      }
-      const get = (url3, payload, procFunc) => __awaiter$1(this, void 0, void 0, function* () {
-        this.emit("debug", {
-          action: "request",
-          request: url3,
-          provider: this
-        });
-        const connection = {
-          url: url3,
-          throttleSlotInterval: 1e3,
-          throttleCallback: (attempt, url4) => {
-            if (this.isCommunityResource()) {
-              showThrottleMessage();
-            }
-            return Promise.resolve(true);
-          }
-        };
-        let payloadStr = null;
-        if (payload) {
-          connection.headers = {"content-type": "application/x-www-form-urlencoded; charset=UTF-8"};
-          payloadStr = Object.keys(payload).map((key2) => {
-            return `${key2}=${payload[key2]}`;
-          }).join("&");
-        }
-        const result = yield fetchJson(connection, payloadStr, procFunc || getJsonResult);
-        this.emit("debug", {
-          action: "response",
-          request: url3,
-          response: deepCopy(result),
-          provider: this
-        });
-        return result;
-      });
-      switch (method) {
-        case "getBlockNumber":
-          url2 += "?module=proxy&action=eth_blockNumber" + apiKey;
-          return get(url2, null);
-        case "getGasPrice":
-          url2 += "?module=proxy&action=eth_gasPrice" + apiKey;
-          return get(url2, null);
-        case "getBalance":
-          url2 += "?module=account&action=balance&address=" + params.address;
-          url2 += "&tag=" + params.blockTag + apiKey;
-          return get(url2, null, getResult);
-        case "getTransactionCount":
-          url2 += "?module=proxy&action=eth_getTransactionCount&address=" + params.address;
-          url2 += "&tag=" + params.blockTag + apiKey;
-          return get(url2, null);
-        case "getCode":
-          url2 += "?module=proxy&action=eth_getCode&address=" + params.address;
-          url2 += "&tag=" + params.blockTag + apiKey;
-          return get(url2, null);
-        case "getStorageAt":
-          url2 += "?module=proxy&action=eth_getStorageAt&address=" + params.address;
-          url2 += "&position=" + params.position;
-          url2 += "&tag=" + params.blockTag + apiKey;
-          return get(url2, null);
-        case "sendTransaction":
-          return get(url2, {
-            module: "proxy",
-            action: "eth_sendRawTransaction",
-            hex: params.signedTransaction,
-            apikey: this.apiKey
-          }).catch((error2) => {
-            return checkError("sendTransaction", error2, params.signedTransaction);
-          });
-        case "getBlock":
-          if (params.blockTag) {
-            url2 += "?module=proxy&action=eth_getBlockByNumber&tag=" + params.blockTag;
-            if (params.includeTransactions) {
-              url2 += "&boolean=true";
-            } else {
-              url2 += "&boolean=false";
-            }
-            url2 += apiKey;
-            return get(url2, null);
-          }
-          throw new Error("getBlock by blockHash not implemented");
-        case "getTransaction":
-          url2 += "?module=proxy&action=eth_getTransactionByHash&txhash=" + params.transactionHash;
-          url2 += apiKey;
-          return get(url2, null);
-        case "getTransactionReceipt":
-          url2 += "?module=proxy&action=eth_getTransactionReceipt&txhash=" + params.transactionHash;
-          url2 += apiKey;
-          return get(url2, null);
-        case "call": {
-          if (params.transaction.type != null) {
-            logger$7.throwError("Etherscan does not currently support Berlin", Logger.errors.UNSUPPORTED_OPERATION, {
-              operation: "call",
-              transaction: params.transaction
-            });
-          }
-          if (params.blockTag !== "latest") {
-            throw new Error("EtherscanProvider does not support blockTag for call");
-          }
-          const postData = getTransactionPostData(params.transaction);
-          postData.module = "proxy";
-          postData.action = "eth_call";
-          postData.apikey = this.apiKey;
-          try {
-            return yield get(url2, postData);
-          } catch (error2) {
-            return checkError("call", error2, params.transaction);
-          }
-        }
-        case "estimateGas": {
-          if (params.transaction.type != null) {
-            logger$7.throwError("Etherscan does not currently support Berlin", Logger.errors.UNSUPPORTED_OPERATION, {
-              operation: "estimateGas",
-              transaction: params.transaction
-            });
-          }
-          const postData = getTransactionPostData(params.transaction);
-          postData.module = "proxy";
-          postData.action = "eth_estimateGas";
-          postData.apikey = this.apiKey;
-          try {
-            return yield get(url2, postData);
-          } catch (error2) {
-            return checkError("estimateGas", error2, params.transaction);
-          }
-        }
-        case "getLogs": {
-          url2 += "?module=logs&action=getLogs";
-          if (params.filter.fromBlock) {
-            url2 += "&fromBlock=" + checkLogTag(params.filter.fromBlock);
-          }
-          if (params.filter.toBlock) {
-            url2 += "&toBlock=" + checkLogTag(params.filter.toBlock);
-          }
-          if (params.filter.address) {
-            url2 += "&address=" + params.filter.address;
-          }
-          if (params.filter.topics && params.filter.topics.length > 0) {
-            if (params.filter.topics.length > 1) {
-              logger$7.throwError("unsupported topic count", Logger.errors.UNSUPPORTED_OPERATION, {topics: params.filter.topics});
-            }
-            if (params.filter.topics.length === 1) {
-              const topic0 = params.filter.topics[0];
-              if (typeof topic0 !== "string" || topic0.length !== 66) {
-                logger$7.throwError("unsupported topic format", Logger.errors.UNSUPPORTED_OPERATION, {topic0});
-              }
-              url2 += "&topic0=" + topic0;
-            }
-          }
-          url2 += apiKey;
-          const logs = yield get(url2, null, getResult);
-          let blocks = {};
-          for (let i = 0; i < logs.length; i++) {
-            const log = logs[i];
-            if (log.blockHash != null) {
-              continue;
-            }
-            if (blocks[log.blockNumber] == null) {
-              const block = yield this.getBlock(log.blockNumber);
-              if (block) {
-                blocks[log.blockNumber] = block.hash;
-              }
-            }
-            log.blockHash = blocks[log.blockNumber];
-          }
-          return logs;
-        }
-        case "getEtherPrice":
-          if (this.network.name !== "homestead") {
-            return 0;
-          }
-          url2 += "?module=stats&action=ethprice";
-          url2 += apiKey;
-          return parseFloat((yield get(url2, null, getResult)).ethusd);
-      }
-      return _super.perform.call(this, method, params);
-    });
-  }
-  getHistory(addressOrName, startBlock, endBlock) {
-    let url2 = this.baseUrl;
-    let apiKey = "";
-    if (this.apiKey) {
-      apiKey += "&apikey=" + this.apiKey;
-    }
-    if (startBlock == null) {
-      startBlock = 0;
-    }
-    if (endBlock == null) {
-      endBlock = 99999999;
-    }
-    return this.resolveName(addressOrName).then((address) => {
-      url2 += "/api?module=account&action=txlist&address=" + address;
-      url2 += "&startblock=" + startBlock;
-      url2 += "&endblock=" + endBlock;
-      url2 += "&sort=asc" + apiKey;
-      this.emit("debug", {
-        action: "request",
-        request: url2,
-        provider: this
-      });
-      const connection = {
-        url: url2,
-        throttleSlotInterval: 1e3,
-        throttleCallback: (attempt, url3) => {
-          if (this.apiKey === defaultApiKey$1) {
-            showThrottleMessage();
-          }
-          return Promise.resolve(true);
-        }
-      };
-      return fetchJson(connection, null, getResult).then((result) => {
-        this.emit("debug", {
-          action: "response",
-          request: url2,
-          response: deepCopy(result),
-          provider: this
-        });
-        let output = [];
-        result.forEach((tx) => {
-          ["contractAddress", "to"].forEach(function(key2) {
-            if (tx[key2] == "") {
-              delete tx[key2];
-            }
-          });
-          if (tx.creates == null && tx.contractAddress != null) {
-            tx.creates = tx.contractAddress;
-          }
-          let item = this.formatter.transactionResponse(tx);
-          if (tx.timeStamp) {
-            item.timestamp = parseInt(tx.timeStamp);
-          }
-          output.push(item);
-        });
-        return output;
-      });
-    });
-  }
-  isCommunityResource() {
-    return this.apiKey === defaultApiKey$1;
   }
 }
 var __awaiter = function(thisArg, _arguments, P, generator) {
@@ -21133,727 +21774,131 @@ var __awaiter = function(thisArg, _arguments, P, generator) {
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 };
-const logger$6 = new Logger(version$1);
-function now() {
-  return new Date().getTime();
-}
-function checkNetworks(networks2) {
-  let result = null;
-  for (let i = 0; i < networks2.length; i++) {
-    const network = networks2[i];
-    if (network == null) {
-      return null;
-    }
-    if (result) {
-      if (!(result.name === network.name && result.chainId === network.chainId && (result.ensAddress === network.ensAddress || result.ensAddress == null && network.ensAddress == null))) {
-        logger$6.throwArgumentError("provider mismatch", "networks", networks2);
-      }
-    } else {
-      result = network;
-    }
-  }
-  return result;
-}
-function median(values, maxDelta) {
-  values = values.slice().sort();
-  const middle = Math.floor(values.length / 2);
-  if (values.length % 2) {
-    return values[middle];
-  }
-  const a = values[middle - 1], b = values[middle];
-  if (maxDelta != null && Math.abs(a - b) > maxDelta) {
-    return null;
-  }
-  return (a + b) / 2;
-}
-function serialize(value) {
-  if (value === null) {
-    return "null";
-  } else if (typeof value === "number" || typeof value === "boolean") {
-    return JSON.stringify(value);
-  } else if (typeof value === "string") {
-    return value;
-  } else if (BigNumber.isBigNumber(value)) {
-    return value.toString();
-  } else if (Array.isArray(value)) {
-    return JSON.stringify(value.map((i) => serialize(i)));
-  } else if (typeof value === "object") {
-    const keys = Object.keys(value);
-    keys.sort();
-    return "{" + keys.map((key2) => {
-      let v = value[key2];
-      if (typeof v === "function") {
-        v = "[function]";
-      } else {
-        v = serialize(v);
-      }
-      return JSON.stringify(key2) + ":" + v;
-    }).join(",") + "}";
-  }
-  throw new Error("unknown value type: " + typeof value);
-}
-let nextRid = 1;
-function stall(duration) {
-  let cancel = null;
-  let timer2 = null;
-  let promise = new Promise((resolve2) => {
-    cancel = function() {
-      if (timer2) {
-        clearTimeout(timer2);
-        timer2 = null;
-      }
-      resolve2();
-    };
-    timer2 = setTimeout(cancel, duration);
-  });
-  const wait = (func) => {
-    promise = promise.then(func);
-    return promise;
-  };
-  function getPromise() {
-    return promise;
-  }
-  return {cancel, getPromise, wait};
-}
-const ForwardErrors = [
-  Logger.errors.CALL_EXCEPTION,
-  Logger.errors.INSUFFICIENT_FUNDS,
-  Logger.errors.NONCE_EXPIRED,
-  Logger.errors.REPLACEMENT_UNDERPRICED,
-  Logger.errors.UNPREDICTABLE_GAS_LIMIT
-];
-const ForwardProperties = [
-  "address",
-  "args",
-  "errorArgs",
-  "errorSignature",
-  "method",
-  "transaction"
-];
-function exposeDebugConfig(config, now2) {
-  const result = {
-    weight: config.weight
-  };
-  Object.defineProperty(result, "provider", {get: () => config.provider});
-  if (config.start) {
-    result.start = config.start;
-  }
-  if (now2) {
-    result.duration = now2 - config.start;
-  }
-  if (config.done) {
-    if (config.error) {
-      result.error = config.error;
-    } else {
-      result.result = config.result || null;
-    }
-  }
-  return result;
-}
-function normalizedTally(normalize2, quorum) {
-  return function(configs) {
-    const tally = {};
-    configs.forEach((c) => {
-      const value = normalize2(c.result);
-      if (!tally[value]) {
-        tally[value] = {count: 0, result: c.result};
-      }
-      tally[value].count++;
-    });
-    const keys = Object.keys(tally);
-    for (let i = 0; i < keys.length; i++) {
-      const check = tally[keys[i]];
-      if (check.count >= quorum) {
-        return check.result;
-      }
-    }
-    return void 0;
-  };
-}
-function getProcessFunc(provider, method, params) {
-  let normalize2 = serialize;
-  switch (method) {
-    case "getBlockNumber":
-      return function(configs) {
-        const values = configs.map((c) => c.result);
-        let blockNumber = median(configs.map((c) => c.result), 2);
-        if (blockNumber == null) {
-          return void 0;
-        }
-        blockNumber = Math.ceil(blockNumber);
-        if (values.indexOf(blockNumber + 1) >= 0) {
-          blockNumber++;
-        }
-        if (blockNumber >= provider._highestBlockNumber) {
-          provider._highestBlockNumber = blockNumber;
-        }
-        return provider._highestBlockNumber;
-      };
-    case "getGasPrice":
-      return function(configs) {
-        const values = configs.map((c) => c.result);
-        values.sort();
-        return values[Math.floor(values.length / 2)];
-      };
-    case "getEtherPrice":
-      return function(configs) {
-        return median(configs.map((c) => c.result));
-      };
-    case "getBalance":
-    case "getTransactionCount":
-    case "getCode":
-    case "getStorageAt":
-    case "call":
-    case "estimateGas":
-    case "getLogs":
-      break;
-    case "getTransaction":
-    case "getTransactionReceipt":
-      normalize2 = function(tx) {
-        if (tx == null) {
-          return null;
-        }
-        tx = shallowCopy(tx);
-        tx.confirmations = -1;
-        return serialize(tx);
-      };
-      break;
-    case "getBlock":
-      if (params.includeTransactions) {
-        normalize2 = function(block) {
-          if (block == null) {
-            return null;
-          }
-          block = shallowCopy(block);
-          block.transactions = block.transactions.map((tx) => {
-            tx = shallowCopy(tx);
-            tx.confirmations = -1;
-            return tx;
-          });
-          return serialize(block);
-        };
-      } else {
-        normalize2 = function(block) {
-          if (block == null) {
-            return null;
-          }
-          return serialize(block);
-        };
-      }
-      break;
-    default:
-      throw new Error("unknown method: " + method);
-  }
-  return normalizedTally(normalize2, provider.quorum);
-}
-function waitForSync(config, blockNumber) {
-  return __awaiter(this, void 0, void 0, function* () {
-    const provider = config.provider;
-    if (provider.blockNumber != null && provider.blockNumber >= blockNumber || blockNumber === -1) {
-      return provider;
-    }
-    return poll(() => {
-      return new Promise((resolve2, reject) => {
-        setTimeout(function() {
-          if (provider.blockNumber >= blockNumber) {
-            return resolve2(provider);
-          }
-          if (config.cancelled) {
-            return resolve2(null);
-          }
-          return resolve2(void 0);
-        }, 0);
-      });
-    }, {oncePoll: provider});
-  });
-}
-function getRunner(config, currentBlockNumber, method, params) {
-  return __awaiter(this, void 0, void 0, function* () {
-    let provider = config.provider;
-    switch (method) {
-      case "getBlockNumber":
-      case "getGasPrice":
-        return provider[method]();
-      case "getEtherPrice":
-        if (provider.getEtherPrice) {
-          return provider.getEtherPrice();
-        }
-        break;
-      case "getBalance":
-      case "getTransactionCount":
-      case "getCode":
-        if (params.blockTag && isHexString(params.blockTag)) {
-          provider = yield waitForSync(config, currentBlockNumber);
-        }
-        return provider[method](params.address, params.blockTag || "latest");
-      case "getStorageAt":
-        if (params.blockTag && isHexString(params.blockTag)) {
-          provider = yield waitForSync(config, currentBlockNumber);
-        }
-        return provider.getStorageAt(params.address, params.position, params.blockTag || "latest");
-      case "getBlock":
-        if (params.blockTag && isHexString(params.blockTag)) {
-          provider = yield waitForSync(config, currentBlockNumber);
-        }
-        return provider[params.includeTransactions ? "getBlockWithTransactions" : "getBlock"](params.blockTag || params.blockHash);
-      case "call":
-      case "estimateGas":
-        if (params.blockTag && isHexString(params.blockTag)) {
-          provider = yield waitForSync(config, currentBlockNumber);
-        }
-        return provider[method](params.transaction);
-      case "getTransaction":
-      case "getTransactionReceipt":
-        return provider[method](params.transactionHash);
-      case "getLogs": {
-        let filter = params.filter;
-        if (filter.fromBlock && isHexString(filter.fromBlock) || filter.toBlock && isHexString(filter.toBlock)) {
-          provider = yield waitForSync(config, currentBlockNumber);
-        }
-        return provider.getLogs(filter);
-      }
-    }
-    return logger$6.throwError("unknown method error", Logger.errors.UNKNOWN_ERROR, {
-      method,
-      params
-    });
-  });
-}
-class FallbackProvider extends BaseProvider {
-  constructor(providers, quorum) {
-    logger$6.checkNew(new.target, FallbackProvider);
-    if (providers.length === 0) {
-      logger$6.throwArgumentError("missing providers", "providers", providers);
-    }
-    const providerConfigs = providers.map((configOrProvider, index2) => {
-      if (Provider.isProvider(configOrProvider)) {
-        const stallTimeout = isCommunityResource(configOrProvider) ? 2e3 : 750;
-        const priority = 1;
-        return Object.freeze({provider: configOrProvider, weight: 1, stallTimeout, priority});
-      }
-      const config = shallowCopy(configOrProvider);
-      if (config.priority == null) {
-        config.priority = 1;
-      }
-      if (config.stallTimeout == null) {
-        config.stallTimeout = isCommunityResource(configOrProvider) ? 2e3 : 750;
-      }
-      if (config.weight == null) {
-        config.weight = 1;
-      }
-      const weight = config.weight;
-      if (weight % 1 || weight > 512 || weight < 1) {
-        logger$6.throwArgumentError("invalid weight; must be integer in [1, 512]", `providers[${index2}].weight`, weight);
-      }
-      return Object.freeze(config);
-    });
-    const total = providerConfigs.reduce((accum, c) => accum + c.weight, 0);
-    if (quorum == null) {
-      quorum = total / 2;
-    } else if (quorum > total) {
-      logger$6.throwArgumentError("quorum will always fail; larger than total weight", "quorum", quorum);
-    }
-    let networkOrReady = checkNetworks(providerConfigs.map((c) => c.provider.network));
-    if (networkOrReady == null) {
-      networkOrReady = new Promise((resolve2, reject) => {
-        setTimeout(() => {
-          this.detectNetwork().then(resolve2, reject);
-        }, 0);
-      });
-    }
-    super(networkOrReady);
-    defineReadOnly(this, "providerConfigs", Object.freeze(providerConfigs));
-    defineReadOnly(this, "quorum", quorum);
-    this._highestBlockNumber = -1;
-  }
+const logger$3 = new Logger(version$1);
+class StaticJsonRpcProvider extends JsonRpcProvider {
   detectNetwork() {
-    return __awaiter(this, void 0, void 0, function* () {
-      const networks2 = yield Promise.all(this.providerConfigs.map((c) => c.provider.getNetwork()));
-      return checkNetworks(networks2);
+    const _super = Object.create(null, {
+      detectNetwork: {get: () => super.detectNetwork}
     });
-  }
-  perform(method, params) {
     return __awaiter(this, void 0, void 0, function* () {
-      if (method === "sendTransaction") {
-        const results = yield Promise.all(this.providerConfigs.map((c) => {
-          return c.provider.sendTransaction(params.signedTransaction).then((result) => {
-            return result.hash;
-          }, (error2) => {
-            return error2;
-          });
-        }));
-        for (let i2 = 0; i2 < results.length; i2++) {
-          const result = results[i2];
-          if (typeof result === "string") {
-            return result;
-          }
+      let network = this.network;
+      if (network == null) {
+        network = yield _super.detectNetwork.call(this);
+        if (!network) {
+          logger$3.throwError("no network detected", Logger.errors.UNKNOWN_ERROR, {});
         }
-        throw results[0];
-      }
-      if (this._highestBlockNumber === -1 && method !== "getBlockNumber") {
-        yield this.getBlockNumber();
-      }
-      const processFunc = getProcessFunc(this, method, params);
-      const configs = shuffled(this.providerConfigs.map(shallowCopy));
-      configs.sort((a, b) => a.priority - b.priority);
-      const currentBlockNumber = this._highestBlockNumber;
-      let i = 0;
-      let first = true;
-      while (true) {
-        const t0 = now();
-        let inflightWeight = configs.filter((c) => c.runner && t0 - c.start < c.stallTimeout).reduce((accum, c) => accum + c.weight, 0);
-        while (inflightWeight < this.quorum && i < configs.length) {
-          const config = configs[i++];
-          const rid = nextRid++;
-          config.start = now();
-          config.staller = stall(config.stallTimeout);
-          config.staller.wait(() => {
-            config.staller = null;
-          });
-          config.runner = getRunner(config, currentBlockNumber, method, params).then((result) => {
-            config.done = true;
-            config.result = result;
-            if (this.listenerCount("debug")) {
-              this.emit("debug", {
-                action: "request",
-                rid,
-                backend: exposeDebugConfig(config, now()),
-                request: {method, params: deepCopy(params)},
-                provider: this
-              });
-            }
-          }, (error2) => {
-            config.done = true;
-            config.error = error2;
-            if (this.listenerCount("debug")) {
-              this.emit("debug", {
-                action: "request",
-                rid,
-                backend: exposeDebugConfig(config, now()),
-                request: {method, params: deepCopy(params)},
-                provider: this
-              });
-            }
-          });
-          if (this.listenerCount("debug")) {
-            this.emit("debug", {
-              action: "request",
-              rid,
-              backend: exposeDebugConfig(config, null),
-              request: {method, params: deepCopy(params)},
-              provider: this
-            });
-          }
-          inflightWeight += config.weight;
-        }
-        const waiting = [];
-        configs.forEach((c) => {
-          if (c.done || !c.runner) {
-            return;
-          }
-          waiting.push(c.runner);
-          if (c.staller) {
-            waiting.push(c.staller.getPromise());
-          }
-        });
-        if (waiting.length) {
-          yield Promise.race(waiting);
-        }
-        const results = configs.filter((c) => c.done && c.error == null);
-        if (results.length >= this.quorum) {
-          const result = processFunc(results);
-          if (result !== void 0) {
-            configs.forEach((c) => {
-              if (c.staller) {
-                c.staller.cancel();
-              }
-              c.cancelled = true;
-            });
-            return result;
-          }
-          if (!first) {
-            yield stall(100).getPromise();
-          }
-          first = false;
-        }
-        const errors = configs.reduce((accum, c) => {
-          if (!c.done || c.error == null) {
-            return accum;
-          }
-          const code = c.error.code;
-          if (ForwardErrors.indexOf(code) >= 0) {
-            if (!accum[code]) {
-              accum[code] = {error: c.error, weight: 0};
-            }
-            accum[code].weight += c.weight;
-          }
-          return accum;
-        }, {});
-        Object.keys(errors).forEach((errorCode) => {
-          const tally = errors[errorCode];
-          if (tally.weight < this.quorum) {
-            return;
-          }
-          configs.forEach((c) => {
-            if (c.staller) {
-              c.staller.cancel();
-            }
-            c.cancelled = true;
-          });
-          const e = tally.error;
-          const props = {};
-          ForwardProperties.forEach((name2) => {
-            if (e[name2] == null) {
-              return;
-            }
-            props[name2] = e[name2];
-          });
-          logger$6.throwError(e.reason || e.message, errorCode, props);
-        });
-        if (configs.filter((c) => !c.done).length === 0) {
-          break;
+        if (this._network == null) {
+          defineReadOnly(this, "_network", network);
+          this.emit("network", network, null);
         }
       }
-      configs.forEach((c) => {
-        if (c.staller) {
-          c.staller.cancel();
-        }
-        c.cancelled = true;
-      });
-      return logger$6.throwError("failed to meet quorum", Logger.errors.SERVER_ERROR, {
-        method,
-        params,
-        results: configs.map((c) => exposeDebugConfig(c)),
-        provider: this
-      });
+      return network;
     });
   }
 }
-const IpcProvider = null;
-const logger$5 = new Logger(version$1);
-const defaultProjectId = "84842078b09946638c03157f83405213";
-class InfuraWebSocketProvider extends WebSocketProvider {
+class UrlJsonRpcProvider extends StaticJsonRpcProvider {
   constructor(network, apiKey) {
-    const provider = new InfuraProvider(network, apiKey);
-    const connection = provider.connection;
-    if (connection.password) {
-      logger$5.throwError("INFURA WebSocket project secrets unsupported", Logger.errors.UNSUPPORTED_OPERATION, {
-        operation: "InfuraProvider.getWebSocketProvider()"
+    logger$3.checkAbstract(new.target, UrlJsonRpcProvider);
+    network = getStatic(new.target, "getNetwork")(network);
+    apiKey = getStatic(new.target, "getApiKey")(apiKey);
+    const connection = getStatic(new.target, "getUrl")(network, apiKey);
+    super(connection, network);
+    if (typeof apiKey === "string") {
+      defineReadOnly(this, "apiKey", apiKey);
+    } else if (apiKey != null) {
+      Object.keys(apiKey).forEach((key2) => {
+        defineReadOnly(this, key2, apiKey[key2]);
       });
     }
-    const url2 = connection.url.replace(/^http/i, "ws").replace("/v3/", "/ws/v3/");
-    super(url2, network);
-    defineReadOnly(this, "apiKey", provider.projectId);
-    defineReadOnly(this, "projectId", provider.projectId);
-    defineReadOnly(this, "projectSecret", provider.projectSecret);
+  }
+  _startPending() {
+    logger$3.warn("WARNING: API provider does not support pending filters");
   }
   isCommunityResource() {
-    return this.projectId === defaultProjectId;
+    return false;
   }
-}
-class InfuraProvider extends UrlJsonRpcProvider {
-  static getWebSocketProvider(network, apiKey) {
-    return new InfuraWebSocketProvider(network, apiKey);
+  getSigner(address) {
+    return logger$3.throwError("API provider does not support signing", Logger.errors.UNSUPPORTED_OPERATION, {operation: "getSigner"});
+  }
+  listAccounts() {
+    return Promise.resolve([]);
   }
   static getApiKey(apiKey) {
-    const apiKeyObj = {
-      apiKey: defaultProjectId,
-      projectId: defaultProjectId,
-      projectSecret: null
-    };
+    return apiKey;
+  }
+  static getUrl(network, apiKey) {
+    return logger$3.throwError("not implemented; sub-classes must override getUrl", Logger.errors.NOT_IMPLEMENTED, {
+      operation: "getUrl"
+    });
+  }
+}
+const logger$2 = new Logger(version$1);
+const defaultApiKey = "_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC";
+class AlchemyWebSocketProvider extends WebSocketProvider {
+  constructor(network, apiKey) {
+    const provider2 = new AlchemyProvider(network, apiKey);
+    const url2 = provider2.connection.url.replace(/^http/i, "ws").replace(".alchemyapi.", ".ws.alchemyapi.");
+    super(url2, provider2.network);
+    defineReadOnly(this, "apiKey", provider2.apiKey);
+  }
+  isCommunityResource() {
+    return this.apiKey === defaultApiKey;
+  }
+}
+class AlchemyProvider extends UrlJsonRpcProvider {
+  static getWebSocketProvider(network, apiKey) {
+    return new AlchemyWebSocketProvider(network, apiKey);
+  }
+  static getApiKey(apiKey) {
     if (apiKey == null) {
-      return apiKeyObj;
+      return defaultApiKey;
     }
-    if (typeof apiKey === "string") {
-      apiKeyObj.projectId = apiKey;
-    } else if (apiKey.projectSecret != null) {
-      logger$5.assertArgument(typeof apiKey.projectId === "string", "projectSecret requires a projectId", "projectId", apiKey.projectId);
-      logger$5.assertArgument(typeof apiKey.projectSecret === "string", "invalid projectSecret", "projectSecret", "[REDACTED]");
-      apiKeyObj.projectId = apiKey.projectId;
-      apiKeyObj.projectSecret = apiKey.projectSecret;
-    } else if (apiKey.projectId) {
-      apiKeyObj.projectId = apiKey.projectId;
+    if (apiKey && typeof apiKey !== "string") {
+      logger$2.throwArgumentError("invalid apiKey", "apiKey", apiKey);
     }
-    apiKeyObj.apiKey = apiKeyObj.projectId;
-    return apiKeyObj;
+    return apiKey;
   }
   static getUrl(network, apiKey) {
     let host = null;
-    switch (network ? network.name : "unknown") {
+    switch (network.name) {
       case "homestead":
-        host = "mainnet.infura.io";
+        host = "eth-mainnet.alchemyapi.io/v2/";
         break;
       case "ropsten":
-        host = "ropsten.infura.io";
+        host = "eth-ropsten.alchemyapi.io/v2/";
         break;
       case "rinkeby":
-        host = "rinkeby.infura.io";
-        break;
-      case "kovan":
-        host = "kovan.infura.io";
+        host = "eth-rinkeby.alchemyapi.io/v2/";
         break;
       case "goerli":
-        host = "goerli.infura.io";
+        host = "eth-goerli.alchemyapi.io/v2/";
+        break;
+      case "kovan":
+        host = "eth-kovan.alchemyapi.io/v2/";
         break;
       default:
-        logger$5.throwError("unsupported network", Logger.errors.INVALID_ARGUMENT, {
-          argument: "network",
-          value: network
-        });
+        logger$2.throwArgumentError("unsupported network", "network", arguments[0]);
     }
-    const connection = {
+    return {
       allowGzip: true,
-      url: "https://" + host + "/v3/" + apiKey.projectId,
+      url: "https://" + host + apiKey,
       throttleCallback: (attempt, url2) => {
-        if (apiKey.projectId === defaultProjectId) {
+        if (apiKey === defaultApiKey) {
           showThrottleMessage();
         }
         return Promise.resolve(true);
       }
     };
-    if (apiKey.projectSecret != null) {
-      connection.user = "";
-      connection.password = apiKey.projectSecret;
-    }
-    return connection;
   }
   isCommunityResource() {
-    return this.projectId === defaultProjectId;
+    return this.apiKey === defaultApiKey;
   }
 }
-const logger$4 = new Logger(version$1);
-const defaultApiKey = "ETHERS_JS_SHARED";
-class NodesmithProvider extends UrlJsonRpcProvider {
-  static getApiKey(apiKey) {
-    if (apiKey && typeof apiKey !== "string") {
-      logger$4.throwArgumentError("invalid apiKey", "apiKey", apiKey);
-    }
-    return apiKey || defaultApiKey;
-  }
-  static getUrl(network, apiKey) {
-    logger$4.warn("NodeSmith will be discontinued on 2019-12-20; please migrate to another platform.");
-    let host = null;
-    switch (network.name) {
-      case "homestead":
-        host = "https://ethereum.api.nodesmith.io/v1/mainnet/jsonrpc";
-        break;
-      case "ropsten":
-        host = "https://ethereum.api.nodesmith.io/v1/ropsten/jsonrpc";
-        break;
-      case "rinkeby":
-        host = "https://ethereum.api.nodesmith.io/v1/rinkeby/jsonrpc";
-        break;
-      case "goerli":
-        host = "https://ethereum.api.nodesmith.io/v1/goerli/jsonrpc";
-        break;
-      case "kovan":
-        host = "https://ethereum.api.nodesmith.io/v1/kovan/jsonrpc";
-        break;
-      default:
-        logger$4.throwArgumentError("unsupported network", "network", arguments[0]);
-    }
-    return host + "?apiKey=" + apiKey;
-  }
-}
-const logger$3 = new Logger(version$1);
-const defaultApplicationIds = {
-  homestead: "6004bcd10040261633ade990",
-  ropsten: "6004bd4d0040261633ade991",
-  rinkeby: "6004bda20040261633ade994",
-  goerli: "6004bd860040261633ade992"
-};
-class PocketProvider extends UrlJsonRpcProvider {
-  constructor(network, apiKey) {
-    if (apiKey == null) {
-      const n = getStatic(new.target, "getNetwork")(network);
-      if (n) {
-        const applicationId = defaultApplicationIds[n.name];
-        if (applicationId) {
-          apiKey = {
-            applicationId,
-            loadBalancer: true
-          };
-        }
-      }
-      if (apiKey == null) {
-        logger$3.throwError("unsupported network", Logger.errors.INVALID_ARGUMENT, {
-          argument: "network",
-          value: network
-        });
-      }
-    }
-    super(network, apiKey);
-  }
-  static getApiKey(apiKey) {
-    if (apiKey == null) {
-      logger$3.throwArgumentError("PocketProvider.getApiKey does not support null apiKey", "apiKey", apiKey);
-    }
-    const apiKeyObj = {
-      applicationId: null,
-      loadBalancer: false,
-      applicationSecretKey: null
-    };
-    if (typeof apiKey === "string") {
-      apiKeyObj.applicationId = apiKey;
-    } else if (apiKey.applicationSecretKey != null) {
-      logger$3.assertArgument(typeof apiKey.applicationId === "string", "applicationSecretKey requires an applicationId", "applicationId", apiKey.applicationId);
-      logger$3.assertArgument(typeof apiKey.applicationSecretKey === "string", "invalid applicationSecretKey", "applicationSecretKey", "[REDACTED]");
-      apiKeyObj.applicationId = apiKey.applicationId;
-      apiKeyObj.applicationSecretKey = apiKey.applicationSecretKey;
-      apiKeyObj.loadBalancer = !!apiKey.loadBalancer;
-    } else if (apiKey.applicationId) {
-      logger$3.assertArgument(typeof apiKey.applicationId === "string", "apiKey.applicationId must be a string", "apiKey.applicationId", apiKey.applicationId);
-      apiKeyObj.applicationId = apiKey.applicationId;
-      apiKeyObj.loadBalancer = !!apiKey.loadBalancer;
-    } else {
-      logger$3.throwArgumentError("unsupported PocketProvider apiKey", "apiKey", apiKey);
-    }
-    return apiKeyObj;
-  }
-  static getUrl(network, apiKey) {
-    let host = null;
-    switch (network ? network.name : "unknown") {
-      case "homestead":
-        host = "eth-mainnet.gateway.pokt.network";
-        break;
-      case "ropsten":
-        host = "eth-ropsten.gateway.pokt.network";
-        break;
-      case "rinkeby":
-        host = "eth-rinkeby.gateway.pokt.network";
-        break;
-      case "goerli":
-        host = "eth-goerli.gateway.pokt.network";
-        break;
-      default:
-        logger$3.throwError("unsupported network", Logger.errors.INVALID_ARGUMENT, {
-          argument: "network",
-          value: network
-        });
-    }
-    let url2 = null;
-    if (apiKey.loadBalancer) {
-      url2 = `https://${host}/v1/lb/${apiKey.applicationId}`;
-    } else {
-      url2 = `https://${host}/v1/${apiKey.applicationId}`;
-    }
-    const connection = {url: url2};
-    connection.headers = {};
-    if (apiKey.applicationSecretKey != null) {
-      connection.user = "";
-      connection.password = apiKey.applicationSecretKey;
-    }
-    return connection;
-  }
-  isCommunityResource() {
-    return this.applicationId === defaultApplicationIds[this.network.name];
-  }
-}
-const logger$2 = new Logger(version$1);
+const logger$1 = new Logger(version$1);
 let _nextId = 1;
-function buildWeb3LegacyFetcher(provider, sendFunc) {
+function buildWeb3LegacyFetcher(provider2, sendFunc) {
   return function(method, params) {
-    if (method == "eth_sign" && (provider.isMetaMask || provider.isStatus)) {
+    if (method == "eth_sign" && (provider2.isMetaMask || provider2.isStatus)) {
       method = "personal_sign";
       params = [params[1], params[0]];
     }
@@ -21879,47 +21924,47 @@ function buildWeb3LegacyFetcher(provider, sendFunc) {
     });
   };
 }
-function buildEip1193Fetcher(provider) {
+function buildEip1193Fetcher(provider2) {
   return function(method, params) {
     if (params == null) {
       params = [];
     }
-    if (method == "eth_sign" && (provider.isMetaMask || provider.isStatus)) {
+    if (method == "eth_sign" && (provider2.isMetaMask || provider2.isStatus)) {
       method = "personal_sign";
       params = [params[1], params[0]];
     }
-    return provider.request({method, params});
+    return provider2.request({method, params});
   };
 }
 class Web3Provider extends JsonRpcProvider {
-  constructor(provider, network) {
-    logger$2.checkNew(new.target, Web3Provider);
-    if (provider == null) {
-      logger$2.throwArgumentError("missing provider", "provider", provider);
+  constructor(provider2, network) {
+    logger$1.checkNew(new.target, Web3Provider);
+    if (provider2 == null) {
+      logger$1.throwArgumentError("missing provider", "provider", provider2);
     }
     let path = null;
     let jsonRpcFetchFunc = null;
     let subprovider = null;
-    if (typeof provider === "function") {
+    if (typeof provider2 === "function") {
       path = "unknown:";
-      jsonRpcFetchFunc = provider;
+      jsonRpcFetchFunc = provider2;
     } else {
-      path = provider.host || provider.path || "";
-      if (!path && provider.isMetaMask) {
+      path = provider2.host || provider2.path || "";
+      if (!path && provider2.isMetaMask) {
         path = "metamask";
       }
-      subprovider = provider;
-      if (provider.request) {
+      subprovider = provider2;
+      if (provider2.request) {
         if (path === "") {
           path = "eip-1193:";
         }
-        jsonRpcFetchFunc = buildEip1193Fetcher(provider);
-      } else if (provider.sendAsync) {
-        jsonRpcFetchFunc = buildWeb3LegacyFetcher(provider, provider.sendAsync.bind(provider));
-      } else if (provider.send) {
-        jsonRpcFetchFunc = buildWeb3LegacyFetcher(provider, provider.send.bind(provider));
+        jsonRpcFetchFunc = buildEip1193Fetcher(provider2);
+      } else if (provider2.sendAsync) {
+        jsonRpcFetchFunc = buildWeb3LegacyFetcher(provider2, provider2.sendAsync.bind(provider2));
+      } else if (provider2.send) {
+        jsonRpcFetchFunc = buildWeb3LegacyFetcher(provider2, provider2.send.bind(provider2));
       } else {
-        logger$2.throwArgumentError("unsupported provider", "provider", provider);
+        logger$1.throwArgumentError("unsupported provider", "provider", provider2);
       }
       if (!path) {
         path = "unknown:";
@@ -21933,43 +21978,84 @@ class Web3Provider extends JsonRpcProvider {
     return this.jsonRpcFetchFunc(method, params);
   }
 }
-const logger$1 = new Logger(version$1);
-function getDefaultProvider(network, options) {
-  if (network == null) {
-    network = "homestead";
-  }
-  if (typeof network === "string") {
-    const match = network.match(/^(ws|http)s?:/i);
-    if (match) {
-      switch (match[1]) {
-        case "http":
-          return new JsonRpcProvider(network);
-        case "ws":
-          return new WebSocketProvider(network);
-        default:
-          logger$1.throwArgumentError("unsupported URL scheme", "network", network);
+const regexBytes = new RegExp("^bytes([0-9]+)$");
+const regexNumber = new RegExp("^(u?int)([0-9]*)$");
+const regexArray = new RegExp("^(.*)\\[([0-9]*)\\]$");
+const Zeros = "0000000000000000000000000000000000000000000000000000000000000000";
+function _pack(type, value, isArray) {
+  switch (type) {
+    case "address":
+      if (isArray) {
+        return zeroPad(value, 32);
       }
+      return arrayify(value);
+    case "string":
+      return toUtf8Bytes(value);
+    case "bytes":
+      return arrayify(value);
+    case "bool":
+      value = value ? "0x01" : "0x00";
+      if (isArray) {
+        return zeroPad(value, 32);
+      }
+      return arrayify(value);
+  }
+  let match = type.match(regexNumber);
+  if (match) {
+    let size = parseInt(match[2] || "256");
+    if (match[2] && String(size) !== match[2] || size % 8 !== 0 || size === 0 || size > 256) {
+      throw new Error("invalid number type - " + type);
     }
+    if (isArray) {
+      size = 256;
+    }
+    value = BigNumber.from(value).toTwos(size);
+    return zeroPad(value, size / 8);
   }
-  const n = getNetwork(network);
-  if (!n || !n._defaultProvider) {
-    logger$1.throwError("unsupported getDefaultProvider network", Logger.errors.NETWORK_ERROR, {
-      operation: "getDefaultProvider",
-      network
+  match = type.match(regexBytes);
+  if (match) {
+    const size = parseInt(match[1]);
+    if (String(size) !== match[1] || size === 0 || size > 32) {
+      throw new Error("invalid bytes type - " + type);
+    }
+    if (arrayify(value).byteLength !== size) {
+      throw new Error("invalid value for " + type);
+    }
+    if (isArray) {
+      return arrayify((value + Zeros).substring(0, 66));
+    }
+    return value;
+  }
+  match = type.match(regexArray);
+  if (match && Array.isArray(value)) {
+    const baseType = match[1];
+    const count = parseInt(match[2] || String(value.length));
+    if (count != value.length) {
+      throw new Error("invalid value for " + type);
+    }
+    const result = [];
+    value.forEach(function(value2) {
+      result.push(_pack(baseType, value2, true));
     });
+    return concat(result);
   }
-  return n._defaultProvider({
-    FallbackProvider,
-    AlchemyProvider,
-    CloudflareProvider,
-    EtherscanProvider,
-    InfuraProvider,
-    JsonRpcProvider,
-    NodesmithProvider,
-    PocketProvider,
-    Web3Provider,
-    IpcProvider
-  }, options);
+  throw new Error("invalid type - " + type);
+}
+function pack(types, values) {
+  if (types.length != values.length) {
+    throw new Error("type/value count mismatch");
+  }
+  const tight = [];
+  types.forEach(function(type, index2) {
+    tight.push(_pack(type, values[index2]));
+  });
+  return hexlify(concat(tight));
+}
+function keccak256(types, values) {
+  return keccak256$1(pack(types, values));
+}
+function sha256(types, values) {
+  return sha256$1(pack(types, values));
 }
 const version = "units/5.1.0";
 const logger = new Logger(version);
@@ -21982,6 +22068,52 @@ const names = [
   "finney",
   "ether"
 ];
+function commify(value) {
+  const comps = String(value).split(".");
+  if (comps.length > 2 || !comps[0].match(/^-?[0-9]*$/) || comps[1] && !comps[1].match(/^[0-9]*$/) || value === "." || value === "-.") {
+    logger.throwArgumentError("invalid value", "value", value);
+  }
+  let whole = comps[0];
+  let negative = "";
+  if (whole.substring(0, 1) === "-") {
+    negative = "-";
+    whole = whole.substring(1);
+  }
+  while (whole.substring(0, 1) === "0") {
+    whole = whole.substring(1);
+  }
+  if (whole === "") {
+    whole = "0";
+  }
+  let suffix = "";
+  if (comps.length === 2) {
+    suffix = "." + (comps[1] || "0");
+  }
+  while (suffix.length > 2 && suffix[suffix.length - 1] === "0") {
+    suffix = suffix.substring(0, suffix.length - 1);
+  }
+  const formatted = [];
+  while (whole.length) {
+    if (whole.length <= 3) {
+      formatted.unshift(whole);
+      break;
+    } else {
+      const index2 = whole.length - 3;
+      formatted.unshift(whole.substring(index2));
+      whole = whole.substring(0, index2);
+    }
+  }
+  return negative + formatted.join(",") + suffix;
+}
+function formatUnits(value, unitName) {
+  if (typeof unitName === "string") {
+    const index2 = names.indexOf(unitName);
+    if (index2 !== -1) {
+      unitName = 3 * index2;
+    }
+  }
+  return formatFixed(value, unitName != null ? unitName : 18);
+}
 function parseUnits(value, unitName) {
   if (typeof value !== "string") {
     logger.throwArgumentError("value must be a string", "value", value);
@@ -21994,10 +22126,117 @@ function parseUnits(value, unitName) {
   }
   return parseFixed(value, unitName != null ? unitName : 18);
 }
+function formatEther(wei) {
+  return formatUnits(wei, 18);
+}
 function parseEther(ether) {
   return parseUnits(ether, 18);
 }
-const RINKEBY_CONTRACT_ADDRESS = "0xAc833FCcE0140760BbAA54214a47AcCfe42318c8";
+var utils = /* @__PURE__ */ Object.freeze({
+  __proto__: null,
+  [Symbol.toStringTag]: "Module",
+  AbiCoder,
+  defaultAbiCoder,
+  Fragment,
+  EventFragment,
+  FunctionFragment,
+  ParamType,
+  FormatTypes,
+  checkResultErrors,
+  Logger,
+  RLP: index$1,
+  _fetchData,
+  fetchJson,
+  poll,
+  checkProperties,
+  deepCopy,
+  defineReadOnly,
+  getStatic,
+  resolveProperties,
+  shallowCopy,
+  arrayify,
+  concat,
+  stripZeros,
+  zeroPad,
+  isBytes,
+  isBytesLike,
+  defaultPath,
+  HDNode,
+  SigningKey,
+  Interface,
+  LogDescription,
+  TransactionDescription,
+  base58: Base58,
+  base64: index,
+  hexlify,
+  isHexString,
+  hexConcat,
+  hexStripZeros,
+  hexValue,
+  hexZeroPad,
+  hexDataLength,
+  hexDataSlice,
+  nameprep,
+  _toEscapedUtf8String,
+  toUtf8Bytes,
+  toUtf8CodePoints,
+  toUtf8String,
+  Utf8ErrorFuncs,
+  formatBytes32String,
+  parseBytes32String,
+  hashMessage,
+  namehash,
+  isValidName,
+  id,
+  _TypedDataEncoder: TypedDataEncoder,
+  getAddress,
+  getIcapAddress,
+  getContractAddress,
+  getCreate2Address,
+  isAddress,
+  formatEther,
+  parseEther,
+  formatUnits,
+  parseUnits,
+  commify,
+  computeHmac,
+  keccak256: keccak256$1,
+  ripemd160,
+  sha256: sha256$1,
+  sha512,
+  randomBytes,
+  shuffled,
+  solidityPack: pack,
+  solidityKeccak256: keccak256,
+  soliditySha256: sha256,
+  splitSignature,
+  joinSignature,
+  accessListify,
+  parseTransaction: parse,
+  serializeTransaction: serialize,
+  getJsonWalletAddress,
+  computeAddress,
+  recoverAddress,
+  computePublicKey,
+  recoverPublicKey,
+  verifyMessage,
+  verifyTypedData,
+  mnemonicToEntropy,
+  entropyToMnemonic,
+  isValidMnemonic,
+  mnemonicToSeed,
+  get SupportedAlgorithm() {
+    return SupportedAlgorithm;
+  },
+  get UnicodeNormalizationForm() {
+    return UnicodeNormalizationForm;
+  },
+  get Utf8ErrorReason() {
+    return Utf8ErrorReason;
+  },
+  Indexed
+});
+const RINKEBY_CONTRACT_ADDRESS = "0x01061ca4f1F13f69da0C3AAa45A03e1a40FCA473";
 const ABI = [
   {
     inputs: [],
@@ -22006,69 +22245,102 @@ const ABI = [
   },
   {
     anonymous: false,
-    inputs: [{
-      indexed: false,
-      internalType: "uint64",
-      name: "partyId",
-      type: "uint64"
-    }],
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint64",
+        name: "partyId",
+        type: "uint64"
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256"
+      }
+    ],
+    name: "Deposited",
+    type: "event"
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint64",
+        name: "partyId",
+        type: "uint64"
+      }
+    ],
     name: "ObtainedNft",
     type: "event"
   },
   {
     anonymous: false,
-    inputs: [{
-      indexed: false,
-      internalType: "uint64",
-      name: "partyId",
-      type: "uint64"
-    }],
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint64",
+        name: "partyId",
+        type: "uint64"
+      }
+    ],
     name: "TargetReached",
     type: "event"
   },
   {
     inputs: [],
     name: "id",
-    outputs: [{
-      internalType: "uint64",
-      name: "",
-      type: "uint64"
-    }],
+    outputs: [
+      {
+        internalType: "uint64",
+        name: "",
+        type: "uint64"
+      }
+    ],
     stateMutability: "view",
     type: "function"
   },
   {
     inputs: [],
     name: "owner",
-    outputs: [{
-      internalType: "address",
-      name: "",
-      type: "address"
-    }],
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address"
+      }
+    ],
     stateMutability: "view",
     type: "function"
   },
   {
-    inputs: [{
-      internalType: "uint256",
-      name: "targetPrice",
-      type: "uint256"
-    }],
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "targetPrice",
+        type: "uint256"
+      }
+    ],
     name: "createParty",
-    outputs: [{
-      internalType: "uint256",
-      name: "",
-      type: "uint256"
-    }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256"
+      }
+    ],
     stateMutability: "nonpayable",
     type: "function"
   },
   {
-    inputs: [{
-      internalType: "uint64",
-      name: "partyId",
-      type: "uint64"
-    }],
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "partyId",
+        type: "uint64"
+      }
+    ],
     name: "deposit",
     outputs: [],
     stateMutability: "payable",
@@ -22088,40 +22360,48 @@ const ABI = [
       }
     ],
     name: "getContribution",
-    outputs: [{
-      internalType: "uint256",
-      name: "",
-      type: "uint256"
-    }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256"
+      }
+    ],
     stateMutability: "view",
     type: "function"
   },
   {
-    inputs: [{
-      internalType: "uint64",
-      name: "partyId",
-      type: "uint64"
-    }],
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "partyId",
+        type: "uint64"
+      }
+    ],
     name: "getTotalContributions",
-    outputs: [{
-      internalType: "uint256",
-      name: "",
-      type: "uint256"
-    }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256"
+      }
+    ],
     stateMutability: "view",
     type: "function"
   }
 ];
+const ALCHEMY_KEY = "XdSlj6cqpIj9e1W8viD-8dvUIpwy43CU";
+const provider = new AlchemyProvider("rinkeby", ALCHEMY_KEY);
 const _EthHelper = class {
   static async fetchPartyContributions(partyId) {
     await this.init();
     const amount = await this.contract.getTotalContributions(partyId);
-    return await amount.toNumber();
+    return await amount;
   }
   static async invest(partyId, amount) {
     await window.ethereum.enable();
-    const provider = new Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
+    const provider2 = new Web3Provider(window.ethereum);
+    const signer = provider2.getSigner();
     console.log(await signer.getAddress());
     const contract = _EthHelper.contract.connect(signer);
     const response = await contract.deposit(partyId, {
@@ -22131,14 +22411,21 @@ const _EthHelper = class {
   }
   static async init() {
     if (!this.intialized) {
-      this.contract = new Contract(RINKEBY_CONTRACT_ADDRESS, ABI, getDefaultProvider("rinkeby"));
+      this.contract = new Contract(RINKEBY_CONTRACT_ADDRESS, ABI, provider);
     }
     this.intialized = true;
   }
+  static async onInvestment(callback) {
+    console.log("ADD LISTENER");
+    this.contract.on("Deposited", callback);
+  }
+  static newBigNumber(value) {
+    return BigNumber.from(value);
+  }
 };
 let EthHelper = _EthHelper;
-__publicField(EthHelper, "intialized", false);
-__publicField(EthHelper, "contract");
+EthHelper.intialized = false;
+EthHelper.utils = utils;
 var eth = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   [Symbol.toStringTag]: "Module",
