@@ -1,6 +1,5 @@
 <script lang="ts">
     import Waves from "$lib/components/splash/Waves.svelte"
-    import { onMount } from "svelte"
 
     function showExtension() {
         open("https://google.com", "blank")
@@ -19,7 +18,11 @@
 <div class="container">
     <div class="content">
         <div class="nav">
-            <h4>Block Parties</h4>
+            <img style="display: none" src="images/button_background.svg" alt="" />
+            <div style="display: flex; width: 240px; align-items: center;">
+                <img src="images/icon.svg" alt="logo" width="80px" />
+                <h4>Block Parties</h4>
+            </div>
 
             <div>
                 <a on:click={scrollDown}>How it works</a>
@@ -92,7 +95,7 @@
 </div>
 
 <div class="sign-up">
-    <div class="custom-button">
+    <div class="custom-button" style="background-image: url({'images/button_background.svg'})">
         <h1>Join 569 more people in the waitlist</h1>
 
         <div class="form">
@@ -166,14 +169,14 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            margin-top: 10%;
+            margin-top: min(8%, 96px);
 
             .button-row {
                 margin-top: 32px;
 
                 button {
                     margin-right: 16px;
-                    box-shadow: 0 0 2px 2px #000000cc;
+                    box-shadow: 0 0 3px 1px #000000aa;
 
                     background: #592cb6;
                     border-radius: 4px;
