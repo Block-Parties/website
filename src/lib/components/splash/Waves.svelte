@@ -151,9 +151,9 @@
         scene = new THREE.Scene()
         scene.background = null
 
-        let texture = new THREE.TextureLoader().load("images/lines.png")
+        let texture = new THREE.TextureLoader().load("images/lines2.png")
 
-        geometry = new THREE.PlaneGeometry(2, 1, 400, 256)
+        geometry = new THREE.PlaneGeometry(2, 1, 400, 400)
 
         material = new THREE.ShaderMaterial({
             transparent: true,

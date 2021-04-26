@@ -58,24 +58,28 @@
     <div class="content">
         <div class="cards">
             <div class="step-card">
+                <div class="circle" />
                 <div>
                     <h4>Step 1</h4>
                     <p>Browse the OpenSea marketplace.</p>
                 </div>
             </div>
             <div class="step-card">
+                <div class="circle" />
                 <div>
                     <h4>Step 2</h4>
-                    <p>Join a create a new party and invest!</p>
+                    <p>Join or create a party and invest!</p>
                 </div>
             </div>
             <div class="step-card">
+                <div class="circle" />
                 <div>
                     <h4>Step 3</h4>
                     <p>Once the party is full, the NFT is purchased and listed for resale.</p>
                 </div>
             </div>
             <div class="step-card">
+                <div class="circle" />
                 <div>
                     <h4>Step 4</h4>
                     <p>When the NFT gets sold, we distribute the profits to the party.</p>
@@ -204,10 +208,10 @@
 
     .how-it-works {
         padding: 64px;
-        background: linear-gradient(#f2fbff, #e7f5ff);
+        background: linear-gradient(#7286c7, #a5bcf2);
 
-        //         background: linear-gradient(180deg, #E5E5E5 6.77%, rgba(41, 101, 255, 0.18) 99.99%, rgba(148, 41, 255, 0.53) 100%);
-        // filter: blur(200px);
+        // background: linear-gradient(rgba(41, 101, 255, 0.18) 99.99%, rgba(148, 41, 255, 0.53) 100%);
+        backdrop-filter: blur(200px);
 
         //         display: flex;
 
@@ -217,29 +221,40 @@
             display: flex;
 
             .cards {
-                flex: 1;
+                flex: 2;
                 margin-right: 32px;
+                border-radius: 12px;
+                overflow: hidden;
 
                 .step-card {
-                    // max-width: 400px;
-
                     transition: all 0.3s;
                     background: linear-gradient(#8d50cf, #6e2bb6);
 
                     display: flex;
-
-                    padding: 48px;
+                    align-items: center;
+                    padding: 32px 48px;
+                    font-size: 12px;
 
                     &:hover {
                         filter: saturate(200%);
+                    }
+
+                    .circle {
+                        min-width: 64px;
+                        min-height: 64px;
+                        border-radius: 50%;
+                        background: rgba(176, 139, 255, 0.44);
+                        margin-right: 32px;
                     }
                     // justify-content: space-around;
                 }
             }
 
             .video {
-                flex: 1;
+                flex: 3;
                 background: black;
+                border-radius: 12px;
+                overflow: hidden;
             }
         }
     }
