@@ -2,6 +2,10 @@
     <h1>NAV BAR</h1>
 </nav>
 
+<svelte:head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</svelte:head>
+
 <slot />
 
 <style lang="scss">

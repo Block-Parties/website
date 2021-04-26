@@ -1,165 +1,110 @@
-<script context="module">
-    // export const prerender = true
-</script>
-
 <script lang="ts">
-    import ScrollButton from "$lib/components/splash/ScrollButton.svelte"
+    import Waves from "$lib/components/splash/Waves.svelte"
+    import { onMount } from "svelte"
 
-    function browse() {
-        // location.href = "/parties"
-        alert("Coming Soon!")
+    function showExtension() {
+        open("https://google.com", "blank")
     }
 
-    function installExtension() {
-        // location.href = "https://google.com"
-        alert("Coming Soon!")
+    function showParties() {
+        location.href = "/parties"
     }
 
-    let email: string
-
-    async function signUp() {
-        await fetch("http://3.143.138.224:8000/join-beta", {
-            method: "post",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email: email,
-                createdAt: new Date(),
-            }),
-        })
-
-        alert("Thank you for registering!")
-    }
-
-    function scroll() {
-        const elem = document.getElementsByClassName("two")[0]
-
-        scrollTo({
-            top: elem.getBoundingClientRect().top,
-            behavior: "smooth",
-        })
+    function scrollDown() {
+        const elem = window.document.getElementsByClassName("how-it-works")[0]
+        scrollTo({ top: elem.getClientRects().item(0).top, behavior: "smooth" })
     }
 </script>
 
-<div class="section one full-height">
+<div class="container">
     <div class="content">
-        <img src="images/full_logo.svg" class="logo" alt="Block Parties" />
+        <div class="nav">
+            <h4>Block Parties</h4>
 
-        <!-- <p>Block Parties</p> -->
-
-        <!-- <p>
-            Block Parties lets you buy and sell fractional NFTs. We leverage Ethereum smart contracts to enable
-            trustless group investing.
-        </p> -->
-
-        <div class="button-row">
-            <button on:click={browse}>Browse</button>
-            <button on:click={installExtension}>Install the Extension</button>
+            <div>
+                <a on:click={scrollDown}>How it works</a>
+            </div>
         </div>
 
-        <div class="email-form">
-            <h5>Reserve your seat in the limited access beta</h5>
-            <br /><br />
-            <div class="form-input">
-                <input bind:value={email} type="email" placeholder="Enter your email" />
-                <button on:click={signUp}>Submit</button>
-            </div>
-            <p>We won't use your email for anything other than letting you know when beta opens.</p>
-            <br />
-            <p>Wanna chat? <a href="https://discord.gg/TNGQuuazez"> Join our Discord</a></p>
-        </div>
+        <div class="main" style="display:flex">
+            <div>
+                <p>The future of group transactions</p>
+                <h1>
+                    Invest securely
+                    <br />
+                    on the blockchain
+                </h1>
 
-        <div class="scroll-button" on:click={scroll}>
-            <ScrollButton />
-        </div>
+                <h5>Buy and sell fractional NFTs with <b>blockparties</b></h5>
 
-        <!-- 
-        <div class="card">
-            <div style="height: 65vh;">
-                <iframe
-                    width="100%"
-                    height="100%"
-                    src="https://www.youtube.com/embed/4LwXiQ1Zxig"
-                    title="YouTube video player"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen
-                />
-            </div>
-        </div> -->
-    </div>
-</div>
-
-<div class="section two">
-    <div class="content">
-        <div class="row">
-            <div class="card">
-                <ol>
-                    <li>Find an NFT you want to flip.</li>
-                    <li>Choose a party, or create a new one.</li>
-                    <li>Invest!</li>
-                    <li>Share the party with friends and others, and watch investments roll in.</li>
-                    <li>Block Parties buys the NFT on your behalf, and lists it for sale.</li>
-                    <li>Your NFT gets sold - profit!</li>
-                </ol>
+                <div class="button-row">
+                    <button on:click={showParties}>Browse</button>
+                    <button on:click={showExtension}>Install Extension</button>
+                </div>
             </div>
 
-            <div class="divider" />
-
-            <div class="card">
-                <ol>
-                    <li>Find an NFT you want to flip.</li>
-                    <li>Choose a party, or create a new one.</li>
-                    <li>Invest!</li>
-                    <li>Share the party with friends and others, and watch investments roll in.</li>
-                    <li>Block Parties buys the NFT on your behalf, and lists it for sale.</li>
-                    <li>Your NFT gets sold - profit!</li>
-                </ol>
+            <div>
+                <img src="images/people_circle.svg" alt="" />
             </div>
         </div>
     </div>
-</div>
 
-<div class="section three">
-    <div class="content">
-        <h1>Frequently Asked Questions</h1>
-
-        <p class="question">What do I need to get started investing?</p>
-        <p class="answer">
-            To invest, all you need is a web compatible Ethereum wallet. We recommend the popular wallet + extension
-            MetaMask. (include link). To create new parties, you'll need to install our Chrome Extension.
-        </p>
-        <hr />
-
-        <p class="question">Can I withdraw money invested in a party?</p>
-        <p class="answer">
-            Yes, you can withdraw your investment in any party at any time, up to the point the NFT is purchased.
-        </p>
-        <hr />
-
-        <p class="question">Where is my invested money stored?</p>
-        <p class="answer">
-            While a party is still collectings funds, your investment is stored securely on a proprietary smart contract
-            in the Ethereum blockchain. At no point do your funds enter a wallet that’s not yours or, after a successful
-            purchase, the person(s) selling the NFT, fees excluded.
-        </p>
-        <hr />
-
-        <p class="question">My party’s NFT doesn’t seem to be selling. What can I do?</p>
-        <p class="answer">
-            The NFT market is still young and somewhat exotic. Many NFTs will naturally take some time to sell, but if
-            you're still concerned after some time, reach out to us directly, and we'll do our best to help you sell.
-        </p>
-        <hr />
-
-        <p class="question">I have some feedback, concerns, or additional questions.</p>
-        <p class="answer">
-            If you'd like to get in touch with us, we've setup a public Discord server where our team is available to
-            talk to.
-        </p>
+    <div class="waves">
+        <Waves />
     </div>
 </div>
+
+<div class="how-it-works">
+    <div class="content">
+        <div class="cards">
+            <div class="step-card">
+                <div>
+                    <h4>Step 1</h4>
+                    <p>Browse the OpenSea marketplace.</p>
+                </div>
+            </div>
+            <div class="step-card">
+                <div>
+                    <h4>Step 2</h4>
+                    <p>Join a create a new party and invest!</p>
+                </div>
+            </div>
+            <div class="step-card">
+                <div>
+                    <h4>Step 3</h4>
+                    <p>Once the party is full, the NFT is purchased and listed for resale.</p>
+                </div>
+            </div>
+            <div class="step-card">
+                <div>
+                    <h4>Step 4</h4>
+                    <p>When the NFT gets sold, we distribute the profits to the party.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="video">.</div>
+    </div>
+</div>
+
+<div class="sign-up">
+    <div class="custom-button">
+        <h1>Join 569 more people in the waitlist</h1>
+
+        <div class="form">
+            <input placeholder="Your email address" />
+            <button>Join the waitlist</button>
+        </div>
+    </div>
+</div>
+
+<svelte:head>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    />
+</svelte:head>
 
 <style lang="scss">
     :global(body) {
@@ -170,177 +115,184 @@
         display: none;
     }
 
-    .content {
-        max-width: 1200px;
-        margin: auto;
-        padding: 0 32px;
+    h1,
+    h4,
+    h5 p {
+        font-family: Poppins, sans-serif;
     }
 
-    ol {
-        margin: 0;
+    a {
+        text-decoration: none;
+        font-weight: 600;
+
+        margin-left: 48px;
     }
 
     button {
         cursor: pointer;
-        background: #0352af;
-        box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.25);
-        border-radius: 4px;
-        border: none;
-        padding: 12px;
-
-        font-weight: 600;
-        font-size: 16px;
     }
 
-    .logo {
-        filter: brightness(0) saturate(100%) invert(0%) sepia(7%) saturate(349%) hue-rotate(75deg) brightness(100%)
-            contrast(100%) invert(100%);
-    }
-
-    .divider {
-        width: 4px;
-        height: 100%;
-        background: white;
-    }
-
-    .button-row {
+    .nav {
         display: flex;
-        flex-flow: row wrap;
-        justify-content: center;
-
-        margin: 16px;
-
-        button {
-            margin: 8px;
-            // margin-bottom: 16px;
-            // margin-right: 16px;
-        }
-    }
-
-    .card {
-        background: #0e0606;
-        box-shadow: 0px 4px 4px 4px rgba(32, 32, 32, 0.25);
-        border-radius: 24px;
-
-        overflow: hidden;
-    }
-
-    .full-height {
-        height: 100vh;
-    }
-
-    .section {
-        width: 100%;
-
-        background: linear-gradient(180deg, #5c329f 0%, #13053e 100%);
-    }
-
-    .one {
-        display: flex;
-        flex-direction: column;
+        justify-content: space-between;
         align-items: center;
 
-        button {
-            width: 240px;
-        }
+        padding: 24px 0;
     }
 
-    .two {
-        display: flex;
-        flex-direction: row;
-        height: 50vh;
+    .container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
 
-        // background: linear-gradient(180deg, #13053e 0%, #0070d7 100%);
-        background: rgb(211, 211, 211);
-    }
+        background: linear-gradient(to bottom right, #00093b, #361383);
 
-    .three {
-        background: #161616;
-        padding: 64px 0;
+        .content {
+            padding: 0 64px;
+            margin: 0 auto;
 
-        .question {
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 4px;
+            h5 {
+                font-weight: 300;
+                font-size: 16px;
+            }
         }
 
-        .answer {
-            margin: 8px 0;
+        .main {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 10%;
+
+            .button-row {
+                margin-top: 32px;
+
+                button {
+                    margin-right: 16px;
+                    box-shadow: 0 0 2px 2px #000000cc;
+
+                    background: #592cb6;
+                    border-radius: 4px;
+                    border: none;
+
+                    padding: 8px 32px;
+
+                    font-size: 16px;
+                    font-weight: 600;
+                }
+            }
+
+            img {
+                width: 100%;
+                max-width: 400px;
+            }
         }
 
-        h1 {
-            padding: 0 0 48px 0;
-        }
+        .waves {
+            position: absolute;
+            transform: scaleX(2);
+            bottom: 0;
+            left: 0;
+            right: 0;
 
-        hr {
-            border: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.75); //; border-width: 0.25px;
+            overflow: hidden;
 
-            margin: 32px 0;
-            // border-color: rgba(255, 255, 255, 0.5);s
-        }
-    }
-
-    .email-form {
-        width: 480px;
-        margin: 32px auto;
-
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 24px;
-
-        background: linear-gradient(0deg, #040a11, #040a11), #0352af;
-        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-        border-radius: 8px;
-
-        .form-input {
+            height: 25vh;
             width: 100%;
+        }
+    }
+
+    .how-it-works {
+        padding: 64px;
+        background: linear-gradient(#f2fbff, #e7f5ff);
+
+        //         background: linear-gradient(180deg, #E5E5E5 6.77%, rgba(41, 101, 255, 0.18) 99.99%, rgba(148, 41, 255, 0.53) 100%);
+        // filter: blur(200px);
+
+        //         display: flex;
+
+        .content {
+            max-width: 1200px;
+            margin: auto;
             display: flex;
 
-            input {
+            .cards {
                 flex: 1;
-                height: 48px;
+                margin-right: 32px;
 
-                border: none;
-                background: rgba(142, 145, 148, 0.1);
-                border-radius: 4px;
-                color: white;
+                .step-card {
+                    // max-width: 400px;
 
-                margin-right: 16px;
-                padding: 0 16px;
+                    transition: all 0.3s;
+                    background: linear-gradient(#8d50cf, #6e2bb6);
+
+                    display: flex;
+
+                    padding: 48px;
+
+                    &:hover {
+                        filter: saturate(200%);
+                    }
+                    // justify-content: space-around;
+                }
             }
 
-            button {
-                height: 48px;
-                width: 80px;
-                border: none;
-                background: #400a84;
-                border-radius: 4px;
-                padding: 8px;
-
-                color: white;
-                font-weight: 600;
-                font-size: 14px;
+            .video {
+                flex: 1;
+                background: black;
             }
-        }
-
-        h5 {
-            margin: 0;
-        }
-
-        p {
-            font-size: 12px;
-            font-weight: 300;
-            text-align: start;
-            margin-top: 8px;
-            color: #aaa;
         }
     }
 
-    .scroll-button {
-        position: absolute;
-        bottom: 32px;
-        left: calc(50% - 32px);
+    .sign-up {
+        background: linear-gradient(#f0f4f6, #f0f9ff);
+        margin: 0;
+        padding: 32px 0;
+
+        .custom-button {
+            width: 884px;
+            height: 180px;
+            background: #8c30f5;
+            border-radius: 16px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            position: relative;
+            background-image: url("images/button_background.svg");
+            background-repeat: no-repeat;
+            background-position: center;
+
+            margin: 32px auto;
+
+            .form {
+                margin-top: 24px;
+
+                input {
+                    margin: 0;
+                    height: 40px;
+                    background: #f4f5f7;
+                    border-radius: 5px 0px 0px 5px;
+                    border: none;
+
+                    margin-right: -8px;
+                    padding: 0 16px;
+                    width: 220px;
+
+                    color: black;
+                }
+
+                button {
+                    background: #18191f;
+                    border-radius: 0px 5px 5px 0px;
+                    border: none;
+
+                    padding: 12px 24px;
+                    font-weight: 600;
+                }
+            }
+        }
     }
 </style>
