@@ -66,28 +66,28 @@
 
     <div class="content">
         <div class="cards">
-            <div class="step-card">
+            <div class="step-card" style="background: #ac69f7">
                 <div class="circle" style="background-image: url('images/abstract3.svg');" />
                 <div>
                     <h4>Step 1</h4>
                     <p>Browse the OpenSea marketplace.</p>
                 </div>
             </div>
-            <div class="step-card">
+            <div class="step-card" style="background: #9d4ff6">
                 <div class="circle" style="background-image: url('images/abstract2.svg');" />
                 <div>
                     <h4>Step 2</h4>
                     <p>Join or create a party and invest!</p>
                 </div>
             </div>
-            <div class="step-card">
+            <div class="step-card" style="background: #8c30f5">
                 <div class="circle" style="background-image: url('images/abstract1.svg');" />
                 <div>
                     <h4>Step 3</h4>
                     <p>Once the party is full, the NFT is purchased and listed for resale.</p>
                 </div>
             </div>
-            <div class="step-card">
+            <div class="step-card" style="background: #721bd4">
                 <div class="circle" style="background-image: url('images/abstract3.svg');" />
                 <div>
                     <h4>Step 4</h4>
@@ -130,8 +130,14 @@
     }
 
     h1,
+    h2,
+    h3,
     h4,
-    h5 p {
+    h5,
+    p,
+    a,
+    button,
+    input {
         font-family: Poppins, sans-serif;
     }
 
@@ -166,9 +172,14 @@
             padding: 0 64px;
             margin: 0 auto;
 
+            p {
+                font-weight: 200;
+            }
+
             h5 {
                 font-weight: 300;
                 font-size: 16px;
+                margin-top: 8px;
             }
         }
 
@@ -176,7 +187,7 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            margin-top: min(6%, 96px);
+            margin-top: min(4%, 96px);
 
             .button-row {
                 margin-top: 32px;
@@ -245,11 +256,11 @@
                 margin-right: 32px;
                 border-radius: 12px;
                 overflow: hidden;
-                box-shadow: 0 0 3px 2px #4d4d4daa;
+                box-shadow: 0 0 2px 1px #4d4d4daa;
 
                 .step-card {
                     transition: all 0.3s;
-                    background: linear-gradient(#8d50cf, #6e2bb6);
+                    // background: linear-gradient(#ac69f7, #6e2bb6);
 
                     display: flex;
                     align-items: center;
@@ -279,7 +290,7 @@
                 background: black;
                 border-radius: 12px;
                 overflow: hidden;
-                box-shadow: 0 0 3px 2px #4d4d4daa;
+                box-shadow: 0 0 2px 1px #4d4d4daa;
             }
         }
     }
@@ -287,7 +298,7 @@
     .sign-up {
         // background: linear-gradient(#bcc8ec, #babaee);
         background-image: url(data:image/png;base64,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);
-        background-color: #9cb4e7; //linear-gradient(#ccdce8, #bcc8ec);
+        background-color: #8ba5df; //linear-gradient(#ccdce8, #bcc8ec);
 
         margin: 0;
         padding: 32px 0;
@@ -310,7 +321,7 @@
 
             margin: 32px auto;
 
-            box-shadow: 0 0 4px 2px #4d4d4daa;
+            box-shadow: 0 0 3px 1px #575757aa;
 
             .form {
                 margin-top: 24px;
