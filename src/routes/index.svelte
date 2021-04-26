@@ -25,7 +25,7 @@
             </div>
 
             <div>
-                <a on:click={scrollDown}>How it works</a>
+                <a style="cursor: pointer" on:click={scrollDown}>How it works</a>
             </div>
         </div>
 
