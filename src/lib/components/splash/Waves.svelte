@@ -151,7 +151,7 @@
         scene = new THREE.Scene()
         scene.background = null
 
-        let texture = new THREE.TextureLoader().load("images/lines2.png")
+        let texture = new THREE.TextureLoader().load("images/lines5.png")
 
         geometry = new THREE.PlaneGeometry(2, 1, 400, 400)
 
