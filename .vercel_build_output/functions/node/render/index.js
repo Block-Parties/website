@@ -5,6 +5,7 @@ var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __markAsModule = (target) => __defProp(target, "__esModule", {value: true});
+var __commonJS = (cb, mod) => () => (mod || cb((mod = {exports: {}}).exports, mod), mod.exports);
 var __export = (target, all) => {
   for (var name2 in all)
     __defProp(target, name2, {get: all[name2], enumerable: true});
@@ -20,6 +21,4145 @@ var __reExport = (target, module2, desc) => {
 var __toModule = (module2) => {
   return __reExport(__markAsModule(__defProp(module2 != null ? __create(__getProtoOf(module2)) : {}, "default", module2 && module2.__esModule && "default" in module2 ? {get: () => module2.default, enumerable: true} : {value: module2, enumerable: true})), module2);
 };
+
+// node_modules/bn.js/lib/bn.js
+var require_bn = __commonJS((exports, module2) => {
+  (function(module3, exports2) {
+    "use strict";
+    function assert2(val, msg) {
+      if (!val)
+        throw new Error(msg || "Assertion failed");
+    }
+    function inherits(ctor, superCtor) {
+      ctor.super_ = superCtor;
+      var TempCtor = function() {
+      };
+      TempCtor.prototype = superCtor.prototype;
+      ctor.prototype = new TempCtor();
+      ctor.prototype.constructor = ctor;
+    }
+    function BN(number, base2, endian) {
+      if (BN.isBN(number)) {
+        return number;
+      }
+      this.negative = 0;
+      this.words = null;
+      this.length = 0;
+      this.red = null;
+      if (number !== null) {
+        if (base2 === "le" || base2 === "be") {
+          endian = base2;
+          base2 = 10;
+        }
+        this._init(number || 0, base2 || 10, endian || "be");
+      }
+    }
+    if (typeof module3 === "object") {
+      module3.exports = BN;
+    } else {
+      exports2.BN = BN;
+    }
+    BN.BN = BN;
+    BN.wordSize = 26;
+    var Buffer2;
+    try {
+      if (typeof window !== "undefined" && typeof window.Buffer !== "undefined") {
+        Buffer2 = window.Buffer;
+      } else {
+        Buffer2 = require("buffer").Buffer;
+      }
+    } catch (e) {
+    }
+    BN.isBN = function isBN(num) {
+      if (num instanceof BN) {
+        return true;
+      }
+      return num !== null && typeof num === "object" && num.constructor.wordSize === BN.wordSize && Array.isArray(num.words);
+    };
+    BN.max = function max(left, right) {
+      if (left.cmp(right) > 0)
+        return left;
+      return right;
+    };
+    BN.min = function min(left, right) {
+      if (left.cmp(right) < 0)
+        return left;
+      return right;
+    };
+    BN.prototype._init = function init5(number, base2, endian) {
+      if (typeof number === "number") {
+        return this._initNumber(number, base2, endian);
+      }
+      if (typeof number === "object") {
+        return this._initArray(number, base2, endian);
+      }
+      if (base2 === "hex") {
+        base2 = 16;
+      }
+      assert2(base2 === (base2 | 0) && base2 >= 2 && base2 <= 36);
+      number = number.toString().replace(/\s+/g, "");
+      var start = 0;
+      if (number[0] === "-") {
+        start++;
+        this.negative = 1;
+      }
+      if (start < number.length) {
+        if (base2 === 16) {
+          this._parseHex(number, start, endian);
+        } else {
+          this._parseBase(number, base2, start);
+          if (endian === "le") {
+            this._initArray(this.toArray(), base2, endian);
+          }
+        }
+      }
+    };
+    BN.prototype._initNumber = function _initNumber(number, base2, endian) {
+      if (number < 0) {
+        this.negative = 1;
+        number = -number;
+      }
+      if (number < 67108864) {
+        this.words = [number & 67108863];
+        this.length = 1;
+      } else if (number < 4503599627370496) {
+        this.words = [
+          number & 67108863,
+          number / 67108864 & 67108863
+        ];
+        this.length = 2;
+      } else {
+        assert2(number < 9007199254740992);
+        this.words = [
+          number & 67108863,
+          number / 67108864 & 67108863,
+          1
+        ];
+        this.length = 3;
+      }
+      if (endian !== "le")
+        return;
+      this._initArray(this.toArray(), base2, endian);
+    };
+    BN.prototype._initArray = function _initArray(number, base2, endian) {
+      assert2(typeof number.length === "number");
+      if (number.length <= 0) {
+        this.words = [0];
+        this.length = 1;
+        return this;
+      }
+      this.length = Math.ceil(number.length / 3);
+      this.words = new Array(this.length);
+      for (var i = 0; i < this.length; i++) {
+        this.words[i] = 0;
+      }
+      var j, w;
+      var off = 0;
+      if (endian === "be") {
+        for (i = number.length - 1, j = 0; i >= 0; i -= 3) {
+          w = number[i] | number[i - 1] << 8 | number[i - 2] << 16;
+          this.words[j] |= w << off & 67108863;
+          this.words[j + 1] = w >>> 26 - off & 67108863;
+          off += 24;
+          if (off >= 26) {
+            off -= 26;
+            j++;
+          }
+        }
+      } else if (endian === "le") {
+        for (i = 0, j = 0; i < number.length; i += 3) {
+          w = number[i] | number[i + 1] << 8 | number[i + 2] << 16;
+          this.words[j] |= w << off & 67108863;
+          this.words[j + 1] = w >>> 26 - off & 67108863;
+          off += 24;
+          if (off >= 26) {
+            off -= 26;
+            j++;
+          }
+        }
+      }
+      return this.strip();
+    };
+    function parseHex4Bits(string, index2) {
+      var c = string.charCodeAt(index2);
+      if (c >= 65 && c <= 70) {
+        return c - 55;
+      } else if (c >= 97 && c <= 102) {
+        return c - 87;
+      } else {
+        return c - 48 & 15;
+      }
+    }
+    function parseHexByte(string, lowerBound, index2) {
+      var r2 = parseHex4Bits(string, index2);
+      if (index2 - 1 >= lowerBound) {
+        r2 |= parseHex4Bits(string, index2 - 1) << 4;
+      }
+      return r2;
+    }
+    BN.prototype._parseHex = function _parseHex(number, start, endian) {
+      this.length = Math.ceil((number.length - start) / 6);
+      this.words = new Array(this.length);
+      for (var i = 0; i < this.length; i++) {
+        this.words[i] = 0;
+      }
+      var off = 0;
+      var j = 0;
+      var w;
+      if (endian === "be") {
+        for (i = number.length - 1; i >= start; i -= 2) {
+          w = parseHexByte(number, start, i) << off;
+          this.words[j] |= w & 67108863;
+          if (off >= 18) {
+            off -= 18;
+            j += 1;
+            this.words[j] |= w >>> 26;
+          } else {
+            off += 8;
+          }
+        }
+      } else {
+        var parseLength = number.length - start;
+        for (i = parseLength % 2 === 0 ? start + 1 : start; i < number.length; i += 2) {
+          w = parseHexByte(number, start, i) << off;
+          this.words[j] |= w & 67108863;
+          if (off >= 18) {
+            off -= 18;
+            j += 1;
+            this.words[j] |= w >>> 26;
+          } else {
+            off += 8;
+          }
+        }
+      }
+      this.strip();
+    };
+    function parseBase(str, start, end, mul3) {
+      var r2 = 0;
+      var len = Math.min(str.length, end);
+      for (var i = start; i < len; i++) {
+        var c = str.charCodeAt(i) - 48;
+        r2 *= mul3;
+        if (c >= 49) {
+          r2 += c - 49 + 10;
+        } else if (c >= 17) {
+          r2 += c - 17 + 10;
+        } else {
+          r2 += c;
+        }
+      }
+      return r2;
+    }
+    BN.prototype._parseBase = function _parseBase(number, base2, start) {
+      this.words = [0];
+      this.length = 1;
+      for (var limbLen = 0, limbPow = 1; limbPow <= 67108863; limbPow *= base2) {
+        limbLen++;
+      }
+      limbLen--;
+      limbPow = limbPow / base2 | 0;
+      var total = number.length - start;
+      var mod = total % limbLen;
+      var end = Math.min(total, total - mod) + start;
+      var word = 0;
+      for (var i = start; i < end; i += limbLen) {
+        word = parseBase(number, i, i + limbLen, base2);
+        this.imuln(limbPow);
+        if (this.words[0] + word < 67108864) {
+          this.words[0] += word;
+        } else {
+          this._iaddn(word);
+        }
+      }
+      if (mod !== 0) {
+        var pow = 1;
+        word = parseBase(number, i, number.length, base2);
+        for (i = 0; i < mod; i++) {
+          pow *= base2;
+        }
+        this.imuln(pow);
+        if (this.words[0] + word < 67108864) {
+          this.words[0] += word;
+        } else {
+          this._iaddn(word);
+        }
+      }
+      this.strip();
+    };
+    BN.prototype.copy = function copy(dest) {
+      dest.words = new Array(this.length);
+      for (var i = 0; i < this.length; i++) {
+        dest.words[i] = this.words[i];
+      }
+      dest.length = this.length;
+      dest.negative = this.negative;
+      dest.red = this.red;
+    };
+    BN.prototype.clone = function clone2() {
+      var r2 = new BN(null);
+      this.copy(r2);
+      return r2;
+    };
+    BN.prototype._expand = function _expand(size) {
+      while (this.length < size) {
+        this.words[this.length++] = 0;
+      }
+      return this;
+    };
+    BN.prototype.strip = function strip() {
+      while (this.length > 1 && this.words[this.length - 1] === 0) {
+        this.length--;
+      }
+      return this._normSign();
+    };
+    BN.prototype._normSign = function _normSign() {
+      if (this.length === 1 && this.words[0] === 0) {
+        this.negative = 0;
+      }
+      return this;
+    };
+    BN.prototype.inspect = function inspect4() {
+      return (this.red ? "<BN-R: " : "<BN: ") + this.toString(16) + ">";
+    };
+    var zeros = [
+      "",
+      "0",
+      "00",
+      "000",
+      "0000",
+      "00000",
+      "000000",
+      "0000000",
+      "00000000",
+      "000000000",
+      "0000000000",
+      "00000000000",
+      "000000000000",
+      "0000000000000",
+      "00000000000000",
+      "000000000000000",
+      "0000000000000000",
+      "00000000000000000",
+      "000000000000000000",
+      "0000000000000000000",
+      "00000000000000000000",
+      "000000000000000000000",
+      "0000000000000000000000",
+      "00000000000000000000000",
+      "000000000000000000000000",
+      "0000000000000000000000000"
+    ];
+    var groupSizes = [
+      0,
+      0,
+      25,
+      16,
+      12,
+      11,
+      10,
+      9,
+      8,
+      8,
+      7,
+      7,
+      7,
+      7,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ];
+    var groupBases = [
+      0,
+      0,
+      33554432,
+      43046721,
+      16777216,
+      48828125,
+      60466176,
+      40353607,
+      16777216,
+      43046721,
+      1e7,
+      19487171,
+      35831808,
+      62748517,
+      7529536,
+      11390625,
+      16777216,
+      24137569,
+      34012224,
+      47045881,
+      64e6,
+      4084101,
+      5153632,
+      6436343,
+      7962624,
+      9765625,
+      11881376,
+      14348907,
+      17210368,
+      20511149,
+      243e5,
+      28629151,
+      33554432,
+      39135393,
+      45435424,
+      52521875,
+      60466176
+    ];
+    BN.prototype.toString = function toString(base2, padding2) {
+      base2 = base2 || 10;
+      padding2 = padding2 | 0 || 1;
+      var out;
+      if (base2 === 16 || base2 === "hex") {
+        out = "";
+        var off = 0;
+        var carry = 0;
+        for (var i = 0; i < this.length; i++) {
+          var w = this.words[i];
+          var word = ((w << off | carry) & 16777215).toString(16);
+          carry = w >>> 24 - off & 16777215;
+          if (carry !== 0 || i !== this.length - 1) {
+            out = zeros[6 - word.length] + word + out;
+          } else {
+            out = word + out;
+          }
+          off += 2;
+          if (off >= 26) {
+            off -= 26;
+            i--;
+          }
+        }
+        if (carry !== 0) {
+          out = carry.toString(16) + out;
+        }
+        while (out.length % padding2 !== 0) {
+          out = "0" + out;
+        }
+        if (this.negative !== 0) {
+          out = "-" + out;
+        }
+        return out;
+      }
+      if (base2 === (base2 | 0) && base2 >= 2 && base2 <= 36) {
+        var groupSize = groupSizes[base2];
+        var groupBase = groupBases[base2];
+        out = "";
+        var c = this.clone();
+        c.negative = 0;
+        while (!c.isZero()) {
+          var r2 = c.modn(groupBase).toString(base2);
+          c = c.idivn(groupBase);
+          if (!c.isZero()) {
+            out = zeros[groupSize - r2.length] + r2 + out;
+          } else {
+            out = r2 + out;
+          }
+        }
+        if (this.isZero()) {
+          out = "0" + out;
+        }
+        while (out.length % padding2 !== 0) {
+          out = "0" + out;
+        }
+        if (this.negative !== 0) {
+          out = "-" + out;
+        }
+        return out;
+      }
+      assert2(false, "Base should be between 2 and 36");
+    };
+    BN.prototype.toNumber = function toNumber() {
+      var ret = this.words[0];
+      if (this.length === 2) {
+        ret += this.words[1] * 67108864;
+      } else if (this.length === 3 && this.words[2] === 1) {
+        ret += 4503599627370496 + this.words[1] * 67108864;
+      } else if (this.length > 2) {
+        assert2(false, "Number can only safely store up to 53 bits");
+      }
+      return this.negative !== 0 ? -ret : ret;
+    };
+    BN.prototype.toJSON = function toJSON2() {
+      return this.toString(16);
+    };
+    BN.prototype.toBuffer = function toBuffer(endian, length) {
+      assert2(typeof Buffer2 !== "undefined");
+      return this.toArrayLike(Buffer2, endian, length);
+    };
+    BN.prototype.toArray = function toArray2(endian, length) {
+      return this.toArrayLike(Array, endian, length);
+    };
+    BN.prototype.toArrayLike = function toArrayLike(ArrayType, endian, length) {
+      var byteLength = this.byteLength();
+      var reqLength = length || Math.max(1, byteLength);
+      assert2(byteLength <= reqLength, "byte array longer than desired length");
+      assert2(reqLength > 0, "Requested array length <= 0");
+      this.strip();
+      var littleEndian = endian === "le";
+      var res = new ArrayType(reqLength);
+      var b, i;
+      var q = this.clone();
+      if (!littleEndian) {
+        for (i = 0; i < reqLength - byteLength; i++) {
+          res[i] = 0;
+        }
+        for (i = 0; !q.isZero(); i++) {
+          b = q.andln(255);
+          q.iushrn(8);
+          res[reqLength - i - 1] = b;
+        }
+      } else {
+        for (i = 0; !q.isZero(); i++) {
+          b = q.andln(255);
+          q.iushrn(8);
+          res[i] = b;
+        }
+        for (; i < reqLength; i++) {
+          res[i] = 0;
+        }
+      }
+      return res;
+    };
+    if (Math.clz32) {
+      BN.prototype._countBits = function _countBits(w) {
+        return 32 - Math.clz32(w);
+      };
+    } else {
+      BN.prototype._countBits = function _countBits(w) {
+        var t = w;
+        var r2 = 0;
+        if (t >= 4096) {
+          r2 += 13;
+          t >>>= 13;
+        }
+        if (t >= 64) {
+          r2 += 7;
+          t >>>= 7;
+        }
+        if (t >= 8) {
+          r2 += 4;
+          t >>>= 4;
+        }
+        if (t >= 2) {
+          r2 += 2;
+          t >>>= 2;
+        }
+        return r2 + t;
+      };
+    }
+    BN.prototype._zeroBits = function _zeroBits(w) {
+      if (w === 0)
+        return 26;
+      var t = w;
+      var r2 = 0;
+      if ((t & 8191) === 0) {
+        r2 += 13;
+        t >>>= 13;
+      }
+      if ((t & 127) === 0) {
+        r2 += 7;
+        t >>>= 7;
+      }
+      if ((t & 15) === 0) {
+        r2 += 4;
+        t >>>= 4;
+      }
+      if ((t & 3) === 0) {
+        r2 += 2;
+        t >>>= 2;
+      }
+      if ((t & 1) === 0) {
+        r2++;
+      }
+      return r2;
+    };
+    BN.prototype.bitLength = function bitLength() {
+      var w = this.words[this.length - 1];
+      var hi = this._countBits(w);
+      return (this.length - 1) * 26 + hi;
+    };
+    function toBitArray(num) {
+      var w = new Array(num.bitLength());
+      for (var bit = 0; bit < w.length; bit++) {
+        var off = bit / 26 | 0;
+        var wbit = bit % 26;
+        w[bit] = (num.words[off] & 1 << wbit) >>> wbit;
+      }
+      return w;
+    }
+    BN.prototype.zeroBits = function zeroBits() {
+      if (this.isZero())
+        return 0;
+      var r2 = 0;
+      for (var i = 0; i < this.length; i++) {
+        var b = this._zeroBits(this.words[i]);
+        r2 += b;
+        if (b !== 26)
+          break;
+      }
+      return r2;
+    };
+    BN.prototype.byteLength = function byteLength() {
+      return Math.ceil(this.bitLength() / 8);
+    };
+    BN.prototype.toTwos = function toTwos(width) {
+      if (this.negative !== 0) {
+        return this.abs().inotn(width).iaddn(1);
+      }
+      return this.clone();
+    };
+    BN.prototype.fromTwos = function fromTwos(width) {
+      if (this.testn(width - 1)) {
+        return this.notn(width).iaddn(1).ineg();
+      }
+      return this.clone();
+    };
+    BN.prototype.isNeg = function isNeg() {
+      return this.negative !== 0;
+    };
+    BN.prototype.neg = function neg3() {
+      return this.clone().ineg();
+    };
+    BN.prototype.ineg = function ineg() {
+      if (!this.isZero()) {
+        this.negative ^= 1;
+      }
+      return this;
+    };
+    BN.prototype.iuor = function iuor(num) {
+      while (this.length < num.length) {
+        this.words[this.length++] = 0;
+      }
+      for (var i = 0; i < num.length; i++) {
+        this.words[i] = this.words[i] | num.words[i];
+      }
+      return this.strip();
+    };
+    BN.prototype.ior = function ior(num) {
+      assert2((this.negative | num.negative) === 0);
+      return this.iuor(num);
+    };
+    BN.prototype.or = function or(num) {
+      if (this.length > num.length)
+        return this.clone().ior(num);
+      return num.clone().ior(this);
+    };
+    BN.prototype.uor = function uor(num) {
+      if (this.length > num.length)
+        return this.clone().iuor(num);
+      return num.clone().iuor(this);
+    };
+    BN.prototype.iuand = function iuand(num) {
+      var b;
+      if (this.length > num.length) {
+        b = num;
+      } else {
+        b = this;
+      }
+      for (var i = 0; i < b.length; i++) {
+        this.words[i] = this.words[i] & num.words[i];
+      }
+      this.length = b.length;
+      return this.strip();
+    };
+    BN.prototype.iand = function iand(num) {
+      assert2((this.negative | num.negative) === 0);
+      return this.iuand(num);
+    };
+    BN.prototype.and = function and(num) {
+      if (this.length > num.length)
+        return this.clone().iand(num);
+      return num.clone().iand(this);
+    };
+    BN.prototype.uand = function uand(num) {
+      if (this.length > num.length)
+        return this.clone().iuand(num);
+      return num.clone().iuand(this);
+    };
+    BN.prototype.iuxor = function iuxor(num) {
+      var a;
+      var b;
+      if (this.length > num.length) {
+        a = this;
+        b = num;
+      } else {
+        a = num;
+        b = this;
+      }
+      for (var i = 0; i < b.length; i++) {
+        this.words[i] = a.words[i] ^ b.words[i];
+      }
+      if (this !== a) {
+        for (; i < a.length; i++) {
+          this.words[i] = a.words[i];
+        }
+      }
+      this.length = a.length;
+      return this.strip();
+    };
+    BN.prototype.ixor = function ixor(num) {
+      assert2((this.negative | num.negative) === 0);
+      return this.iuxor(num);
+    };
+    BN.prototype.xor = function xor(num) {
+      if (this.length > num.length)
+        return this.clone().ixor(num);
+      return num.clone().ixor(this);
+    };
+    BN.prototype.uxor = function uxor(num) {
+      if (this.length > num.length)
+        return this.clone().iuxor(num);
+      return num.clone().iuxor(this);
+    };
+    BN.prototype.inotn = function inotn(width) {
+      assert2(typeof width === "number" && width >= 0);
+      var bytesNeeded = Math.ceil(width / 26) | 0;
+      var bitsLeft = width % 26;
+      this._expand(bytesNeeded);
+      if (bitsLeft > 0) {
+        bytesNeeded--;
+      }
+      for (var i = 0; i < bytesNeeded; i++) {
+        this.words[i] = ~this.words[i] & 67108863;
+      }
+      if (bitsLeft > 0) {
+        this.words[i] = ~this.words[i] & 67108863 >> 26 - bitsLeft;
+      }
+      return this.strip();
+    };
+    BN.prototype.notn = function notn(width) {
+      return this.clone().inotn(width);
+    };
+    BN.prototype.setn = function setn(bit, val) {
+      assert2(typeof bit === "number" && bit >= 0);
+      var off = bit / 26 | 0;
+      var wbit = bit % 26;
+      this._expand(off + 1);
+      if (val) {
+        this.words[off] = this.words[off] | 1 << wbit;
+      } else {
+        this.words[off] = this.words[off] & ~(1 << wbit);
+      }
+      return this.strip();
+    };
+    BN.prototype.iadd = function iadd(num) {
+      var r2;
+      if (this.negative !== 0 && num.negative === 0) {
+        this.negative = 0;
+        r2 = this.isub(num);
+        this.negative ^= 1;
+        return this._normSign();
+      } else if (this.negative === 0 && num.negative !== 0) {
+        num.negative = 0;
+        r2 = this.isub(num);
+        num.negative = 1;
+        return r2._normSign();
+      }
+      var a, b;
+      if (this.length > num.length) {
+        a = this;
+        b = num;
+      } else {
+        a = num;
+        b = this;
+      }
+      var carry = 0;
+      for (var i = 0; i < b.length; i++) {
+        r2 = (a.words[i] | 0) + (b.words[i] | 0) + carry;
+        this.words[i] = r2 & 67108863;
+        carry = r2 >>> 26;
+      }
+      for (; carry !== 0 && i < a.length; i++) {
+        r2 = (a.words[i] | 0) + carry;
+        this.words[i] = r2 & 67108863;
+        carry = r2 >>> 26;
+      }
+      this.length = a.length;
+      if (carry !== 0) {
+        this.words[this.length] = carry;
+        this.length++;
+      } else if (a !== this) {
+        for (; i < a.length; i++) {
+          this.words[i] = a.words[i];
+        }
+      }
+      return this;
+    };
+    BN.prototype.add = function add3(num) {
+      var res;
+      if (num.negative !== 0 && this.negative === 0) {
+        num.negative = 0;
+        res = this.sub(num);
+        num.negative ^= 1;
+        return res;
+      } else if (num.negative === 0 && this.negative !== 0) {
+        this.negative = 0;
+        res = num.sub(this);
+        this.negative = 1;
+        return res;
+      }
+      if (this.length > num.length)
+        return this.clone().iadd(num);
+      return num.clone().iadd(this);
+    };
+    BN.prototype.isub = function isub(num) {
+      if (num.negative !== 0) {
+        num.negative = 0;
+        var r2 = this.iadd(num);
+        num.negative = 1;
+        return r2._normSign();
+      } else if (this.negative !== 0) {
+        this.negative = 0;
+        this.iadd(num);
+        this.negative = 1;
+        return this._normSign();
+      }
+      var cmp = this.cmp(num);
+      if (cmp === 0) {
+        this.negative = 0;
+        this.length = 1;
+        this.words[0] = 0;
+        return this;
+      }
+      var a, b;
+      if (cmp > 0) {
+        a = this;
+        b = num;
+      } else {
+        a = num;
+        b = this;
+      }
+      var carry = 0;
+      for (var i = 0; i < b.length; i++) {
+        r2 = (a.words[i] | 0) - (b.words[i] | 0) + carry;
+        carry = r2 >> 26;
+        this.words[i] = r2 & 67108863;
+      }
+      for (; carry !== 0 && i < a.length; i++) {
+        r2 = (a.words[i] | 0) + carry;
+        carry = r2 >> 26;
+        this.words[i] = r2 & 67108863;
+      }
+      if (carry === 0 && i < a.length && a !== this) {
+        for (; i < a.length; i++) {
+          this.words[i] = a.words[i];
+        }
+      }
+      this.length = Math.max(this.length, i);
+      if (a !== this) {
+        this.negative = 1;
+      }
+      return this.strip();
+    };
+    BN.prototype.sub = function sub(num) {
+      return this.clone().isub(num);
+    };
+    function smallMulTo(self2, num, out) {
+      out.negative = num.negative ^ self2.negative;
+      var len = self2.length + num.length | 0;
+      out.length = len;
+      len = len - 1 | 0;
+      var a = self2.words[0] | 0;
+      var b = num.words[0] | 0;
+      var r2 = a * b;
+      var lo = r2 & 67108863;
+      var carry = r2 / 67108864 | 0;
+      out.words[0] = lo;
+      for (var k = 1; k < len; k++) {
+        var ncarry = carry >>> 26;
+        var rword = carry & 67108863;
+        var maxJ = Math.min(k, num.length - 1);
+        for (var j = Math.max(0, k - self2.length + 1); j <= maxJ; j++) {
+          var i = k - j | 0;
+          a = self2.words[i] | 0;
+          b = num.words[j] | 0;
+          r2 = a * b + rword;
+          ncarry += r2 / 67108864 | 0;
+          rword = r2 & 67108863;
+        }
+        out.words[k] = rword | 0;
+        carry = ncarry | 0;
+      }
+      if (carry !== 0) {
+        out.words[k] = carry | 0;
+      } else {
+        out.length--;
+      }
+      return out.strip();
+    }
+    var comb10MulTo = function comb10MulTo2(self2, num, out) {
+      var a = self2.words;
+      var b = num.words;
+      var o = out.words;
+      var c = 0;
+      var lo;
+      var mid;
+      var hi;
+      var a0 = a[0] | 0;
+      var al0 = a0 & 8191;
+      var ah0 = a0 >>> 13;
+      var a1 = a[1] | 0;
+      var al1 = a1 & 8191;
+      var ah1 = a1 >>> 13;
+      var a2 = a[2] | 0;
+      var al2 = a2 & 8191;
+      var ah2 = a2 >>> 13;
+      var a3 = a[3] | 0;
+      var al3 = a3 & 8191;
+      var ah3 = a3 >>> 13;
+      var a4 = a[4] | 0;
+      var al4 = a4 & 8191;
+      var ah4 = a4 >>> 13;
+      var a5 = a[5] | 0;
+      var al5 = a5 & 8191;
+      var ah5 = a5 >>> 13;
+      var a6 = a[6] | 0;
+      var al6 = a6 & 8191;
+      var ah6 = a6 >>> 13;
+      var a7 = a[7] | 0;
+      var al7 = a7 & 8191;
+      var ah7 = a7 >>> 13;
+      var a8 = a[8] | 0;
+      var al8 = a8 & 8191;
+      var ah8 = a8 >>> 13;
+      var a9 = a[9] | 0;
+      var al9 = a9 & 8191;
+      var ah9 = a9 >>> 13;
+      var b0 = b[0] | 0;
+      var bl0 = b0 & 8191;
+      var bh0 = b0 >>> 13;
+      var b1 = b[1] | 0;
+      var bl1 = b1 & 8191;
+      var bh1 = b1 >>> 13;
+      var b2 = b[2] | 0;
+      var bl2 = b2 & 8191;
+      var bh2 = b2 >>> 13;
+      var b3 = b[3] | 0;
+      var bl3 = b3 & 8191;
+      var bh3 = b3 >>> 13;
+      var b4 = b[4] | 0;
+      var bl4 = b4 & 8191;
+      var bh4 = b4 >>> 13;
+      var b5 = b[5] | 0;
+      var bl5 = b5 & 8191;
+      var bh5 = b5 >>> 13;
+      var b6 = b[6] | 0;
+      var bl6 = b6 & 8191;
+      var bh6 = b6 >>> 13;
+      var b7 = b[7] | 0;
+      var bl7 = b7 & 8191;
+      var bh7 = b7 >>> 13;
+      var b8 = b[8] | 0;
+      var bl8 = b8 & 8191;
+      var bh8 = b8 >>> 13;
+      var b9 = b[9] | 0;
+      var bl9 = b9 & 8191;
+      var bh9 = b9 >>> 13;
+      out.negative = self2.negative ^ num.negative;
+      out.length = 19;
+      lo = Math.imul(al0, bl0);
+      mid = Math.imul(al0, bh0);
+      mid = mid + Math.imul(ah0, bl0) | 0;
+      hi = Math.imul(ah0, bh0);
+      var w0 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w0 >>> 26) | 0;
+      w0 &= 67108863;
+      lo = Math.imul(al1, bl0);
+      mid = Math.imul(al1, bh0);
+      mid = mid + Math.imul(ah1, bl0) | 0;
+      hi = Math.imul(ah1, bh0);
+      lo = lo + Math.imul(al0, bl1) | 0;
+      mid = mid + Math.imul(al0, bh1) | 0;
+      mid = mid + Math.imul(ah0, bl1) | 0;
+      hi = hi + Math.imul(ah0, bh1) | 0;
+      var w1 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w1 >>> 26) | 0;
+      w1 &= 67108863;
+      lo = Math.imul(al2, bl0);
+      mid = Math.imul(al2, bh0);
+      mid = mid + Math.imul(ah2, bl0) | 0;
+      hi = Math.imul(ah2, bh0);
+      lo = lo + Math.imul(al1, bl1) | 0;
+      mid = mid + Math.imul(al1, bh1) | 0;
+      mid = mid + Math.imul(ah1, bl1) | 0;
+      hi = hi + Math.imul(ah1, bh1) | 0;
+      lo = lo + Math.imul(al0, bl2) | 0;
+      mid = mid + Math.imul(al0, bh2) | 0;
+      mid = mid + Math.imul(ah0, bl2) | 0;
+      hi = hi + Math.imul(ah0, bh2) | 0;
+      var w2 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w2 >>> 26) | 0;
+      w2 &= 67108863;
+      lo = Math.imul(al3, bl0);
+      mid = Math.imul(al3, bh0);
+      mid = mid + Math.imul(ah3, bl0) | 0;
+      hi = Math.imul(ah3, bh0);
+      lo = lo + Math.imul(al2, bl1) | 0;
+      mid = mid + Math.imul(al2, bh1) | 0;
+      mid = mid + Math.imul(ah2, bl1) | 0;
+      hi = hi + Math.imul(ah2, bh1) | 0;
+      lo = lo + Math.imul(al1, bl2) | 0;
+      mid = mid + Math.imul(al1, bh2) | 0;
+      mid = mid + Math.imul(ah1, bl2) | 0;
+      hi = hi + Math.imul(ah1, bh2) | 0;
+      lo = lo + Math.imul(al0, bl3) | 0;
+      mid = mid + Math.imul(al0, bh3) | 0;
+      mid = mid + Math.imul(ah0, bl3) | 0;
+      hi = hi + Math.imul(ah0, bh3) | 0;
+      var w3 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w3 >>> 26) | 0;
+      w3 &= 67108863;
+      lo = Math.imul(al4, bl0);
+      mid = Math.imul(al4, bh0);
+      mid = mid + Math.imul(ah4, bl0) | 0;
+      hi = Math.imul(ah4, bh0);
+      lo = lo + Math.imul(al3, bl1) | 0;
+      mid = mid + Math.imul(al3, bh1) | 0;
+      mid = mid + Math.imul(ah3, bl1) | 0;
+      hi = hi + Math.imul(ah3, bh1) | 0;
+      lo = lo + Math.imul(al2, bl2) | 0;
+      mid = mid + Math.imul(al2, bh2) | 0;
+      mid = mid + Math.imul(ah2, bl2) | 0;
+      hi = hi + Math.imul(ah2, bh2) | 0;
+      lo = lo + Math.imul(al1, bl3) | 0;
+      mid = mid + Math.imul(al1, bh3) | 0;
+      mid = mid + Math.imul(ah1, bl3) | 0;
+      hi = hi + Math.imul(ah1, bh3) | 0;
+      lo = lo + Math.imul(al0, bl4) | 0;
+      mid = mid + Math.imul(al0, bh4) | 0;
+      mid = mid + Math.imul(ah0, bl4) | 0;
+      hi = hi + Math.imul(ah0, bh4) | 0;
+      var w4 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w4 >>> 26) | 0;
+      w4 &= 67108863;
+      lo = Math.imul(al5, bl0);
+      mid = Math.imul(al5, bh0);
+      mid = mid + Math.imul(ah5, bl0) | 0;
+      hi = Math.imul(ah5, bh0);
+      lo = lo + Math.imul(al4, bl1) | 0;
+      mid = mid + Math.imul(al4, bh1) | 0;
+      mid = mid + Math.imul(ah4, bl1) | 0;
+      hi = hi + Math.imul(ah4, bh1) | 0;
+      lo = lo + Math.imul(al3, bl2) | 0;
+      mid = mid + Math.imul(al3, bh2) | 0;
+      mid = mid + Math.imul(ah3, bl2) | 0;
+      hi = hi + Math.imul(ah3, bh2) | 0;
+      lo = lo + Math.imul(al2, bl3) | 0;
+      mid = mid + Math.imul(al2, bh3) | 0;
+      mid = mid + Math.imul(ah2, bl3) | 0;
+      hi = hi + Math.imul(ah2, bh3) | 0;
+      lo = lo + Math.imul(al1, bl4) | 0;
+      mid = mid + Math.imul(al1, bh4) | 0;
+      mid = mid + Math.imul(ah1, bl4) | 0;
+      hi = hi + Math.imul(ah1, bh4) | 0;
+      lo = lo + Math.imul(al0, bl5) | 0;
+      mid = mid + Math.imul(al0, bh5) | 0;
+      mid = mid + Math.imul(ah0, bl5) | 0;
+      hi = hi + Math.imul(ah0, bh5) | 0;
+      var w5 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w5 >>> 26) | 0;
+      w5 &= 67108863;
+      lo = Math.imul(al6, bl0);
+      mid = Math.imul(al6, bh0);
+      mid = mid + Math.imul(ah6, bl0) | 0;
+      hi = Math.imul(ah6, bh0);
+      lo = lo + Math.imul(al5, bl1) | 0;
+      mid = mid + Math.imul(al5, bh1) | 0;
+      mid = mid + Math.imul(ah5, bl1) | 0;
+      hi = hi + Math.imul(ah5, bh1) | 0;
+      lo = lo + Math.imul(al4, bl2) | 0;
+      mid = mid + Math.imul(al4, bh2) | 0;
+      mid = mid + Math.imul(ah4, bl2) | 0;
+      hi = hi + Math.imul(ah4, bh2) | 0;
+      lo = lo + Math.imul(al3, bl3) | 0;
+      mid = mid + Math.imul(al3, bh3) | 0;
+      mid = mid + Math.imul(ah3, bl3) | 0;
+      hi = hi + Math.imul(ah3, bh3) | 0;
+      lo = lo + Math.imul(al2, bl4) | 0;
+      mid = mid + Math.imul(al2, bh4) | 0;
+      mid = mid + Math.imul(ah2, bl4) | 0;
+      hi = hi + Math.imul(ah2, bh4) | 0;
+      lo = lo + Math.imul(al1, bl5) | 0;
+      mid = mid + Math.imul(al1, bh5) | 0;
+      mid = mid + Math.imul(ah1, bl5) | 0;
+      hi = hi + Math.imul(ah1, bh5) | 0;
+      lo = lo + Math.imul(al0, bl6) | 0;
+      mid = mid + Math.imul(al0, bh6) | 0;
+      mid = mid + Math.imul(ah0, bl6) | 0;
+      hi = hi + Math.imul(ah0, bh6) | 0;
+      var w6 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w6 >>> 26) | 0;
+      w6 &= 67108863;
+      lo = Math.imul(al7, bl0);
+      mid = Math.imul(al7, bh0);
+      mid = mid + Math.imul(ah7, bl0) | 0;
+      hi = Math.imul(ah7, bh0);
+      lo = lo + Math.imul(al6, bl1) | 0;
+      mid = mid + Math.imul(al6, bh1) | 0;
+      mid = mid + Math.imul(ah6, bl1) | 0;
+      hi = hi + Math.imul(ah6, bh1) | 0;
+      lo = lo + Math.imul(al5, bl2) | 0;
+      mid = mid + Math.imul(al5, bh2) | 0;
+      mid = mid + Math.imul(ah5, bl2) | 0;
+      hi = hi + Math.imul(ah5, bh2) | 0;
+      lo = lo + Math.imul(al4, bl3) | 0;
+      mid = mid + Math.imul(al4, bh3) | 0;
+      mid = mid + Math.imul(ah4, bl3) | 0;
+      hi = hi + Math.imul(ah4, bh3) | 0;
+      lo = lo + Math.imul(al3, bl4) | 0;
+      mid = mid + Math.imul(al3, bh4) | 0;
+      mid = mid + Math.imul(ah3, bl4) | 0;
+      hi = hi + Math.imul(ah3, bh4) | 0;
+      lo = lo + Math.imul(al2, bl5) | 0;
+      mid = mid + Math.imul(al2, bh5) | 0;
+      mid = mid + Math.imul(ah2, bl5) | 0;
+      hi = hi + Math.imul(ah2, bh5) | 0;
+      lo = lo + Math.imul(al1, bl6) | 0;
+      mid = mid + Math.imul(al1, bh6) | 0;
+      mid = mid + Math.imul(ah1, bl6) | 0;
+      hi = hi + Math.imul(ah1, bh6) | 0;
+      lo = lo + Math.imul(al0, bl7) | 0;
+      mid = mid + Math.imul(al0, bh7) | 0;
+      mid = mid + Math.imul(ah0, bl7) | 0;
+      hi = hi + Math.imul(ah0, bh7) | 0;
+      var w7 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w7 >>> 26) | 0;
+      w7 &= 67108863;
+      lo = Math.imul(al8, bl0);
+      mid = Math.imul(al8, bh0);
+      mid = mid + Math.imul(ah8, bl0) | 0;
+      hi = Math.imul(ah8, bh0);
+      lo = lo + Math.imul(al7, bl1) | 0;
+      mid = mid + Math.imul(al7, bh1) | 0;
+      mid = mid + Math.imul(ah7, bl1) | 0;
+      hi = hi + Math.imul(ah7, bh1) | 0;
+      lo = lo + Math.imul(al6, bl2) | 0;
+      mid = mid + Math.imul(al6, bh2) | 0;
+      mid = mid + Math.imul(ah6, bl2) | 0;
+      hi = hi + Math.imul(ah6, bh2) | 0;
+      lo = lo + Math.imul(al5, bl3) | 0;
+      mid = mid + Math.imul(al5, bh3) | 0;
+      mid = mid + Math.imul(ah5, bl3) | 0;
+      hi = hi + Math.imul(ah5, bh3) | 0;
+      lo = lo + Math.imul(al4, bl4) | 0;
+      mid = mid + Math.imul(al4, bh4) | 0;
+      mid = mid + Math.imul(ah4, bl4) | 0;
+      hi = hi + Math.imul(ah4, bh4) | 0;
+      lo = lo + Math.imul(al3, bl5) | 0;
+      mid = mid + Math.imul(al3, bh5) | 0;
+      mid = mid + Math.imul(ah3, bl5) | 0;
+      hi = hi + Math.imul(ah3, bh5) | 0;
+      lo = lo + Math.imul(al2, bl6) | 0;
+      mid = mid + Math.imul(al2, bh6) | 0;
+      mid = mid + Math.imul(ah2, bl6) | 0;
+      hi = hi + Math.imul(ah2, bh6) | 0;
+      lo = lo + Math.imul(al1, bl7) | 0;
+      mid = mid + Math.imul(al1, bh7) | 0;
+      mid = mid + Math.imul(ah1, bl7) | 0;
+      hi = hi + Math.imul(ah1, bh7) | 0;
+      lo = lo + Math.imul(al0, bl8) | 0;
+      mid = mid + Math.imul(al0, bh8) | 0;
+      mid = mid + Math.imul(ah0, bl8) | 0;
+      hi = hi + Math.imul(ah0, bh8) | 0;
+      var w8 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w8 >>> 26) | 0;
+      w8 &= 67108863;
+      lo = Math.imul(al9, bl0);
+      mid = Math.imul(al9, bh0);
+      mid = mid + Math.imul(ah9, bl0) | 0;
+      hi = Math.imul(ah9, bh0);
+      lo = lo + Math.imul(al8, bl1) | 0;
+      mid = mid + Math.imul(al8, bh1) | 0;
+      mid = mid + Math.imul(ah8, bl1) | 0;
+      hi = hi + Math.imul(ah8, bh1) | 0;
+      lo = lo + Math.imul(al7, bl2) | 0;
+      mid = mid + Math.imul(al7, bh2) | 0;
+      mid = mid + Math.imul(ah7, bl2) | 0;
+      hi = hi + Math.imul(ah7, bh2) | 0;
+      lo = lo + Math.imul(al6, bl3) | 0;
+      mid = mid + Math.imul(al6, bh3) | 0;
+      mid = mid + Math.imul(ah6, bl3) | 0;
+      hi = hi + Math.imul(ah6, bh3) | 0;
+      lo = lo + Math.imul(al5, bl4) | 0;
+      mid = mid + Math.imul(al5, bh4) | 0;
+      mid = mid + Math.imul(ah5, bl4) | 0;
+      hi = hi + Math.imul(ah5, bh4) | 0;
+      lo = lo + Math.imul(al4, bl5) | 0;
+      mid = mid + Math.imul(al4, bh5) | 0;
+      mid = mid + Math.imul(ah4, bl5) | 0;
+      hi = hi + Math.imul(ah4, bh5) | 0;
+      lo = lo + Math.imul(al3, bl6) | 0;
+      mid = mid + Math.imul(al3, bh6) | 0;
+      mid = mid + Math.imul(ah3, bl6) | 0;
+      hi = hi + Math.imul(ah3, bh6) | 0;
+      lo = lo + Math.imul(al2, bl7) | 0;
+      mid = mid + Math.imul(al2, bh7) | 0;
+      mid = mid + Math.imul(ah2, bl7) | 0;
+      hi = hi + Math.imul(ah2, bh7) | 0;
+      lo = lo + Math.imul(al1, bl8) | 0;
+      mid = mid + Math.imul(al1, bh8) | 0;
+      mid = mid + Math.imul(ah1, bl8) | 0;
+      hi = hi + Math.imul(ah1, bh8) | 0;
+      lo = lo + Math.imul(al0, bl9) | 0;
+      mid = mid + Math.imul(al0, bh9) | 0;
+      mid = mid + Math.imul(ah0, bl9) | 0;
+      hi = hi + Math.imul(ah0, bh9) | 0;
+      var w9 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w9 >>> 26) | 0;
+      w9 &= 67108863;
+      lo = Math.imul(al9, bl1);
+      mid = Math.imul(al9, bh1);
+      mid = mid + Math.imul(ah9, bl1) | 0;
+      hi = Math.imul(ah9, bh1);
+      lo = lo + Math.imul(al8, bl2) | 0;
+      mid = mid + Math.imul(al8, bh2) | 0;
+      mid = mid + Math.imul(ah8, bl2) | 0;
+      hi = hi + Math.imul(ah8, bh2) | 0;
+      lo = lo + Math.imul(al7, bl3) | 0;
+      mid = mid + Math.imul(al7, bh3) | 0;
+      mid = mid + Math.imul(ah7, bl3) | 0;
+      hi = hi + Math.imul(ah7, bh3) | 0;
+      lo = lo + Math.imul(al6, bl4) | 0;
+      mid = mid + Math.imul(al6, bh4) | 0;
+      mid = mid + Math.imul(ah6, bl4) | 0;
+      hi = hi + Math.imul(ah6, bh4) | 0;
+      lo = lo + Math.imul(al5, bl5) | 0;
+      mid = mid + Math.imul(al5, bh5) | 0;
+      mid = mid + Math.imul(ah5, bl5) | 0;
+      hi = hi + Math.imul(ah5, bh5) | 0;
+      lo = lo + Math.imul(al4, bl6) | 0;
+      mid = mid + Math.imul(al4, bh6) | 0;
+      mid = mid + Math.imul(ah4, bl6) | 0;
+      hi = hi + Math.imul(ah4, bh6) | 0;
+      lo = lo + Math.imul(al3, bl7) | 0;
+      mid = mid + Math.imul(al3, bh7) | 0;
+      mid = mid + Math.imul(ah3, bl7) | 0;
+      hi = hi + Math.imul(ah3, bh7) | 0;
+      lo = lo + Math.imul(al2, bl8) | 0;
+      mid = mid + Math.imul(al2, bh8) | 0;
+      mid = mid + Math.imul(ah2, bl8) | 0;
+      hi = hi + Math.imul(ah2, bh8) | 0;
+      lo = lo + Math.imul(al1, bl9) | 0;
+      mid = mid + Math.imul(al1, bh9) | 0;
+      mid = mid + Math.imul(ah1, bl9) | 0;
+      hi = hi + Math.imul(ah1, bh9) | 0;
+      var w10 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w10 >>> 26) | 0;
+      w10 &= 67108863;
+      lo = Math.imul(al9, bl2);
+      mid = Math.imul(al9, bh2);
+      mid = mid + Math.imul(ah9, bl2) | 0;
+      hi = Math.imul(ah9, bh2);
+      lo = lo + Math.imul(al8, bl3) | 0;
+      mid = mid + Math.imul(al8, bh3) | 0;
+      mid = mid + Math.imul(ah8, bl3) | 0;
+      hi = hi + Math.imul(ah8, bh3) | 0;
+      lo = lo + Math.imul(al7, bl4) | 0;
+      mid = mid + Math.imul(al7, bh4) | 0;
+      mid = mid + Math.imul(ah7, bl4) | 0;
+      hi = hi + Math.imul(ah7, bh4) | 0;
+      lo = lo + Math.imul(al6, bl5) | 0;
+      mid = mid + Math.imul(al6, bh5) | 0;
+      mid = mid + Math.imul(ah6, bl5) | 0;
+      hi = hi + Math.imul(ah6, bh5) | 0;
+      lo = lo + Math.imul(al5, bl6) | 0;
+      mid = mid + Math.imul(al5, bh6) | 0;
+      mid = mid + Math.imul(ah5, bl6) | 0;
+      hi = hi + Math.imul(ah5, bh6) | 0;
+      lo = lo + Math.imul(al4, bl7) | 0;
+      mid = mid + Math.imul(al4, bh7) | 0;
+      mid = mid + Math.imul(ah4, bl7) | 0;
+      hi = hi + Math.imul(ah4, bh7) | 0;
+      lo = lo + Math.imul(al3, bl8) | 0;
+      mid = mid + Math.imul(al3, bh8) | 0;
+      mid = mid + Math.imul(ah3, bl8) | 0;
+      hi = hi + Math.imul(ah3, bh8) | 0;
+      lo = lo + Math.imul(al2, bl9) | 0;
+      mid = mid + Math.imul(al2, bh9) | 0;
+      mid = mid + Math.imul(ah2, bl9) | 0;
+      hi = hi + Math.imul(ah2, bh9) | 0;
+      var w11 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w11 >>> 26) | 0;
+      w11 &= 67108863;
+      lo = Math.imul(al9, bl3);
+      mid = Math.imul(al9, bh3);
+      mid = mid + Math.imul(ah9, bl3) | 0;
+      hi = Math.imul(ah9, bh3);
+      lo = lo + Math.imul(al8, bl4) | 0;
+      mid = mid + Math.imul(al8, bh4) | 0;
+      mid = mid + Math.imul(ah8, bl4) | 0;
+      hi = hi + Math.imul(ah8, bh4) | 0;
+      lo = lo + Math.imul(al7, bl5) | 0;
+      mid = mid + Math.imul(al7, bh5) | 0;
+      mid = mid + Math.imul(ah7, bl5) | 0;
+      hi = hi + Math.imul(ah7, bh5) | 0;
+      lo = lo + Math.imul(al6, bl6) | 0;
+      mid = mid + Math.imul(al6, bh6) | 0;
+      mid = mid + Math.imul(ah6, bl6) | 0;
+      hi = hi + Math.imul(ah6, bh6) | 0;
+      lo = lo + Math.imul(al5, bl7) | 0;
+      mid = mid + Math.imul(al5, bh7) | 0;
+      mid = mid + Math.imul(ah5, bl7) | 0;
+      hi = hi + Math.imul(ah5, bh7) | 0;
+      lo = lo + Math.imul(al4, bl8) | 0;
+      mid = mid + Math.imul(al4, bh8) | 0;
+      mid = mid + Math.imul(ah4, bl8) | 0;
+      hi = hi + Math.imul(ah4, bh8) | 0;
+      lo = lo + Math.imul(al3, bl9) | 0;
+      mid = mid + Math.imul(al3, bh9) | 0;
+      mid = mid + Math.imul(ah3, bl9) | 0;
+      hi = hi + Math.imul(ah3, bh9) | 0;
+      var w12 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w12 >>> 26) | 0;
+      w12 &= 67108863;
+      lo = Math.imul(al9, bl4);
+      mid = Math.imul(al9, bh4);
+      mid = mid + Math.imul(ah9, bl4) | 0;
+      hi = Math.imul(ah9, bh4);
+      lo = lo + Math.imul(al8, bl5) | 0;
+      mid = mid + Math.imul(al8, bh5) | 0;
+      mid = mid + Math.imul(ah8, bl5) | 0;
+      hi = hi + Math.imul(ah8, bh5) | 0;
+      lo = lo + Math.imul(al7, bl6) | 0;
+      mid = mid + Math.imul(al7, bh6) | 0;
+      mid = mid + Math.imul(ah7, bl6) | 0;
+      hi = hi + Math.imul(ah7, bh6) | 0;
+      lo = lo + Math.imul(al6, bl7) | 0;
+      mid = mid + Math.imul(al6, bh7) | 0;
+      mid = mid + Math.imul(ah6, bl7) | 0;
+      hi = hi + Math.imul(ah6, bh7) | 0;
+      lo = lo + Math.imul(al5, bl8) | 0;
+      mid = mid + Math.imul(al5, bh8) | 0;
+      mid = mid + Math.imul(ah5, bl8) | 0;
+      hi = hi + Math.imul(ah5, bh8) | 0;
+      lo = lo + Math.imul(al4, bl9) | 0;
+      mid = mid + Math.imul(al4, bh9) | 0;
+      mid = mid + Math.imul(ah4, bl9) | 0;
+      hi = hi + Math.imul(ah4, bh9) | 0;
+      var w13 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w13 >>> 26) | 0;
+      w13 &= 67108863;
+      lo = Math.imul(al9, bl5);
+      mid = Math.imul(al9, bh5);
+      mid = mid + Math.imul(ah9, bl5) | 0;
+      hi = Math.imul(ah9, bh5);
+      lo = lo + Math.imul(al8, bl6) | 0;
+      mid = mid + Math.imul(al8, bh6) | 0;
+      mid = mid + Math.imul(ah8, bl6) | 0;
+      hi = hi + Math.imul(ah8, bh6) | 0;
+      lo = lo + Math.imul(al7, bl7) | 0;
+      mid = mid + Math.imul(al7, bh7) | 0;
+      mid = mid + Math.imul(ah7, bl7) | 0;
+      hi = hi + Math.imul(ah7, bh7) | 0;
+      lo = lo + Math.imul(al6, bl8) | 0;
+      mid = mid + Math.imul(al6, bh8) | 0;
+      mid = mid + Math.imul(ah6, bl8) | 0;
+      hi = hi + Math.imul(ah6, bh8) | 0;
+      lo = lo + Math.imul(al5, bl9) | 0;
+      mid = mid + Math.imul(al5, bh9) | 0;
+      mid = mid + Math.imul(ah5, bl9) | 0;
+      hi = hi + Math.imul(ah5, bh9) | 0;
+      var w14 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w14 >>> 26) | 0;
+      w14 &= 67108863;
+      lo = Math.imul(al9, bl6);
+      mid = Math.imul(al9, bh6);
+      mid = mid + Math.imul(ah9, bl6) | 0;
+      hi = Math.imul(ah9, bh6);
+      lo = lo + Math.imul(al8, bl7) | 0;
+      mid = mid + Math.imul(al8, bh7) | 0;
+      mid = mid + Math.imul(ah8, bl7) | 0;
+      hi = hi + Math.imul(ah8, bh7) | 0;
+      lo = lo + Math.imul(al7, bl8) | 0;
+      mid = mid + Math.imul(al7, bh8) | 0;
+      mid = mid + Math.imul(ah7, bl8) | 0;
+      hi = hi + Math.imul(ah7, bh8) | 0;
+      lo = lo + Math.imul(al6, bl9) | 0;
+      mid = mid + Math.imul(al6, bh9) | 0;
+      mid = mid + Math.imul(ah6, bl9) | 0;
+      hi = hi + Math.imul(ah6, bh9) | 0;
+      var w15 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w15 >>> 26) | 0;
+      w15 &= 67108863;
+      lo = Math.imul(al9, bl7);
+      mid = Math.imul(al9, bh7);
+      mid = mid + Math.imul(ah9, bl7) | 0;
+      hi = Math.imul(ah9, bh7);
+      lo = lo + Math.imul(al8, bl8) | 0;
+      mid = mid + Math.imul(al8, bh8) | 0;
+      mid = mid + Math.imul(ah8, bl8) | 0;
+      hi = hi + Math.imul(ah8, bh8) | 0;
+      lo = lo + Math.imul(al7, bl9) | 0;
+      mid = mid + Math.imul(al7, bh9) | 0;
+      mid = mid + Math.imul(ah7, bl9) | 0;
+      hi = hi + Math.imul(ah7, bh9) | 0;
+      var w16 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w16 >>> 26) | 0;
+      w16 &= 67108863;
+      lo = Math.imul(al9, bl8);
+      mid = Math.imul(al9, bh8);
+      mid = mid + Math.imul(ah9, bl8) | 0;
+      hi = Math.imul(ah9, bh8);
+      lo = lo + Math.imul(al8, bl9) | 0;
+      mid = mid + Math.imul(al8, bh9) | 0;
+      mid = mid + Math.imul(ah8, bl9) | 0;
+      hi = hi + Math.imul(ah8, bh9) | 0;
+      var w17 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w17 >>> 26) | 0;
+      w17 &= 67108863;
+      lo = Math.imul(al9, bl9);
+      mid = Math.imul(al9, bh9);
+      mid = mid + Math.imul(ah9, bl9) | 0;
+      hi = Math.imul(ah9, bh9);
+      var w18 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w18 >>> 26) | 0;
+      w18 &= 67108863;
+      o[0] = w0;
+      o[1] = w1;
+      o[2] = w2;
+      o[3] = w3;
+      o[4] = w4;
+      o[5] = w5;
+      o[6] = w6;
+      o[7] = w7;
+      o[8] = w8;
+      o[9] = w9;
+      o[10] = w10;
+      o[11] = w11;
+      o[12] = w12;
+      o[13] = w13;
+      o[14] = w14;
+      o[15] = w15;
+      o[16] = w16;
+      o[17] = w17;
+      o[18] = w18;
+      if (c !== 0) {
+        o[19] = c;
+        out.length++;
+      }
+      return out;
+    };
+    if (!Math.imul) {
+      comb10MulTo = smallMulTo;
+    }
+    function bigMulTo(self2, num, out) {
+      out.negative = num.negative ^ self2.negative;
+      out.length = self2.length + num.length;
+      var carry = 0;
+      var hncarry = 0;
+      for (var k = 0; k < out.length - 1; k++) {
+        var ncarry = hncarry;
+        hncarry = 0;
+        var rword = carry & 67108863;
+        var maxJ = Math.min(k, num.length - 1);
+        for (var j = Math.max(0, k - self2.length + 1); j <= maxJ; j++) {
+          var i = k - j;
+          var a = self2.words[i] | 0;
+          var b = num.words[j] | 0;
+          var r2 = a * b;
+          var lo = r2 & 67108863;
+          ncarry = ncarry + (r2 / 67108864 | 0) | 0;
+          lo = lo + rword | 0;
+          rword = lo & 67108863;
+          ncarry = ncarry + (lo >>> 26) | 0;
+          hncarry += ncarry >>> 26;
+          ncarry &= 67108863;
+        }
+        out.words[k] = rword;
+        carry = ncarry;
+        ncarry = hncarry;
+      }
+      if (carry !== 0) {
+        out.words[k] = carry;
+      } else {
+        out.length--;
+      }
+      return out.strip();
+    }
+    function jumboMulTo(self2, num, out) {
+      var fftm = new FFTM();
+      return fftm.mulp(self2, num, out);
+    }
+    BN.prototype.mulTo = function mulTo(num, out) {
+      var res;
+      var len = this.length + num.length;
+      if (this.length === 10 && num.length === 10) {
+        res = comb10MulTo(this, num, out);
+      } else if (len < 63) {
+        res = smallMulTo(this, num, out);
+      } else if (len < 1024) {
+        res = bigMulTo(this, num, out);
+      } else {
+        res = jumboMulTo(this, num, out);
+      }
+      return res;
+    };
+    function FFTM(x, y) {
+      this.x = x;
+      this.y = y;
+    }
+    FFTM.prototype.makeRBT = function makeRBT(N2) {
+      var t = new Array(N2);
+      var l = BN.prototype._countBits(N2) - 1;
+      for (var i = 0; i < N2; i++) {
+        t[i] = this.revBin(i, l, N2);
+      }
+      return t;
+    };
+    FFTM.prototype.revBin = function revBin(x, l, N2) {
+      if (x === 0 || x === N2 - 1)
+        return x;
+      var rb = 0;
+      for (var i = 0; i < l; i++) {
+        rb |= (x & 1) << l - i - 1;
+        x >>= 1;
+      }
+      return rb;
+    };
+    FFTM.prototype.permute = function permute(rbt, rws, iws, rtws, itws, N2) {
+      for (var i = 0; i < N2; i++) {
+        rtws[i] = rws[rbt[i]];
+        itws[i] = iws[rbt[i]];
+      }
+    };
+    FFTM.prototype.transform = function transform(rws, iws, rtws, itws, N2, rbt) {
+      this.permute(rbt, rws, iws, rtws, itws, N2);
+      for (var s3 = 1; s3 < N2; s3 <<= 1) {
+        var l = s3 << 1;
+        var rtwdf = Math.cos(2 * Math.PI / l);
+        var itwdf = Math.sin(2 * Math.PI / l);
+        for (var p = 0; p < N2; p += l) {
+          var rtwdf_ = rtwdf;
+          var itwdf_ = itwdf;
+          for (var j = 0; j < s3; j++) {
+            var re = rtws[p + j];
+            var ie = itws[p + j];
+            var ro = rtws[p + j + s3];
+            var io = itws[p + j + s3];
+            var rx = rtwdf_ * ro - itwdf_ * io;
+            io = rtwdf_ * io + itwdf_ * ro;
+            ro = rx;
+            rtws[p + j] = re + ro;
+            itws[p + j] = ie + io;
+            rtws[p + j + s3] = re - ro;
+            itws[p + j + s3] = ie - io;
+            if (j !== l) {
+              rx = rtwdf * rtwdf_ - itwdf * itwdf_;
+              itwdf_ = rtwdf * itwdf_ + itwdf * rtwdf_;
+              rtwdf_ = rx;
+            }
+          }
+        }
+      }
+    };
+    FFTM.prototype.guessLen13b = function guessLen13b(n, m) {
+      var N2 = Math.max(m, n) | 1;
+      var odd = N2 & 1;
+      var i = 0;
+      for (N2 = N2 / 2 | 0; N2; N2 = N2 >>> 1) {
+        i++;
+      }
+      return 1 << i + 1 + odd;
+    };
+    FFTM.prototype.conjugate = function conjugate(rws, iws, N2) {
+      if (N2 <= 1)
+        return;
+      for (var i = 0; i < N2 / 2; i++) {
+        var t = rws[i];
+        rws[i] = rws[N2 - i - 1];
+        rws[N2 - i - 1] = t;
+        t = iws[i];
+        iws[i] = -iws[N2 - i - 1];
+        iws[N2 - i - 1] = -t;
+      }
+    };
+    FFTM.prototype.normalize13b = function normalize13b(ws, N2) {
+      var carry = 0;
+      for (var i = 0; i < N2 / 2; i++) {
+        var w = Math.round(ws[2 * i + 1] / N2) * 8192 + Math.round(ws[2 * i] / N2) + carry;
+        ws[i] = w & 67108863;
+        if (w < 67108864) {
+          carry = 0;
+        } else {
+          carry = w / 67108864 | 0;
+        }
+      }
+      return ws;
+    };
+    FFTM.prototype.convert13b = function convert13b(ws, len, rws, N2) {
+      var carry = 0;
+      for (var i = 0; i < len; i++) {
+        carry = carry + (ws[i] | 0);
+        rws[2 * i] = carry & 8191;
+        carry = carry >>> 13;
+        rws[2 * i + 1] = carry & 8191;
+        carry = carry >>> 13;
+      }
+      for (i = 2 * len; i < N2; ++i) {
+        rws[i] = 0;
+      }
+      assert2(carry === 0);
+      assert2((carry & ~8191) === 0);
+    };
+    FFTM.prototype.stub = function stub(N2) {
+      var ph = new Array(N2);
+      for (var i = 0; i < N2; i++) {
+        ph[i] = 0;
+      }
+      return ph;
+    };
+    FFTM.prototype.mulp = function mulp(x, y, out) {
+      var N2 = 2 * this.guessLen13b(x.length, y.length);
+      var rbt = this.makeRBT(N2);
+      var _ = this.stub(N2);
+      var rws = new Array(N2);
+      var rwst = new Array(N2);
+      var iwst = new Array(N2);
+      var nrws = new Array(N2);
+      var nrwst = new Array(N2);
+      var niwst = new Array(N2);
+      var rmws = out.words;
+      rmws.length = N2;
+      this.convert13b(x.words, x.length, rws, N2);
+      this.convert13b(y.words, y.length, nrws, N2);
+      this.transform(rws, _, rwst, iwst, N2, rbt);
+      this.transform(nrws, _, nrwst, niwst, N2, rbt);
+      for (var i = 0; i < N2; i++) {
+        var rx = rwst[i] * nrwst[i] - iwst[i] * niwst[i];
+        iwst[i] = rwst[i] * niwst[i] + iwst[i] * nrwst[i];
+        rwst[i] = rx;
+      }
+      this.conjugate(rwst, iwst, N2);
+      this.transform(rwst, iwst, rmws, _, N2, rbt);
+      this.conjugate(rmws, _, N2);
+      this.normalize13b(rmws, N2);
+      out.negative = x.negative ^ y.negative;
+      out.length = x.length + y.length;
+      return out.strip();
+    };
+    BN.prototype.mul = function mul3(num) {
+      var out = new BN(null);
+      out.words = new Array(this.length + num.length);
+      return this.mulTo(num, out);
+    };
+    BN.prototype.mulf = function mulf(num) {
+      var out = new BN(null);
+      out.words = new Array(this.length + num.length);
+      return jumboMulTo(this, num, out);
+    };
+    BN.prototype.imul = function imul(num) {
+      return this.clone().mulTo(num, this);
+    };
+    BN.prototype.imuln = function imuln(num) {
+      assert2(typeof num === "number");
+      assert2(num < 67108864);
+      var carry = 0;
+      for (var i = 0; i < this.length; i++) {
+        var w = (this.words[i] | 0) * num;
+        var lo = (w & 67108863) + (carry & 67108863);
+        carry >>= 26;
+        carry += w / 67108864 | 0;
+        carry += lo >>> 26;
+        this.words[i] = lo & 67108863;
+      }
+      if (carry !== 0) {
+        this.words[i] = carry;
+        this.length++;
+      }
+      return this;
+    };
+    BN.prototype.muln = function muln(num) {
+      return this.clone().imuln(num);
+    };
+    BN.prototype.sqr = function sqr() {
+      return this.mul(this);
+    };
+    BN.prototype.isqr = function isqr() {
+      return this.imul(this.clone());
+    };
+    BN.prototype.pow = function pow(num) {
+      var w = toBitArray(num);
+      if (w.length === 0)
+        return new BN(1);
+      var res = this;
+      for (var i = 0; i < w.length; i++, res = res.sqr()) {
+        if (w[i] !== 0)
+          break;
+      }
+      if (++i < w.length) {
+        for (var q = res.sqr(); i < w.length; i++, q = q.sqr()) {
+          if (w[i] === 0)
+            continue;
+          res = res.mul(q);
+        }
+      }
+      return res;
+    };
+    BN.prototype.iushln = function iushln(bits) {
+      assert2(typeof bits === "number" && bits >= 0);
+      var r2 = bits % 26;
+      var s3 = (bits - r2) / 26;
+      var carryMask = 67108863 >>> 26 - r2 << 26 - r2;
+      var i;
+      if (r2 !== 0) {
+        var carry = 0;
+        for (i = 0; i < this.length; i++) {
+          var newCarry = this.words[i] & carryMask;
+          var c = (this.words[i] | 0) - newCarry << r2;
+          this.words[i] = c | carry;
+          carry = newCarry >>> 26 - r2;
+        }
+        if (carry) {
+          this.words[i] = carry;
+          this.length++;
+        }
+      }
+      if (s3 !== 0) {
+        for (i = this.length - 1; i >= 0; i--) {
+          this.words[i + s3] = this.words[i];
+        }
+        for (i = 0; i < s3; i++) {
+          this.words[i] = 0;
+        }
+        this.length += s3;
+      }
+      return this.strip();
+    };
+    BN.prototype.ishln = function ishln(bits) {
+      assert2(this.negative === 0);
+      return this.iushln(bits);
+    };
+    BN.prototype.iushrn = function iushrn(bits, hint, extended) {
+      assert2(typeof bits === "number" && bits >= 0);
+      var h;
+      if (hint) {
+        h = (hint - hint % 26) / 26;
+      } else {
+        h = 0;
+      }
+      var r2 = bits % 26;
+      var s3 = Math.min((bits - r2) / 26, this.length);
+      var mask = 67108863 ^ 67108863 >>> r2 << r2;
+      var maskedWords = extended;
+      h -= s3;
+      h = Math.max(0, h);
+      if (maskedWords) {
+        for (var i = 0; i < s3; i++) {
+          maskedWords.words[i] = this.words[i];
+        }
+        maskedWords.length = s3;
+      }
+      if (s3 === 0) {
+      } else if (this.length > s3) {
+        this.length -= s3;
+        for (i = 0; i < this.length; i++) {
+          this.words[i] = this.words[i + s3];
+        }
+      } else {
+        this.words[0] = 0;
+        this.length = 1;
+      }
+      var carry = 0;
+      for (i = this.length - 1; i >= 0 && (carry !== 0 || i >= h); i--) {
+        var word = this.words[i] | 0;
+        this.words[i] = carry << 26 - r2 | word >>> r2;
+        carry = word & mask;
+      }
+      if (maskedWords && carry !== 0) {
+        maskedWords.words[maskedWords.length++] = carry;
+      }
+      if (this.length === 0) {
+        this.words[0] = 0;
+        this.length = 1;
+      }
+      return this.strip();
+    };
+    BN.prototype.ishrn = function ishrn(bits, hint, extended) {
+      assert2(this.negative === 0);
+      return this.iushrn(bits, hint, extended);
+    };
+    BN.prototype.shln = function shln(bits) {
+      return this.clone().ishln(bits);
+    };
+    BN.prototype.ushln = function ushln(bits) {
+      return this.clone().iushln(bits);
+    };
+    BN.prototype.shrn = function shrn(bits) {
+      return this.clone().ishrn(bits);
+    };
+    BN.prototype.ushrn = function ushrn(bits) {
+      return this.clone().iushrn(bits);
+    };
+    BN.prototype.testn = function testn(bit) {
+      assert2(typeof bit === "number" && bit >= 0);
+      var r2 = bit % 26;
+      var s3 = (bit - r2) / 26;
+      var q = 1 << r2;
+      if (this.length <= s3)
+        return false;
+      var w = this.words[s3];
+      return !!(w & q);
+    };
+    BN.prototype.imaskn = function imaskn(bits) {
+      assert2(typeof bits === "number" && bits >= 0);
+      var r2 = bits % 26;
+      var s3 = (bits - r2) / 26;
+      assert2(this.negative === 0, "imaskn works only with positive numbers");
+      if (this.length <= s3) {
+        return this;
+      }
+      if (r2 !== 0) {
+        s3++;
+      }
+      this.length = Math.min(s3, this.length);
+      if (r2 !== 0) {
+        var mask = 67108863 ^ 67108863 >>> r2 << r2;
+        this.words[this.length - 1] &= mask;
+      }
+      return this.strip();
+    };
+    BN.prototype.maskn = function maskn(bits) {
+      return this.clone().imaskn(bits);
+    };
+    BN.prototype.iaddn = function iaddn(num) {
+      assert2(typeof num === "number");
+      assert2(num < 67108864);
+      if (num < 0)
+        return this.isubn(-num);
+      if (this.negative !== 0) {
+        if (this.length === 1 && (this.words[0] | 0) < num) {
+          this.words[0] = num - (this.words[0] | 0);
+          this.negative = 0;
+          return this;
+        }
+        this.negative = 0;
+        this.isubn(num);
+        this.negative = 1;
+        return this;
+      }
+      return this._iaddn(num);
+    };
+    BN.prototype._iaddn = function _iaddn(num) {
+      this.words[0] += num;
+      for (var i = 0; i < this.length && this.words[i] >= 67108864; i++) {
+        this.words[i] -= 67108864;
+        if (i === this.length - 1) {
+          this.words[i + 1] = 1;
+        } else {
+          this.words[i + 1]++;
+        }
+      }
+      this.length = Math.max(this.length, i + 1);
+      return this;
+    };
+    BN.prototype.isubn = function isubn(num) {
+      assert2(typeof num === "number");
+      assert2(num < 67108864);
+      if (num < 0)
+        return this.iaddn(-num);
+      if (this.negative !== 0) {
+        this.negative = 0;
+        this.iaddn(num);
+        this.negative = 1;
+        return this;
+      }
+      this.words[0] -= num;
+      if (this.length === 1 && this.words[0] < 0) {
+        this.words[0] = -this.words[0];
+        this.negative = 1;
+      } else {
+        for (var i = 0; i < this.length && this.words[i] < 0; i++) {
+          this.words[i] += 67108864;
+          this.words[i + 1] -= 1;
+        }
+      }
+      return this.strip();
+    };
+    BN.prototype.addn = function addn(num) {
+      return this.clone().iaddn(num);
+    };
+    BN.prototype.subn = function subn(num) {
+      return this.clone().isubn(num);
+    };
+    BN.prototype.iabs = function iabs() {
+      this.negative = 0;
+      return this;
+    };
+    BN.prototype.abs = function abs() {
+      return this.clone().iabs();
+    };
+    BN.prototype._ishlnsubmul = function _ishlnsubmul(num, mul3, shift) {
+      var len = num.length + shift;
+      var i;
+      this._expand(len);
+      var w;
+      var carry = 0;
+      for (i = 0; i < num.length; i++) {
+        w = (this.words[i + shift] | 0) + carry;
+        var right = (num.words[i] | 0) * mul3;
+        w -= right & 67108863;
+        carry = (w >> 26) - (right / 67108864 | 0);
+        this.words[i + shift] = w & 67108863;
+      }
+      for (; i < this.length - shift; i++) {
+        w = (this.words[i + shift] | 0) + carry;
+        carry = w >> 26;
+        this.words[i + shift] = w & 67108863;
+      }
+      if (carry === 0)
+        return this.strip();
+      assert2(carry === -1);
+      carry = 0;
+      for (i = 0; i < this.length; i++) {
+        w = -(this.words[i] | 0) + carry;
+        carry = w >> 26;
+        this.words[i] = w & 67108863;
+      }
+      this.negative = 1;
+      return this.strip();
+    };
+    BN.prototype._wordDiv = function _wordDiv(num, mode) {
+      var shift = this.length - num.length;
+      var a = this.clone();
+      var b = num;
+      var bhi = b.words[b.length - 1] | 0;
+      var bhiBits = this._countBits(bhi);
+      shift = 26 - bhiBits;
+      if (shift !== 0) {
+        b = b.ushln(shift);
+        a.iushln(shift);
+        bhi = b.words[b.length - 1] | 0;
+      }
+      var m = a.length - b.length;
+      var q;
+      if (mode !== "mod") {
+        q = new BN(null);
+        q.length = m + 1;
+        q.words = new Array(q.length);
+        for (var i = 0; i < q.length; i++) {
+          q.words[i] = 0;
+        }
+      }
+      var diff = a.clone()._ishlnsubmul(b, 1, m);
+      if (diff.negative === 0) {
+        a = diff;
+        if (q) {
+          q.words[m] = 1;
+        }
+      }
+      for (var j = m - 1; j >= 0; j--) {
+        var qj = (a.words[b.length + j] | 0) * 67108864 + (a.words[b.length + j - 1] | 0);
+        qj = Math.min(qj / bhi | 0, 67108863);
+        a._ishlnsubmul(b, qj, j);
+        while (a.negative !== 0) {
+          qj--;
+          a.negative = 0;
+          a._ishlnsubmul(b, 1, j);
+          if (!a.isZero()) {
+            a.negative ^= 1;
+          }
+        }
+        if (q) {
+          q.words[j] = qj;
+        }
+      }
+      if (q) {
+        q.strip();
+      }
+      a.strip();
+      if (mode !== "div" && shift !== 0) {
+        a.iushrn(shift);
+      }
+      return {
+        div: q || null,
+        mod: a
+      };
+    };
+    BN.prototype.divmod = function divmod(num, mode, positive) {
+      assert2(!num.isZero());
+      if (this.isZero()) {
+        return {
+          div: new BN(0),
+          mod: new BN(0)
+        };
+      }
+      var div, mod, res;
+      if (this.negative !== 0 && num.negative === 0) {
+        res = this.neg().divmod(num, mode);
+        if (mode !== "mod") {
+          div = res.div.neg();
+        }
+        if (mode !== "div") {
+          mod = res.mod.neg();
+          if (positive && mod.negative !== 0) {
+            mod.iadd(num);
+          }
+        }
+        return {
+          div,
+          mod
+        };
+      }
+      if (this.negative === 0 && num.negative !== 0) {
+        res = this.divmod(num.neg(), mode);
+        if (mode !== "mod") {
+          div = res.div.neg();
+        }
+        return {
+          div,
+          mod: res.mod
+        };
+      }
+      if ((this.negative & num.negative) !== 0) {
+        res = this.neg().divmod(num.neg(), mode);
+        if (mode !== "div") {
+          mod = res.mod.neg();
+          if (positive && mod.negative !== 0) {
+            mod.isub(num);
+          }
+        }
+        return {
+          div: res.div,
+          mod
+        };
+      }
+      if (num.length > this.length || this.cmp(num) < 0) {
+        return {
+          div: new BN(0),
+          mod: this
+        };
+      }
+      if (num.length === 1) {
+        if (mode === "div") {
+          return {
+            div: this.divn(num.words[0]),
+            mod: null
+          };
+        }
+        if (mode === "mod") {
+          return {
+            div: null,
+            mod: new BN(this.modn(num.words[0]))
+          };
+        }
+        return {
+          div: this.divn(num.words[0]),
+          mod: new BN(this.modn(num.words[0]))
+        };
+      }
+      return this._wordDiv(num, mode);
+    };
+    BN.prototype.div = function div(num) {
+      return this.divmod(num, "div", false).div;
+    };
+    BN.prototype.mod = function mod(num) {
+      return this.divmod(num, "mod", false).mod;
+    };
+    BN.prototype.umod = function umod(num) {
+      return this.divmod(num, "mod", true).mod;
+    };
+    BN.prototype.divRound = function divRound(num) {
+      var dm = this.divmod(num);
+      if (dm.mod.isZero())
+        return dm.div;
+      var mod = dm.div.negative !== 0 ? dm.mod.isub(num) : dm.mod;
+      var half = num.ushrn(1);
+      var r2 = num.andln(1);
+      var cmp = mod.cmp(half);
+      if (cmp < 0 || r2 === 1 && cmp === 0)
+        return dm.div;
+      return dm.div.negative !== 0 ? dm.div.isubn(1) : dm.div.iaddn(1);
+    };
+    BN.prototype.modn = function modn(num) {
+      assert2(num <= 67108863);
+      var p = (1 << 26) % num;
+      var acc = 0;
+      for (var i = this.length - 1; i >= 0; i--) {
+        acc = (p * acc + (this.words[i] | 0)) % num;
+      }
+      return acc;
+    };
+    BN.prototype.idivn = function idivn(num) {
+      assert2(num <= 67108863);
+      var carry = 0;
+      for (var i = this.length - 1; i >= 0; i--) {
+        var w = (this.words[i] | 0) + carry * 67108864;
+        this.words[i] = w / num | 0;
+        carry = w % num;
+      }
+      return this.strip();
+    };
+    BN.prototype.divn = function divn(num) {
+      return this.clone().idivn(num);
+    };
+    BN.prototype.egcd = function egcd(p) {
+      assert2(p.negative === 0);
+      assert2(!p.isZero());
+      var x = this;
+      var y = p.clone();
+      if (x.negative !== 0) {
+        x = x.umod(p);
+      } else {
+        x = x.clone();
+      }
+      var A = new BN(1);
+      var B = new BN(0);
+      var C = new BN(0);
+      var D = new BN(1);
+      var g = 0;
+      while (x.isEven() && y.isEven()) {
+        x.iushrn(1);
+        y.iushrn(1);
+        ++g;
+      }
+      var yp = y.clone();
+      var xp = x.clone();
+      while (!x.isZero()) {
+        for (var i = 0, im = 1; (x.words[0] & im) === 0 && i < 26; ++i, im <<= 1)
+          ;
+        if (i > 0) {
+          x.iushrn(i);
+          while (i-- > 0) {
+            if (A.isOdd() || B.isOdd()) {
+              A.iadd(yp);
+              B.isub(xp);
+            }
+            A.iushrn(1);
+            B.iushrn(1);
+          }
+        }
+        for (var j = 0, jm = 1; (y.words[0] & jm) === 0 && j < 26; ++j, jm <<= 1)
+          ;
+        if (j > 0) {
+          y.iushrn(j);
+          while (j-- > 0) {
+            if (C.isOdd() || D.isOdd()) {
+              C.iadd(yp);
+              D.isub(xp);
+            }
+            C.iushrn(1);
+            D.iushrn(1);
+          }
+        }
+        if (x.cmp(y) >= 0) {
+          x.isub(y);
+          A.isub(C);
+          B.isub(D);
+        } else {
+          y.isub(x);
+          C.isub(A);
+          D.isub(B);
+        }
+      }
+      return {
+        a: C,
+        b: D,
+        gcd: y.iushln(g)
+      };
+    };
+    BN.prototype._invmp = function _invmp(p) {
+      assert2(p.negative === 0);
+      assert2(!p.isZero());
+      var a = this;
+      var b = p.clone();
+      if (a.negative !== 0) {
+        a = a.umod(p);
+      } else {
+        a = a.clone();
+      }
+      var x1 = new BN(1);
+      var x2 = new BN(0);
+      var delta = b.clone();
+      while (a.cmpn(1) > 0 && b.cmpn(1) > 0) {
+        for (var i = 0, im = 1; (a.words[0] & im) === 0 && i < 26; ++i, im <<= 1)
+          ;
+        if (i > 0) {
+          a.iushrn(i);
+          while (i-- > 0) {
+            if (x1.isOdd()) {
+              x1.iadd(delta);
+            }
+            x1.iushrn(1);
+          }
+        }
+        for (var j = 0, jm = 1; (b.words[0] & jm) === 0 && j < 26; ++j, jm <<= 1)
+          ;
+        if (j > 0) {
+          b.iushrn(j);
+          while (j-- > 0) {
+            if (x2.isOdd()) {
+              x2.iadd(delta);
+            }
+            x2.iushrn(1);
+          }
+        }
+        if (a.cmp(b) >= 0) {
+          a.isub(b);
+          x1.isub(x2);
+        } else {
+          b.isub(a);
+          x2.isub(x1);
+        }
+      }
+      var res;
+      if (a.cmpn(1) === 0) {
+        res = x1;
+      } else {
+        res = x2;
+      }
+      if (res.cmpn(0) < 0) {
+        res.iadd(p);
+      }
+      return res;
+    };
+    BN.prototype.gcd = function gcd(num) {
+      if (this.isZero())
+        return num.abs();
+      if (num.isZero())
+        return this.abs();
+      var a = this.clone();
+      var b = num.clone();
+      a.negative = 0;
+      b.negative = 0;
+      for (var shift = 0; a.isEven() && b.isEven(); shift++) {
+        a.iushrn(1);
+        b.iushrn(1);
+      }
+      do {
+        while (a.isEven()) {
+          a.iushrn(1);
+        }
+        while (b.isEven()) {
+          b.iushrn(1);
+        }
+        var r2 = a.cmp(b);
+        if (r2 < 0) {
+          var t = a;
+          a = b;
+          b = t;
+        } else if (r2 === 0 || b.cmpn(1) === 0) {
+          break;
+        }
+        a.isub(b);
+      } while (true);
+      return b.iushln(shift);
+    };
+    BN.prototype.invm = function invm(num) {
+      return this.egcd(num).a.umod(num);
+    };
+    BN.prototype.isEven = function isEven() {
+      return (this.words[0] & 1) === 0;
+    };
+    BN.prototype.isOdd = function isOdd() {
+      return (this.words[0] & 1) === 1;
+    };
+    BN.prototype.andln = function andln(num) {
+      return this.words[0] & num;
+    };
+    BN.prototype.bincn = function bincn(bit) {
+      assert2(typeof bit === "number");
+      var r2 = bit % 26;
+      var s3 = (bit - r2) / 26;
+      var q = 1 << r2;
+      if (this.length <= s3) {
+        this._expand(s3 + 1);
+        this.words[s3] |= q;
+        return this;
+      }
+      var carry = q;
+      for (var i = s3; carry !== 0 && i < this.length; i++) {
+        var w = this.words[i] | 0;
+        w += carry;
+        carry = w >>> 26;
+        w &= 67108863;
+        this.words[i] = w;
+      }
+      if (carry !== 0) {
+        this.words[i] = carry;
+        this.length++;
+      }
+      return this;
+    };
+    BN.prototype.isZero = function isZero() {
+      return this.length === 1 && this.words[0] === 0;
+    };
+    BN.prototype.cmpn = function cmpn(num) {
+      var negative = num < 0;
+      if (this.negative !== 0 && !negative)
+        return -1;
+      if (this.negative === 0 && negative)
+        return 1;
+      this.strip();
+      var res;
+      if (this.length > 1) {
+        res = 1;
+      } else {
+        if (negative) {
+          num = -num;
+        }
+        assert2(num <= 67108863, "Number is too big");
+        var w = this.words[0] | 0;
+        res = w === num ? 0 : w < num ? -1 : 1;
+      }
+      if (this.negative !== 0)
+        return -res | 0;
+      return res;
+    };
+    BN.prototype.cmp = function cmp(num) {
+      if (this.negative !== 0 && num.negative === 0)
+        return -1;
+      if (this.negative === 0 && num.negative !== 0)
+        return 1;
+      var res = this.ucmp(num);
+      if (this.negative !== 0)
+        return -res | 0;
+      return res;
+    };
+    BN.prototype.ucmp = function ucmp(num) {
+      if (this.length > num.length)
+        return 1;
+      if (this.length < num.length)
+        return -1;
+      var res = 0;
+      for (var i = this.length - 1; i >= 0; i--) {
+        var a = this.words[i] | 0;
+        var b = num.words[i] | 0;
+        if (a === b)
+          continue;
+        if (a < b) {
+          res = -1;
+        } else if (a > b) {
+          res = 1;
+        }
+        break;
+      }
+      return res;
+    };
+    BN.prototype.gtn = function gtn(num) {
+      return this.cmpn(num) === 1;
+    };
+    BN.prototype.gt = function gt(num) {
+      return this.cmp(num) === 1;
+    };
+    BN.prototype.gten = function gten(num) {
+      return this.cmpn(num) >= 0;
+    };
+    BN.prototype.gte = function gte(num) {
+      return this.cmp(num) >= 0;
+    };
+    BN.prototype.ltn = function ltn(num) {
+      return this.cmpn(num) === -1;
+    };
+    BN.prototype.lt = function lt(num) {
+      return this.cmp(num) === -1;
+    };
+    BN.prototype.lten = function lten(num) {
+      return this.cmpn(num) <= 0;
+    };
+    BN.prototype.lte = function lte(num) {
+      return this.cmp(num) <= 0;
+    };
+    BN.prototype.eqn = function eqn(num) {
+      return this.cmpn(num) === 0;
+    };
+    BN.prototype.eq = function eq4(num) {
+      return this.cmp(num) === 0;
+    };
+    BN.red = function red(num) {
+      return new Red(num);
+    };
+    BN.prototype.toRed = function toRed(ctx) {
+      assert2(!this.red, "Already a number in reduction context");
+      assert2(this.negative === 0, "red works only with positives");
+      return ctx.convertTo(this)._forceRed(ctx);
+    };
+    BN.prototype.fromRed = function fromRed() {
+      assert2(this.red, "fromRed works only with numbers in reduction context");
+      return this.red.convertFrom(this);
+    };
+    BN.prototype._forceRed = function _forceRed(ctx) {
+      this.red = ctx;
+      return this;
+    };
+    BN.prototype.forceRed = function forceRed(ctx) {
+      assert2(!this.red, "Already a number in reduction context");
+      return this._forceRed(ctx);
+    };
+    BN.prototype.redAdd = function redAdd(num) {
+      assert2(this.red, "redAdd works only with red numbers");
+      return this.red.add(this, num);
+    };
+    BN.prototype.redIAdd = function redIAdd(num) {
+      assert2(this.red, "redIAdd works only with red numbers");
+      return this.red.iadd(this, num);
+    };
+    BN.prototype.redSub = function redSub(num) {
+      assert2(this.red, "redSub works only with red numbers");
+      return this.red.sub(this, num);
+    };
+    BN.prototype.redISub = function redISub(num) {
+      assert2(this.red, "redISub works only with red numbers");
+      return this.red.isub(this, num);
+    };
+    BN.prototype.redShl = function redShl(num) {
+      assert2(this.red, "redShl works only with red numbers");
+      return this.red.shl(this, num);
+    };
+    BN.prototype.redMul = function redMul(num) {
+      assert2(this.red, "redMul works only with red numbers");
+      this.red._verify2(this, num);
+      return this.red.mul(this, num);
+    };
+    BN.prototype.redIMul = function redIMul(num) {
+      assert2(this.red, "redMul works only with red numbers");
+      this.red._verify2(this, num);
+      return this.red.imul(this, num);
+    };
+    BN.prototype.redSqr = function redSqr() {
+      assert2(this.red, "redSqr works only with red numbers");
+      this.red._verify1(this);
+      return this.red.sqr(this);
+    };
+    BN.prototype.redISqr = function redISqr() {
+      assert2(this.red, "redISqr works only with red numbers");
+      this.red._verify1(this);
+      return this.red.isqr(this);
+    };
+    BN.prototype.redSqrt = function redSqrt() {
+      assert2(this.red, "redSqrt works only with red numbers");
+      this.red._verify1(this);
+      return this.red.sqrt(this);
+    };
+    BN.prototype.redInvm = function redInvm() {
+      assert2(this.red, "redInvm works only with red numbers");
+      this.red._verify1(this);
+      return this.red.invm(this);
+    };
+    BN.prototype.redNeg = function redNeg() {
+      assert2(this.red, "redNeg works only with red numbers");
+      this.red._verify1(this);
+      return this.red.neg(this);
+    };
+    BN.prototype.redPow = function redPow(num) {
+      assert2(this.red && !num.red, "redPow(normalNum)");
+      this.red._verify1(this);
+      return this.red.pow(this, num);
+    };
+    var primes = {
+      k256: null,
+      p224: null,
+      p192: null,
+      p25519: null
+    };
+    function MPrime(name2, p) {
+      this.name = name2;
+      this.p = new BN(p, 16);
+      this.n = this.p.bitLength();
+      this.k = new BN(1).iushln(this.n).isub(this.p);
+      this.tmp = this._tmp();
+    }
+    MPrime.prototype._tmp = function _tmp() {
+      var tmp = new BN(null);
+      tmp.words = new Array(Math.ceil(this.n / 13));
+      return tmp;
+    };
+    MPrime.prototype.ireduce = function ireduce(num) {
+      var r2 = num;
+      var rlen;
+      do {
+        this.split(r2, this.tmp);
+        r2 = this.imulK(r2);
+        r2 = r2.iadd(this.tmp);
+        rlen = r2.bitLength();
+      } while (rlen > this.n);
+      var cmp = rlen < this.n ? -1 : r2.ucmp(this.p);
+      if (cmp === 0) {
+        r2.words[0] = 0;
+        r2.length = 1;
+      } else if (cmp > 0) {
+        r2.isub(this.p);
+      } else {
+        if (r2.strip !== void 0) {
+          r2.strip();
+        } else {
+          r2._strip();
+        }
+      }
+      return r2;
+    };
+    MPrime.prototype.split = function split(input, out) {
+      input.iushrn(this.n, 0, out);
+    };
+    MPrime.prototype.imulK = function imulK(num) {
+      return num.imul(this.k);
+    };
+    function K256() {
+      MPrime.call(this, "k256", "ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff fffffffe fffffc2f");
+    }
+    inherits(K256, MPrime);
+    K256.prototype.split = function split(input, output) {
+      var mask = 4194303;
+      var outLen = Math.min(input.length, 9);
+      for (var i = 0; i < outLen; i++) {
+        output.words[i] = input.words[i];
+      }
+      output.length = outLen;
+      if (input.length <= 9) {
+        input.words[0] = 0;
+        input.length = 1;
+        return;
+      }
+      var prev = input.words[9];
+      output.words[output.length++] = prev & mask;
+      for (i = 10; i < input.length; i++) {
+        var next = input.words[i] | 0;
+        input.words[i - 10] = (next & mask) << 4 | prev >>> 22;
+        prev = next;
+      }
+      prev >>>= 22;
+      input.words[i - 10] = prev;
+      if (prev === 0 && input.length > 10) {
+        input.length -= 10;
+      } else {
+        input.length -= 9;
+      }
+    };
+    K256.prototype.imulK = function imulK(num) {
+      num.words[num.length] = 0;
+      num.words[num.length + 1] = 0;
+      num.length += 2;
+      var lo = 0;
+      for (var i = 0; i < num.length; i++) {
+        var w = num.words[i] | 0;
+        lo += w * 977;
+        num.words[i] = lo & 67108863;
+        lo = w * 64 + (lo / 67108864 | 0);
+      }
+      if (num.words[num.length - 1] === 0) {
+        num.length--;
+        if (num.words[num.length - 1] === 0) {
+          num.length--;
+        }
+      }
+      return num;
+    };
+    function P224() {
+      MPrime.call(this, "p224", "ffffffff ffffffff ffffffff ffffffff 00000000 00000000 00000001");
+    }
+    inherits(P224, MPrime);
+    function P192() {
+      MPrime.call(this, "p192", "ffffffff ffffffff ffffffff fffffffe ffffffff ffffffff");
+    }
+    inherits(P192, MPrime);
+    function P25519() {
+      MPrime.call(this, "25519", "7fffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffed");
+    }
+    inherits(P25519, MPrime);
+    P25519.prototype.imulK = function imulK(num) {
+      var carry = 0;
+      for (var i = 0; i < num.length; i++) {
+        var hi = (num.words[i] | 0) * 19 + carry;
+        var lo = hi & 67108863;
+        hi >>>= 26;
+        num.words[i] = lo;
+        carry = hi;
+      }
+      if (carry !== 0) {
+        num.words[num.length++] = carry;
+      }
+      return num;
+    };
+    BN._prime = function prime(name2) {
+      if (primes[name2])
+        return primes[name2];
+      var prime2;
+      if (name2 === "k256") {
+        prime2 = new K256();
+      } else if (name2 === "p224") {
+        prime2 = new P224();
+      } else if (name2 === "p192") {
+        prime2 = new P192();
+      } else if (name2 === "p25519") {
+        prime2 = new P25519();
+      } else {
+        throw new Error("Unknown prime " + name2);
+      }
+      primes[name2] = prime2;
+      return prime2;
+    };
+    function Red(m) {
+      if (typeof m === "string") {
+        var prime = BN._prime(m);
+        this.m = prime.p;
+        this.prime = prime;
+      } else {
+        assert2(m.gtn(1), "modulus must be greater than 1");
+        this.m = m;
+        this.prime = null;
+      }
+    }
+    Red.prototype._verify1 = function _verify1(a) {
+      assert2(a.negative === 0, "red works only with positives");
+      assert2(a.red, "red works only with red numbers");
+    };
+    Red.prototype._verify2 = function _verify2(a, b) {
+      assert2((a.negative | b.negative) === 0, "red works only with positives");
+      assert2(a.red && a.red === b.red, "red works only with red numbers");
+    };
+    Red.prototype.imod = function imod(a) {
+      if (this.prime)
+        return this.prime.ireduce(a)._forceRed(this);
+      return a.umod(this.m)._forceRed(this);
+    };
+    Red.prototype.neg = function neg3(a) {
+      if (a.isZero()) {
+        return a.clone();
+      }
+      return this.m.sub(a)._forceRed(this);
+    };
+    Red.prototype.add = function add3(a, b) {
+      this._verify2(a, b);
+      var res = a.add(b);
+      if (res.cmp(this.m) >= 0) {
+        res.isub(this.m);
+      }
+      return res._forceRed(this);
+    };
+    Red.prototype.iadd = function iadd(a, b) {
+      this._verify2(a, b);
+      var res = a.iadd(b);
+      if (res.cmp(this.m) >= 0) {
+        res.isub(this.m);
+      }
+      return res;
+    };
+    Red.prototype.sub = function sub(a, b) {
+      this._verify2(a, b);
+      var res = a.sub(b);
+      if (res.cmpn(0) < 0) {
+        res.iadd(this.m);
+      }
+      return res._forceRed(this);
+    };
+    Red.prototype.isub = function isub(a, b) {
+      this._verify2(a, b);
+      var res = a.isub(b);
+      if (res.cmpn(0) < 0) {
+        res.iadd(this.m);
+      }
+      return res;
+    };
+    Red.prototype.shl = function shl(a, num) {
+      this._verify1(a);
+      return this.imod(a.ushln(num));
+    };
+    Red.prototype.imul = function imul(a, b) {
+      this._verify2(a, b);
+      return this.imod(a.imul(b));
+    };
+    Red.prototype.mul = function mul3(a, b) {
+      this._verify2(a, b);
+      return this.imod(a.mul(b));
+    };
+    Red.prototype.isqr = function isqr(a) {
+      return this.imul(a, a.clone());
+    };
+    Red.prototype.sqr = function sqr(a) {
+      return this.mul(a, a);
+    };
+    Red.prototype.sqrt = function sqrt(a) {
+      if (a.isZero())
+        return a.clone();
+      var mod3 = this.m.andln(3);
+      assert2(mod3 % 2 === 1);
+      if (mod3 === 3) {
+        var pow = this.m.add(new BN(1)).iushrn(2);
+        return this.pow(a, pow);
+      }
+      var q = this.m.subn(1);
+      var s3 = 0;
+      while (!q.isZero() && q.andln(1) === 0) {
+        s3++;
+        q.iushrn(1);
+      }
+      assert2(!q.isZero());
+      var one = new BN(1).toRed(this);
+      var nOne = one.redNeg();
+      var lpow = this.m.subn(1).iushrn(1);
+      var z = this.m.bitLength();
+      z = new BN(2 * z * z).toRed(this);
+      while (this.pow(z, lpow).cmp(nOne) !== 0) {
+        z.redIAdd(nOne);
+      }
+      var c = this.pow(z, q);
+      var r2 = this.pow(a, q.addn(1).iushrn(1));
+      var t = this.pow(a, q);
+      var m = s3;
+      while (t.cmp(one) !== 0) {
+        var tmp = t;
+        for (var i = 0; tmp.cmp(one) !== 0; i++) {
+          tmp = tmp.redSqr();
+        }
+        assert2(i < m);
+        var b = this.pow(c, new BN(1).iushln(m - i - 1));
+        r2 = r2.redMul(b);
+        c = b.redSqr();
+        t = t.redMul(c);
+        m = i;
+      }
+      return r2;
+    };
+    Red.prototype.invm = function invm(a) {
+      var inv = a._invmp(this.m);
+      if (inv.negative !== 0) {
+        inv.negative = 0;
+        return this.imod(inv).redNeg();
+      } else {
+        return this.imod(inv);
+      }
+    };
+    Red.prototype.pow = function pow(a, num) {
+      if (num.isZero())
+        return new BN(1).toRed(this);
+      if (num.cmpn(1) === 0)
+        return a.clone();
+      var windowSize = 4;
+      var wnd = new Array(1 << windowSize);
+      wnd[0] = new BN(1).toRed(this);
+      wnd[1] = a;
+      for (var i = 2; i < wnd.length; i++) {
+        wnd[i] = this.mul(wnd[i - 1], a);
+      }
+      var res = wnd[0];
+      var current = 0;
+      var currentLen = 0;
+      var start = num.bitLength() % 26;
+      if (start === 0) {
+        start = 26;
+      }
+      for (i = num.length - 1; i >= 0; i--) {
+        var word = num.words[i];
+        for (var j = start - 1; j >= 0; j--) {
+          var bit = word >> j & 1;
+          if (res !== wnd[0]) {
+            res = this.sqr(res);
+          }
+          if (bit === 0 && current === 0) {
+            currentLen = 0;
+            continue;
+          }
+          current <<= 1;
+          current |= bit;
+          currentLen++;
+          if (currentLen !== windowSize && (i !== 0 || j !== 0))
+            continue;
+          res = this.mul(res, wnd[current]);
+          currentLen = 0;
+          current = 0;
+        }
+        start = 26;
+      }
+      return res;
+    };
+    Red.prototype.convertTo = function convertTo(num) {
+      var r2 = num.umod(this.m);
+      return r2 === num ? r2.clone() : r2;
+    };
+    Red.prototype.convertFrom = function convertFrom(num) {
+      var res = num.clone();
+      res.red = null;
+      return res;
+    };
+    BN.mont = function mont(num) {
+      return new Mont(num);
+    };
+    function Mont(m) {
+      Red.call(this, m);
+      this.shift = this.m.bitLength();
+      if (this.shift % 26 !== 0) {
+        this.shift += 26 - this.shift % 26;
+      }
+      this.r = new BN(1).iushln(this.shift);
+      this.r2 = this.imod(this.r.sqr());
+      this.rinv = this.r._invmp(this.m);
+      this.minv = this.rinv.mul(this.r).isubn(1).div(this.m);
+      this.minv = this.minv.umod(this.r);
+      this.minv = this.r.sub(this.minv);
+    }
+    inherits(Mont, Red);
+    Mont.prototype.convertTo = function convertTo(num) {
+      return this.imod(num.ushln(this.shift));
+    };
+    Mont.prototype.convertFrom = function convertFrom(num) {
+      var r2 = this.imod(num.mul(this.rinv));
+      r2.red = null;
+      return r2;
+    };
+    Mont.prototype.imul = function imul(a, b) {
+      if (a.isZero() || b.isZero()) {
+        a.words[0] = 0;
+        a.length = 1;
+        return a;
+      }
+      var t = a.imul(b);
+      var c = t.maskn(this.shift).mul(this.minv).imaskn(this.shift).mul(this.m);
+      var u = t.isub(c).iushrn(this.shift);
+      var res = u;
+      if (u.cmp(this.m) >= 0) {
+        res = u.isub(this.m);
+      } else if (u.cmpn(0) < 0) {
+        res = u.iadd(this.m);
+      }
+      return res._forceRed(this);
+    };
+    Mont.prototype.mul = function mul3(a, b) {
+      if (a.isZero() || b.isZero())
+        return new BN(0)._forceRed(this);
+      var t = a.mul(b);
+      var c = t.maskn(this.shift).mul(this.minv).imaskn(this.shift).mul(this.m);
+      var u = t.isub(c).iushrn(this.shift);
+      var res = u;
+      if (u.cmp(this.m) >= 0) {
+        res = u.isub(this.m);
+      } else if (u.cmpn(0) < 0) {
+        res = u.iadd(this.m);
+      }
+      return res._forceRed(this);
+    };
+    Mont.prototype.invm = function invm(a) {
+      var res = this.imod(a._invmp(this.m).mul(this.r2));
+      return res._forceRed(this);
+    };
+  })(typeof module2 === "undefined" || module2, exports);
+});
+
+// node_modules/@ethersproject/logger/lib/_version.js
+var require_version = __commonJS((exports) => {
+  "use strict";
+  Object.defineProperty(exports, "__esModule", {value: true});
+  exports.version = void 0;
+  exports.version = "logger/5.1.0";
+});
+
+// node_modules/@ethersproject/logger/lib/index.js
+var require_lib = __commonJS((exports) => {
+  "use strict";
+  Object.defineProperty(exports, "__esModule", {value: true});
+  exports.Logger = exports.ErrorCode = exports.LogLevel = void 0;
+  var _permanentCensorErrors2 = false;
+  var _censorErrors2 = false;
+  var LogLevels2 = {debug: 1, default: 2, info: 2, warning: 3, error: 4, off: 5};
+  var _logLevel2 = LogLevels2["default"];
+  var _version_1 = require_version();
+  var _globalLogger2 = null;
+  function _checkNormalize2() {
+    try {
+      var missing_1 = [];
+      ["NFD", "NFC", "NFKD", "NFKC"].forEach(function(form) {
+        try {
+          if ("test".normalize(form) !== "test") {
+            throw new Error("bad normalize");
+          }
+          ;
+        } catch (error2) {
+          missing_1.push(form);
+        }
+      });
+      if (missing_1.length) {
+        throw new Error("missing " + missing_1.join(", "));
+      }
+      if (String.fromCharCode(233).normalize("NFD") !== String.fromCharCode(101, 769)) {
+        throw new Error("broken implementation");
+      }
+    } catch (error2) {
+      return error2.message;
+    }
+    return null;
+  }
+  var _normalizeError2 = _checkNormalize2();
+  var LogLevel2;
+  (function(LogLevel3) {
+    LogLevel3["DEBUG"] = "DEBUG";
+    LogLevel3["INFO"] = "INFO";
+    LogLevel3["WARNING"] = "WARNING";
+    LogLevel3["ERROR"] = "ERROR";
+    LogLevel3["OFF"] = "OFF";
+  })(LogLevel2 = exports.LogLevel || (exports.LogLevel = {}));
+  var ErrorCode2;
+  (function(ErrorCode3) {
+    ErrorCode3["UNKNOWN_ERROR"] = "UNKNOWN_ERROR";
+    ErrorCode3["NOT_IMPLEMENTED"] = "NOT_IMPLEMENTED";
+    ErrorCode3["UNSUPPORTED_OPERATION"] = "UNSUPPORTED_OPERATION";
+    ErrorCode3["NETWORK_ERROR"] = "NETWORK_ERROR";
+    ErrorCode3["SERVER_ERROR"] = "SERVER_ERROR";
+    ErrorCode3["TIMEOUT"] = "TIMEOUT";
+    ErrorCode3["BUFFER_OVERRUN"] = "BUFFER_OVERRUN";
+    ErrorCode3["NUMERIC_FAULT"] = "NUMERIC_FAULT";
+    ErrorCode3["MISSING_NEW"] = "MISSING_NEW";
+    ErrorCode3["INVALID_ARGUMENT"] = "INVALID_ARGUMENT";
+    ErrorCode3["MISSING_ARGUMENT"] = "MISSING_ARGUMENT";
+    ErrorCode3["UNEXPECTED_ARGUMENT"] = "UNEXPECTED_ARGUMENT";
+    ErrorCode3["CALL_EXCEPTION"] = "CALL_EXCEPTION";
+    ErrorCode3["INSUFFICIENT_FUNDS"] = "INSUFFICIENT_FUNDS";
+    ErrorCode3["NONCE_EXPIRED"] = "NONCE_EXPIRED";
+    ErrorCode3["REPLACEMENT_UNDERPRICED"] = "REPLACEMENT_UNDERPRICED";
+    ErrorCode3["UNPREDICTABLE_GAS_LIMIT"] = "UNPREDICTABLE_GAS_LIMIT";
+  })(ErrorCode2 = exports.ErrorCode || (exports.ErrorCode = {}));
+  var Logger2 = function() {
+    function Logger3(version2) {
+      Object.defineProperty(this, "version", {
+        enumerable: true,
+        value: version2,
+        writable: false
+      });
+    }
+    Logger3.prototype._log = function(logLevel, args) {
+      var level = logLevel.toLowerCase();
+      if (LogLevels2[level] == null) {
+        this.throwArgumentError("invalid log level name", "logLevel", logLevel);
+      }
+      if (_logLevel2 > LogLevels2[level]) {
+        return;
+      }
+      console.log.apply(console, args);
+    };
+    Logger3.prototype.debug = function() {
+      var args = [];
+      for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+      }
+      this._log(Logger3.levels.DEBUG, args);
+    };
+    Logger3.prototype.info = function() {
+      var args = [];
+      for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+      }
+      this._log(Logger3.levels.INFO, args);
+    };
+    Logger3.prototype.warn = function() {
+      var args = [];
+      for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+      }
+      this._log(Logger3.levels.WARNING, args);
+    };
+    Logger3.prototype.makeError = function(message, code, params) {
+      if (_censorErrors2) {
+        return this.makeError("censored error", code, {});
+      }
+      if (!code) {
+        code = Logger3.errors.UNKNOWN_ERROR;
+      }
+      if (!params) {
+        params = {};
+      }
+      var messageDetails = [];
+      Object.keys(params).forEach(function(key2) {
+        try {
+          messageDetails.push(key2 + "=" + JSON.stringify(params[key2]));
+        } catch (error3) {
+          messageDetails.push(key2 + "=" + JSON.stringify(params[key2].toString()));
+        }
+      });
+      messageDetails.push("code=" + code);
+      messageDetails.push("version=" + this.version);
+      var reason = message;
+      if (messageDetails.length) {
+        message += " (" + messageDetails.join(", ") + ")";
+      }
+      var error2 = new Error(message);
+      error2.reason = reason;
+      error2.code = code;
+      Object.keys(params).forEach(function(key2) {
+        error2[key2] = params[key2];
+      });
+      return error2;
+    };
+    Logger3.prototype.throwError = function(message, code, params) {
+      throw this.makeError(message, code, params);
+    };
+    Logger3.prototype.throwArgumentError = function(message, name2, value) {
+      return this.throwError(message, Logger3.errors.INVALID_ARGUMENT, {
+        argument: name2,
+        value
+      });
+    };
+    Logger3.prototype.assert = function(condition, message, code, params) {
+      if (!!condition) {
+        return;
+      }
+      this.throwError(message, code, params);
+    };
+    Logger3.prototype.assertArgument = function(condition, message, name2, value) {
+      if (!!condition) {
+        return;
+      }
+      this.throwArgumentError(message, name2, value);
+    };
+    Logger3.prototype.checkNormalize = function(message) {
+      if (message == null) {
+        message = "platform missing String.prototype.normalize";
+      }
+      if (_normalizeError2) {
+        this.throwError("platform missing String.prototype.normalize", Logger3.errors.UNSUPPORTED_OPERATION, {
+          operation: "String.prototype.normalize",
+          form: _normalizeError2
+        });
+      }
+    };
+    Logger3.prototype.checkSafeUint53 = function(value, message) {
+      if (typeof value !== "number") {
+        return;
+      }
+      if (message == null) {
+        message = "value not safe";
+      }
+      if (value < 0 || value >= 9007199254740991) {
+        this.throwError(message, Logger3.errors.NUMERIC_FAULT, {
+          operation: "checkSafeInteger",
+          fault: "out-of-safe-range",
+          value
+        });
+      }
+      if (value % 1) {
+        this.throwError(message, Logger3.errors.NUMERIC_FAULT, {
+          operation: "checkSafeInteger",
+          fault: "non-integer",
+          value
+        });
+      }
+    };
+    Logger3.prototype.checkArgumentCount = function(count, expectedCount, message) {
+      if (message) {
+        message = ": " + message;
+      } else {
+        message = "";
+      }
+      if (count < expectedCount) {
+        this.throwError("missing argument" + message, Logger3.errors.MISSING_ARGUMENT, {
+          count,
+          expectedCount
+        });
+      }
+      if (count > expectedCount) {
+        this.throwError("too many arguments" + message, Logger3.errors.UNEXPECTED_ARGUMENT, {
+          count,
+          expectedCount
+        });
+      }
+    };
+    Logger3.prototype.checkNew = function(target, kind) {
+      if (target === Object || target == null) {
+        this.throwError("missing new", Logger3.errors.MISSING_NEW, {name: kind.name});
+      }
+    };
+    Logger3.prototype.checkAbstract = function(target, kind) {
+      if (target === kind) {
+        this.throwError("cannot instantiate abstract class " + JSON.stringify(kind.name) + " directly; use a sub-class", Logger3.errors.UNSUPPORTED_OPERATION, {name: target.name, operation: "new"});
+      } else if (target === Object || target == null) {
+        this.throwError("missing new", Logger3.errors.MISSING_NEW, {name: kind.name});
+      }
+    };
+    Logger3.globalLogger = function() {
+      if (!_globalLogger2) {
+        _globalLogger2 = new Logger3(_version_1.version);
+      }
+      return _globalLogger2;
+    };
+    Logger3.setCensorship = function(censorship, permanent) {
+      if (!censorship && permanent) {
+        this.globalLogger().throwError("cannot permanently disable censorship", Logger3.errors.UNSUPPORTED_OPERATION, {
+          operation: "setCensorship"
+        });
+      }
+      if (_permanentCensorErrors2) {
+        if (!censorship) {
+          return;
+        }
+        this.globalLogger().throwError("error censorship permanent", Logger3.errors.UNSUPPORTED_OPERATION, {
+          operation: "setCensorship"
+        });
+      }
+      _censorErrors2 = !!censorship;
+      _permanentCensorErrors2 = !!permanent;
+    };
+    Logger3.setLogLevel = function(logLevel) {
+      var level = LogLevels2[logLevel.toLowerCase()];
+      if (level == null) {
+        Logger3.globalLogger().warn("invalid log level - " + logLevel);
+        return;
+      }
+      _logLevel2 = level;
+    };
+    Logger3.from = function(version2) {
+      return new Logger3(version2);
+    };
+    Logger3.errors = ErrorCode2;
+    Logger3.levels = LogLevel2;
+    return Logger3;
+  }();
+  exports.Logger = Logger2;
+});
+
+// node_modules/@ethersproject/bytes/lib/_version.js
+var require_version2 = __commonJS((exports) => {
+  "use strict";
+  Object.defineProperty(exports, "__esModule", {value: true});
+  exports.version = void 0;
+  exports.version = "bytes/5.1.0";
+});
+
+// node_modules/@ethersproject/bytes/lib/index.js
+var require_lib2 = __commonJS((exports) => {
+  "use strict";
+  Object.defineProperty(exports, "__esModule", {value: true});
+  exports.joinSignature = exports.splitSignature = exports.hexZeroPad = exports.hexStripZeros = exports.hexValue = exports.hexConcat = exports.hexDataSlice = exports.hexDataLength = exports.hexlify = exports.isHexString = exports.zeroPad = exports.stripZeros = exports.concat = exports.arrayify = exports.isBytes = exports.isBytesLike = void 0;
+  var logger_1 = require_lib();
+  var _version_1 = require_version2();
+  var logger2 = new logger_1.Logger(_version_1.version);
+  function isHexable2(value) {
+    return !!value.toHexString;
+  }
+  function addSlice2(array) {
+    if (array.slice) {
+      return array;
+    }
+    array.slice = function() {
+      var args = Array.prototype.slice.call(arguments);
+      return addSlice2(new Uint8Array(Array.prototype.slice.apply(array, args)));
+    };
+    return array;
+  }
+  function isBytesLike2(value) {
+    return isHexString2(value) && !(value.length % 2) || isBytes2(value);
+  }
+  exports.isBytesLike = isBytesLike2;
+  function isBytes2(value) {
+    if (value == null) {
+      return false;
+    }
+    if (value.constructor === Uint8Array) {
+      return true;
+    }
+    if (typeof value === "string") {
+      return false;
+    }
+    if (value.length == null) {
+      return false;
+    }
+    for (var i = 0; i < value.length; i++) {
+      var v = value[i];
+      if (typeof v !== "number" || v < 0 || v >= 256 || v % 1) {
+        return false;
+      }
+    }
+    return true;
+  }
+  exports.isBytes = isBytes2;
+  function arrayify2(value, options2) {
+    if (!options2) {
+      options2 = {};
+    }
+    if (typeof value === "number") {
+      logger2.checkSafeUint53(value, "invalid arrayify value");
+      var result = [];
+      while (value) {
+        result.unshift(value & 255);
+        value = parseInt(String(value / 256));
+      }
+      if (result.length === 0) {
+        result.push(0);
+      }
+      return addSlice2(new Uint8Array(result));
+    }
+    if (options2.allowMissingPrefix && typeof value === "string" && value.substring(0, 2) !== "0x") {
+      value = "0x" + value;
+    }
+    if (isHexable2(value)) {
+      value = value.toHexString();
+    }
+    if (isHexString2(value)) {
+      var hex2 = value.substring(2);
+      if (hex2.length % 2) {
+        if (options2.hexPad === "left") {
+          hex2 = "0x0" + hex2.substring(2);
+        } else if (options2.hexPad === "right") {
+          hex2 += "0";
+        } else {
+          logger2.throwArgumentError("hex data is odd-length", "value", value);
+        }
+      }
+      var result = [];
+      for (var i = 0; i < hex2.length; i += 2) {
+        result.push(parseInt(hex2.substring(i, i + 2), 16));
+      }
+      return addSlice2(new Uint8Array(result));
+    }
+    if (isBytes2(value)) {
+      return addSlice2(new Uint8Array(value));
+    }
+    return logger2.throwArgumentError("invalid arrayify value", "value", value);
+  }
+  exports.arrayify = arrayify2;
+  function concat2(items) {
+    var objects = items.map(function(item) {
+      return arrayify2(item);
+    });
+    var length = objects.reduce(function(accum, item) {
+      return accum + item.length;
+    }, 0);
+    var result = new Uint8Array(length);
+    objects.reduce(function(offset, object) {
+      result.set(object, offset);
+      return offset + object.length;
+    }, 0);
+    return addSlice2(result);
+  }
+  exports.concat = concat2;
+  function stripZeros2(value) {
+    var result = arrayify2(value);
+    if (result.length === 0) {
+      return result;
+    }
+    var start = 0;
+    while (start < result.length && result[start] === 0) {
+      start++;
+    }
+    if (start) {
+      result = result.slice(start);
+    }
+    return result;
+  }
+  exports.stripZeros = stripZeros2;
+  function zeroPad2(value, length) {
+    value = arrayify2(value);
+    if (value.length > length) {
+      logger2.throwArgumentError("value out of range", "value", arguments[0]);
+    }
+    var result = new Uint8Array(length);
+    result.set(value, length - value.length);
+    return addSlice2(result);
+  }
+  exports.zeroPad = zeroPad2;
+  function isHexString2(value, length) {
+    if (typeof value !== "string" || !value.match(/^0x[0-9A-Fa-f]*$/)) {
+      return false;
+    }
+    if (length && value.length !== 2 + 2 * length) {
+      return false;
+    }
+    return true;
+  }
+  exports.isHexString = isHexString2;
+  var HexCharacters2 = "0123456789abcdef";
+  function hexlify2(value, options2) {
+    if (!options2) {
+      options2 = {};
+    }
+    if (typeof value === "number") {
+      logger2.checkSafeUint53(value, "invalid hexlify value");
+      var hex2 = "";
+      while (value) {
+        hex2 = HexCharacters2[value & 15] + hex2;
+        value = Math.floor(value / 16);
+      }
+      if (hex2.length) {
+        if (hex2.length % 2) {
+          hex2 = "0" + hex2;
+        }
+        return "0x" + hex2;
+      }
+      return "0x00";
+    }
+    if (options2.allowMissingPrefix && typeof value === "string" && value.substring(0, 2) !== "0x") {
+      value = "0x" + value;
+    }
+    if (isHexable2(value)) {
+      return value.toHexString();
+    }
+    if (isHexString2(value)) {
+      if (value.length % 2) {
+        if (options2.hexPad === "left") {
+          value = "0x0" + value.substring(2);
+        } else if (options2.hexPad === "right") {
+          value += "0";
+        } else {
+          logger2.throwArgumentError("hex data is odd-length", "value", value);
+        }
+      }
+      return value.toLowerCase();
+    }
+    if (isBytes2(value)) {
+      var result = "0x";
+      for (var i = 0; i < value.length; i++) {
+        var v = value[i];
+        result += HexCharacters2[(v & 240) >> 4] + HexCharacters2[v & 15];
+      }
+      return result;
+    }
+    return logger2.throwArgumentError("invalid hexlify value", "value", value);
+  }
+  exports.hexlify = hexlify2;
+  function hexDataLength2(data2) {
+    if (typeof data2 !== "string") {
+      data2 = hexlify2(data2);
+    } else if (!isHexString2(data2) || data2.length % 2) {
+      return null;
+    }
+    return (data2.length - 2) / 2;
+  }
+  exports.hexDataLength = hexDataLength2;
+  function hexDataSlice2(data2, offset, endOffset) {
+    if (typeof data2 !== "string") {
+      data2 = hexlify2(data2);
+    } else if (!isHexString2(data2) || data2.length % 2) {
+      logger2.throwArgumentError("invalid hexData", "value", data2);
+    }
+    offset = 2 + 2 * offset;
+    if (endOffset != null) {
+      return "0x" + data2.substring(offset, 2 + 2 * endOffset);
+    }
+    return "0x" + data2.substring(offset);
+  }
+  exports.hexDataSlice = hexDataSlice2;
+  function hexConcat2(items) {
+    var result = "0x";
+    items.forEach(function(item) {
+      result += hexlify2(item).substring(2);
+    });
+    return result;
+  }
+  exports.hexConcat = hexConcat2;
+  function hexValue2(value) {
+    var trimmed = hexStripZeros2(hexlify2(value, {hexPad: "left"}));
+    if (trimmed === "0x") {
+      return "0x0";
+    }
+    return trimmed;
+  }
+  exports.hexValue = hexValue2;
+  function hexStripZeros2(value) {
+    if (typeof value !== "string") {
+      value = hexlify2(value);
+    }
+    if (!isHexString2(value)) {
+      logger2.throwArgumentError("invalid hex string", "value", value);
+    }
+    value = value.substring(2);
+    var offset = 0;
+    while (offset < value.length && value[offset] === "0") {
+      offset++;
+    }
+    return "0x" + value.substring(offset);
+  }
+  exports.hexStripZeros = hexStripZeros2;
+  function hexZeroPad2(value, length) {
+    if (typeof value !== "string") {
+      value = hexlify2(value);
+    } else if (!isHexString2(value)) {
+      logger2.throwArgumentError("invalid hex string", "value", value);
+    }
+    if (value.length > 2 * length + 2) {
+      logger2.throwArgumentError("value out of range", "value", arguments[1]);
+    }
+    while (value.length < 2 * length + 2) {
+      value = "0x0" + value.substring(2);
+    }
+    return value;
+  }
+  exports.hexZeroPad = hexZeroPad2;
+  function splitSignature2(signature2) {
+    var result = {
+      r: "0x",
+      s: "0x",
+      _vs: "0x",
+      recoveryParam: 0,
+      v: 0
+    };
+    if (isBytesLike2(signature2)) {
+      var bytes = arrayify2(signature2);
+      if (bytes.length !== 65) {
+        logger2.throwArgumentError("invalid signature string; must be 65 bytes", "signature", signature2);
+      }
+      result.r = hexlify2(bytes.slice(0, 32));
+      result.s = hexlify2(bytes.slice(32, 64));
+      result.v = bytes[64];
+      if (result.v < 27) {
+        if (result.v === 0 || result.v === 1) {
+          result.v += 27;
+        } else {
+          logger2.throwArgumentError("signature invalid v byte", "signature", signature2);
+        }
+      }
+      result.recoveryParam = 1 - result.v % 2;
+      if (result.recoveryParam) {
+        bytes[32] |= 128;
+      }
+      result._vs = hexlify2(bytes.slice(32, 64));
+    } else {
+      result.r = signature2.r;
+      result.s = signature2.s;
+      result.v = signature2.v;
+      result.recoveryParam = signature2.recoveryParam;
+      result._vs = signature2._vs;
+      if (result._vs != null) {
+        var vs_1 = zeroPad2(arrayify2(result._vs), 32);
+        result._vs = hexlify2(vs_1);
+        var recoveryParam = vs_1[0] >= 128 ? 1 : 0;
+        if (result.recoveryParam == null) {
+          result.recoveryParam = recoveryParam;
+        } else if (result.recoveryParam !== recoveryParam) {
+          logger2.throwArgumentError("signature recoveryParam mismatch _vs", "signature", signature2);
+        }
+        vs_1[0] &= 127;
+        var s3 = hexlify2(vs_1);
+        if (result.s == null) {
+          result.s = s3;
+        } else if (result.s !== s3) {
+          logger2.throwArgumentError("signature v mismatch _vs", "signature", signature2);
+        }
+      }
+      if (result.recoveryParam == null) {
+        if (result.v == null) {
+          logger2.throwArgumentError("signature missing v and recoveryParam", "signature", signature2);
+        } else if (result.v === 0 || result.v === 1) {
+          result.recoveryParam = result.v;
+        } else {
+          result.recoveryParam = 1 - result.v % 2;
+        }
+      } else {
+        if (result.v == null) {
+          result.v = 27 + result.recoveryParam;
+        } else if (result.recoveryParam !== 1 - result.v % 2) {
+          logger2.throwArgumentError("signature recoveryParam mismatch v", "signature", signature2);
+        }
+      }
+      if (result.r == null || !isHexString2(result.r)) {
+        logger2.throwArgumentError("signature missing or invalid r", "signature", signature2);
+      } else {
+        result.r = hexZeroPad2(result.r, 32);
+      }
+      if (result.s == null || !isHexString2(result.s)) {
+        logger2.throwArgumentError("signature missing or invalid s", "signature", signature2);
+      } else {
+        result.s = hexZeroPad2(result.s, 32);
+      }
+      var vs = arrayify2(result.s);
+      if (vs[0] >= 128) {
+        logger2.throwArgumentError("signature s out of range", "signature", signature2);
+      }
+      if (result.recoveryParam) {
+        vs[0] |= 128;
+      }
+      var _vs = hexlify2(vs);
+      if (result._vs) {
+        if (!isHexString2(result._vs)) {
+          logger2.throwArgumentError("signature invalid _vs", "signature", signature2);
+        }
+        result._vs = hexZeroPad2(result._vs, 32);
+      }
+      if (result._vs == null) {
+        result._vs = _vs;
+      } else if (result._vs !== _vs) {
+        logger2.throwArgumentError("signature _vs mismatch v and s", "signature", signature2);
+      }
+    }
+    return result;
+  }
+  exports.splitSignature = splitSignature2;
+  function joinSignature2(signature2) {
+    signature2 = splitSignature2(signature2);
+    return hexlify2(concat2([
+      signature2.r,
+      signature2.s,
+      signature2.recoveryParam ? "0x1c" : "0x1b"
+    ]));
+  }
+  exports.joinSignature = joinSignature2;
+});
+
+// node_modules/@ethersproject/bignumber/lib/_version.js
+var require_version3 = __commonJS((exports) => {
+  "use strict";
+  Object.defineProperty(exports, "__esModule", {value: true});
+  exports.version = void 0;
+  exports.version = "bignumber/5.1.1";
+});
+
+// node_modules/@ethersproject/bignumber/lib/bignumber.js
+var require_bignumber = __commonJS((exports) => {
+  "use strict";
+  var __importDefault = exports && exports.__importDefault || function(mod) {
+    return mod && mod.__esModule ? mod : {default: mod};
+  };
+  Object.defineProperty(exports, "__esModule", {value: true});
+  exports._base16To36 = exports._base36To16 = exports.BigNumber = exports.isBigNumberish = void 0;
+  var bn_js_1 = __importDefault(require_bn());
+  var BN = bn_js_1.default.BN;
+  var bytes_1 = require_lib2();
+  var logger_1 = require_lib();
+  var _version_1 = require_version3();
+  var logger2 = new logger_1.Logger(_version_1.version);
+  var _constructorGuard2 = {};
+  var MAX_SAFE = 9007199254740991;
+  function isBigNumberish(value) {
+    return value != null && (BigNumber2.isBigNumber(value) || typeof value === "number" && value % 1 === 0 || typeof value === "string" && !!value.match(/^-?[0-9]+$/) || bytes_1.isHexString(value) || typeof value === "bigint" || bytes_1.isBytes(value));
+  }
+  exports.isBigNumberish = isBigNumberish;
+  var _warnedToStringRadix = false;
+  var BigNumber2 = function() {
+    function BigNumber3(constructorGuard, hex2) {
+      var _newTarget = this.constructor;
+      logger2.checkNew(_newTarget, BigNumber3);
+      if (constructorGuard !== _constructorGuard2) {
+        logger2.throwError("cannot call constructor directly; use BigNumber.from", logger_1.Logger.errors.UNSUPPORTED_OPERATION, {
+          operation: "new (BigNumber)"
+        });
+      }
+      this._hex = hex2;
+      this._isBigNumber = true;
+      Object.freeze(this);
+    }
+    BigNumber3.prototype.fromTwos = function(value) {
+      return toBigNumber(toBN(this).fromTwos(value));
+    };
+    BigNumber3.prototype.toTwos = function(value) {
+      return toBigNumber(toBN(this).toTwos(value));
+    };
+    BigNumber3.prototype.abs = function() {
+      if (this._hex[0] === "-") {
+        return BigNumber3.from(this._hex.substring(1));
+      }
+      return this;
+    };
+    BigNumber3.prototype.add = function(other) {
+      return toBigNumber(toBN(this).add(toBN(other)));
+    };
+    BigNumber3.prototype.sub = function(other) {
+      return toBigNumber(toBN(this).sub(toBN(other)));
+    };
+    BigNumber3.prototype.div = function(other) {
+      var o = BigNumber3.from(other);
+      if (o.isZero()) {
+        throwFault("division by zero", "div");
+      }
+      return toBigNumber(toBN(this).div(toBN(other)));
+    };
+    BigNumber3.prototype.mul = function(other) {
+      return toBigNumber(toBN(this).mul(toBN(other)));
+    };
+    BigNumber3.prototype.mod = function(other) {
+      var value = toBN(other);
+      if (value.isNeg()) {
+        throwFault("cannot modulo negative values", "mod");
+      }
+      return toBigNumber(toBN(this).umod(value));
+    };
+    BigNumber3.prototype.pow = function(other) {
+      var value = toBN(other);
+      if (value.isNeg()) {
+        throwFault("cannot raise to negative values", "pow");
+      }
+      return toBigNumber(toBN(this).pow(value));
+    };
+    BigNumber3.prototype.and = function(other) {
+      var value = toBN(other);
+      if (this.isNegative() || value.isNeg()) {
+        throwFault("cannot 'and' negative values", "and");
+      }
+      return toBigNumber(toBN(this).and(value));
+    };
+    BigNumber3.prototype.or = function(other) {
+      var value = toBN(other);
+      if (this.isNegative() || value.isNeg()) {
+        throwFault("cannot 'or' negative values", "or");
+      }
+      return toBigNumber(toBN(this).or(value));
+    };
+    BigNumber3.prototype.xor = function(other) {
+      var value = toBN(other);
+      if (this.isNegative() || value.isNeg()) {
+        throwFault("cannot 'xor' negative values", "xor");
+      }
+      return toBigNumber(toBN(this).xor(value));
+    };
+    BigNumber3.prototype.mask = function(value) {
+      if (this.isNegative() || value < 0) {
+        throwFault("cannot mask negative values", "mask");
+      }
+      return toBigNumber(toBN(this).maskn(value));
+    };
+    BigNumber3.prototype.shl = function(value) {
+      if (this.isNegative() || value < 0) {
+        throwFault("cannot shift negative values", "shl");
+      }
+      return toBigNumber(toBN(this).shln(value));
+    };
+    BigNumber3.prototype.shr = function(value) {
+      if (this.isNegative() || value < 0) {
+        throwFault("cannot shift negative values", "shr");
+      }
+      return toBigNumber(toBN(this).shrn(value));
+    };
+    BigNumber3.prototype.eq = function(other) {
+      return toBN(this).eq(toBN(other));
+    };
+    BigNumber3.prototype.lt = function(other) {
+      return toBN(this).lt(toBN(other));
+    };
+    BigNumber3.prototype.lte = function(other) {
+      return toBN(this).lte(toBN(other));
+    };
+    BigNumber3.prototype.gt = function(other) {
+      return toBN(this).gt(toBN(other));
+    };
+    BigNumber3.prototype.gte = function(other) {
+      return toBN(this).gte(toBN(other));
+    };
+    BigNumber3.prototype.isNegative = function() {
+      return this._hex[0] === "-";
+    };
+    BigNumber3.prototype.isZero = function() {
+      return toBN(this).isZero();
+    };
+    BigNumber3.prototype.toNumber = function() {
+      try {
+        return toBN(this).toNumber();
+      } catch (error2) {
+        throwFault("overflow", "toNumber", this.toString());
+      }
+      return null;
+    };
+    BigNumber3.prototype.toBigInt = function() {
+      try {
+        return BigInt(this.toString());
+      } catch (e) {
+      }
+      return logger2.throwError("this platform does not support BigInt", logger_1.Logger.errors.UNSUPPORTED_OPERATION, {
+        value: this.toString()
+      });
+    };
+    BigNumber3.prototype.toString = function() {
+      if (arguments.length > 0) {
+        if (arguments[0] === 10) {
+          if (!_warnedToStringRadix) {
+            _warnedToStringRadix = true;
+            logger2.warn("BigNumber.toString does not accept any parameters; base-10 is assumed");
+          }
+        } else if (arguments[0] === 16) {
+          logger2.throwError("BigNumber.toString does not accept any parameters; use bigNumber.toHexString()", logger_1.Logger.errors.UNEXPECTED_ARGUMENT, {});
+        } else {
+          logger2.throwError("BigNumber.toString does not accept parameters", logger_1.Logger.errors.UNEXPECTED_ARGUMENT, {});
+        }
+      }
+      return toBN(this).toString(10);
+    };
+    BigNumber3.prototype.toHexString = function() {
+      return this._hex;
+    };
+    BigNumber3.prototype.toJSON = function(key2) {
+      return {type: "BigNumber", hex: this.toHexString()};
+    };
+    BigNumber3.from = function(value) {
+      if (value instanceof BigNumber3) {
+        return value;
+      }
+      if (typeof value === "string") {
+        if (value.match(/^-?0x[0-9a-f]+$/i)) {
+          return new BigNumber3(_constructorGuard2, toHex2(value));
+        }
+        if (value.match(/^-?[0-9]+$/)) {
+          return new BigNumber3(_constructorGuard2, toHex2(new BN(value)));
+        }
+        return logger2.throwArgumentError("invalid BigNumber string", "value", value);
+      }
+      if (typeof value === "number") {
+        if (value % 1) {
+          throwFault("underflow", "BigNumber.from", value);
+        }
+        if (value >= MAX_SAFE || value <= -MAX_SAFE) {
+          throwFault("overflow", "BigNumber.from", value);
+        }
+        return BigNumber3.from(String(value));
+      }
+      var anyValue = value;
+      if (typeof anyValue === "bigint") {
+        return BigNumber3.from(anyValue.toString());
+      }
+      if (bytes_1.isBytes(anyValue)) {
+        return BigNumber3.from(bytes_1.hexlify(anyValue));
+      }
+      if (anyValue) {
+        if (anyValue.toHexString) {
+          var hex2 = anyValue.toHexString();
+          if (typeof hex2 === "string") {
+            return BigNumber3.from(hex2);
+          }
+        } else {
+          var hex2 = anyValue._hex;
+          if (hex2 == null && anyValue.type === "BigNumber") {
+            hex2 = anyValue.hex;
+          }
+          if (typeof hex2 === "string") {
+            if (bytes_1.isHexString(hex2) || hex2[0] === "-" && bytes_1.isHexString(hex2.substring(1))) {
+              return BigNumber3.from(hex2);
+            }
+          }
+        }
+      }
+      return logger2.throwArgumentError("invalid BigNumber value", "value", value);
+    };
+    BigNumber3.isBigNumber = function(value) {
+      return !!(value && value._isBigNumber);
+    };
+    return BigNumber3;
+  }();
+  exports.BigNumber = BigNumber2;
+  function toHex2(value) {
+    if (typeof value !== "string") {
+      return toHex2(value.toString(16));
+    }
+    if (value[0] === "-") {
+      value = value.substring(1);
+      if (value[0] === "-") {
+        logger2.throwArgumentError("invalid hex", "value", value);
+      }
+      value = toHex2(value);
+      if (value === "0x00") {
+        return value;
+      }
+      return "-" + value;
+    }
+    if (value.substring(0, 2) !== "0x") {
+      value = "0x" + value;
+    }
+    if (value === "0x") {
+      return "0x00";
+    }
+    if (value.length % 2) {
+      value = "0x0" + value.substring(2);
+    }
+    while (value.length > 4 && value.substring(0, 4) === "0x00") {
+      value = "0x" + value.substring(4);
+    }
+    return value;
+  }
+  function toBigNumber(value) {
+    return BigNumber2.from(toHex2(value));
+  }
+  function toBN(value) {
+    var hex2 = BigNumber2.from(value).toHexString();
+    if (hex2[0] === "-") {
+      return new BN("-" + hex2.substring(3), 16);
+    }
+    return new BN(hex2.substring(2), 16);
+  }
+  function throwFault(fault, operation, value) {
+    var params = {fault, operation};
+    if (value != null) {
+      params.value = value;
+    }
+    return logger2.throwError(fault, logger_1.Logger.errors.NUMERIC_FAULT, params);
+  }
+  function _base36To162(value) {
+    return new BN(value, 36).toString(16);
+  }
+  exports._base36To16 = _base36To162;
+  function _base16To362(value) {
+    return new BN(value, 16).toString(36);
+  }
+  exports._base16To36 = _base16To362;
+});
+
+// node_modules/@ethersproject/bignumber/lib/fixednumber.js
+var require_fixednumber = __commonJS((exports) => {
+  "use strict";
+  Object.defineProperty(exports, "__esModule", {value: true});
+  exports.FixedNumber = exports.FixedFormat = exports.parseFixed = exports.formatFixed = void 0;
+  var bytes_1 = require_lib2();
+  var logger_1 = require_lib();
+  var _version_1 = require_version3();
+  var logger2 = new logger_1.Logger(_version_1.version);
+  var bignumber_1 = require_bignumber();
+  var _constructorGuard2 = {};
+  var Zero2 = bignumber_1.BigNumber.from(0);
+  var NegativeOne2 = bignumber_1.BigNumber.from(-1);
+  function throwFault(message, fault, operation, value) {
+    var params = {fault, operation};
+    if (value !== void 0) {
+      params.value = value;
+    }
+    return logger2.throwError(message, logger_1.Logger.errors.NUMERIC_FAULT, params);
+  }
+  var zeros = "0";
+  while (zeros.length < 256) {
+    zeros += zeros;
+  }
+  function getMultiplier(decimals) {
+    if (typeof decimals !== "number") {
+      try {
+        decimals = bignumber_1.BigNumber.from(decimals).toNumber();
+      } catch (e) {
+      }
+    }
+    if (typeof decimals === "number" && decimals >= 0 && decimals <= 256 && !(decimals % 1)) {
+      return "1" + zeros.substring(0, decimals);
+    }
+    return logger2.throwArgumentError("invalid decimal size", "decimals", decimals);
+  }
+  function formatFixed2(value, decimals) {
+    if (decimals == null) {
+      decimals = 0;
+    }
+    var multiplier = getMultiplier(decimals);
+    value = bignumber_1.BigNumber.from(value);
+    var negative = value.lt(Zero2);
+    if (negative) {
+      value = value.mul(NegativeOne2);
+    }
+    var fraction = value.mod(multiplier).toString();
+    while (fraction.length < multiplier.length - 1) {
+      fraction = "0" + fraction;
+    }
+    fraction = fraction.match(/^([0-9]*[1-9]|0)(0*)/)[1];
+    var whole = value.div(multiplier).toString();
+    value = whole + "." + fraction;
+    if (negative) {
+      value = "-" + value;
+    }
+    return value;
+  }
+  exports.formatFixed = formatFixed2;
+  function parseFixed2(value, decimals) {
+    if (decimals == null) {
+      decimals = 0;
+    }
+    var multiplier = getMultiplier(decimals);
+    if (typeof value !== "string" || !value.match(/^-?[0-9.,]+$/)) {
+      logger2.throwArgumentError("invalid decimal value", "value", value);
+    }
+    if (multiplier.length - 1 === 0) {
+      return bignumber_1.BigNumber.from(value);
+    }
+    var negative = value.substring(0, 1) === "-";
+    if (negative) {
+      value = value.substring(1);
+    }
+    if (value === ".") {
+      logger2.throwArgumentError("missing value", "value", value);
+    }
+    var comps = value.split(".");
+    if (comps.length > 2) {
+      logger2.throwArgumentError("too many decimal points", "value", value);
+    }
+    var whole = comps[0], fraction = comps[1];
+    if (!whole) {
+      whole = "0";
+    }
+    if (!fraction) {
+      fraction = "0";
+    }
+    if (fraction.length > multiplier.length - 1) {
+      throwFault("fractional component exceeds decimals", "underflow", "parseFixed");
+    }
+    while (fraction.length < multiplier.length - 1) {
+      fraction += "0";
+    }
+    var wholeValue = bignumber_1.BigNumber.from(whole);
+    var fractionValue = bignumber_1.BigNumber.from(fraction);
+    var wei = wholeValue.mul(multiplier).add(fractionValue);
+    if (negative) {
+      wei = wei.mul(NegativeOne2);
+    }
+    return wei;
+  }
+  exports.parseFixed = parseFixed2;
+  var FixedFormat = function() {
+    function FixedFormat2(constructorGuard, signed, width, decimals) {
+      if (constructorGuard !== _constructorGuard2) {
+        logger2.throwError("cannot use FixedFormat constructor; use FixedFormat.from", logger_1.Logger.errors.UNSUPPORTED_OPERATION, {
+          operation: "new FixedFormat"
+        });
+      }
+      this.signed = signed;
+      this.width = width;
+      this.decimals = decimals;
+      this.name = (signed ? "" : "u") + "fixed" + String(width) + "x" + String(decimals);
+      this._multiplier = getMultiplier(decimals);
+      Object.freeze(this);
+    }
+    FixedFormat2.from = function(value) {
+      if (value instanceof FixedFormat2) {
+        return value;
+      }
+      var signed = true;
+      var width = 128;
+      var decimals = 18;
+      if (typeof value === "string") {
+        if (value === "fixed") {
+        } else if (value === "ufixed") {
+          signed = false;
+        } else if (value != null) {
+          var match = value.match(/^(u?)fixed([0-9]+)x([0-9]+)$/);
+          if (!match) {
+            logger2.throwArgumentError("invalid fixed format", "format", value);
+          }
+          signed = match[1] !== "u";
+          width = parseInt(match[2]);
+          decimals = parseInt(match[3]);
+        }
+      } else if (value) {
+        var check = function(key2, type, defaultValue) {
+          if (value[key2] == null) {
+            return defaultValue;
+          }
+          if (typeof value[key2] !== type) {
+            logger2.throwArgumentError("invalid fixed format (" + key2 + " not " + type + ")", "format." + key2, value[key2]);
+          }
+          return value[key2];
+        };
+        signed = check("signed", "boolean", signed);
+        width = check("width", "number", width);
+        decimals = check("decimals", "number", decimals);
+      }
+      if (width % 8) {
+        logger2.throwArgumentError("invalid fixed format width (not byte aligned)", "format.width", width);
+      }
+      if (decimals > 80) {
+        logger2.throwArgumentError("invalid fixed format (decimals too large)", "format.decimals", decimals);
+      }
+      return new FixedFormat2(_constructorGuard2, signed, width, decimals);
+    };
+    return FixedFormat2;
+  }();
+  exports.FixedFormat = FixedFormat;
+  var FixedNumber = function() {
+    function FixedNumber2(constructorGuard, hex2, value, format2) {
+      var _newTarget = this.constructor;
+      logger2.checkNew(_newTarget, FixedNumber2);
+      if (constructorGuard !== _constructorGuard2) {
+        logger2.throwError("cannot use FixedNumber constructor; use FixedNumber.from", logger_1.Logger.errors.UNSUPPORTED_OPERATION, {
+          operation: "new FixedFormat"
+        });
+      }
+      this.format = format2;
+      this._hex = hex2;
+      this._value = value;
+      this._isFixedNumber = true;
+      Object.freeze(this);
+    }
+    FixedNumber2.prototype._checkFormat = function(other) {
+      if (this.format.name !== other.format.name) {
+        logger2.throwArgumentError("incompatible format; use fixedNumber.toFormat", "other", other);
+      }
+    };
+    FixedNumber2.prototype.addUnsafe = function(other) {
+      this._checkFormat(other);
+      var a = parseFixed2(this._value, this.format.decimals);
+      var b = parseFixed2(other._value, other.format.decimals);
+      return FixedNumber2.fromValue(a.add(b), this.format.decimals, this.format);
+    };
+    FixedNumber2.prototype.subUnsafe = function(other) {
+      this._checkFormat(other);
+      var a = parseFixed2(this._value, this.format.decimals);
+      var b = parseFixed2(other._value, other.format.decimals);
+      return FixedNumber2.fromValue(a.sub(b), this.format.decimals, this.format);
+    };
+    FixedNumber2.prototype.mulUnsafe = function(other) {
+      this._checkFormat(other);
+      var a = parseFixed2(this._value, this.format.decimals);
+      var b = parseFixed2(other._value, other.format.decimals);
+      return FixedNumber2.fromValue(a.mul(b).div(this.format._multiplier), this.format.decimals, this.format);
+    };
+    FixedNumber2.prototype.divUnsafe = function(other) {
+      this._checkFormat(other);
+      var a = parseFixed2(this._value, this.format.decimals);
+      var b = parseFixed2(other._value, other.format.decimals);
+      return FixedNumber2.fromValue(a.mul(this.format._multiplier).div(b), this.format.decimals, this.format);
+    };
+    FixedNumber2.prototype.floor = function() {
+      var comps = this.toString().split(".");
+      var result = FixedNumber2.from(comps[0], this.format);
+      var hasFraction = !comps[1].match(/^(0*)$/);
+      if (this.isNegative() && hasFraction) {
+        result = result.subUnsafe(ONE);
+      }
+      return result;
+    };
+    FixedNumber2.prototype.ceiling = function() {
+      var comps = this.toString().split(".");
+      var result = FixedNumber2.from(comps[0], this.format);
+      var hasFraction = !comps[1].match(/^(0*)$/);
+      if (!this.isNegative() && hasFraction) {
+        result = result.addUnsafe(ONE);
+      }
+      return result;
+    };
+    FixedNumber2.prototype.round = function(decimals) {
+      if (decimals == null) {
+        decimals = 0;
+      }
+      var comps = this.toString().split(".");
+      if (decimals < 0 || decimals > 80 || decimals % 1) {
+        logger2.throwArgumentError("invalid decimal count", "decimals", decimals);
+      }
+      if (comps[1].length <= decimals) {
+        return this;
+      }
+      var factor = FixedNumber2.from("1" + zeros.substring(0, decimals));
+      return this.mulUnsafe(factor).addUnsafe(BUMP).floor().divUnsafe(factor);
+    };
+    FixedNumber2.prototype.isZero = function() {
+      return this._value === "0.0";
+    };
+    FixedNumber2.prototype.isNegative = function() {
+      return this._value[0] === "-";
+    };
+    FixedNumber2.prototype.toString = function() {
+      return this._value;
+    };
+    FixedNumber2.prototype.toHexString = function(width) {
+      if (width == null) {
+        return this._hex;
+      }
+      if (width % 8) {
+        logger2.throwArgumentError("invalid byte width", "width", width);
+      }
+      var hex2 = bignumber_1.BigNumber.from(this._hex).fromTwos(this.format.width).toTwos(width).toHexString();
+      return bytes_1.hexZeroPad(hex2, width / 8);
+    };
+    FixedNumber2.prototype.toUnsafeFloat = function() {
+      return parseFloat(this.toString());
+    };
+    FixedNumber2.prototype.toFormat = function(format2) {
+      return FixedNumber2.fromString(this._value, format2);
+    };
+    FixedNumber2.fromValue = function(value, decimals, format2) {
+      if (format2 == null && decimals != null && !bignumber_1.isBigNumberish(decimals)) {
+        format2 = decimals;
+        decimals = null;
+      }
+      if (decimals == null) {
+        decimals = 0;
+      }
+      if (format2 == null) {
+        format2 = "fixed";
+      }
+      return FixedNumber2.fromString(formatFixed2(value, decimals), FixedFormat.from(format2));
+    };
+    FixedNumber2.fromString = function(value, format2) {
+      if (format2 == null) {
+        format2 = "fixed";
+      }
+      var fixedFormat = FixedFormat.from(format2);
+      var numeric = parseFixed2(value, fixedFormat.decimals);
+      if (!fixedFormat.signed && numeric.lt(Zero2)) {
+        throwFault("unsigned value cannot be negative", "overflow", "value", value);
+      }
+      var hex2 = null;
+      if (fixedFormat.signed) {
+        hex2 = numeric.toTwos(fixedFormat.width).toHexString();
+      } else {
+        hex2 = numeric.toHexString();
+        hex2 = bytes_1.hexZeroPad(hex2, fixedFormat.width / 8);
+      }
+      var decimal = formatFixed2(numeric, fixedFormat.decimals);
+      return new FixedNumber2(_constructorGuard2, hex2, decimal, fixedFormat);
+    };
+    FixedNumber2.fromBytes = function(value, format2) {
+      if (format2 == null) {
+        format2 = "fixed";
+      }
+      var fixedFormat = FixedFormat.from(format2);
+      if (bytes_1.arrayify(value).length > fixedFormat.width / 8) {
+        throw new Error("overflow");
+      }
+      var numeric = bignumber_1.BigNumber.from(value);
+      if (fixedFormat.signed) {
+        numeric = numeric.fromTwos(fixedFormat.width);
+      }
+      var hex2 = numeric.toTwos((fixedFormat.signed ? 0 : 1) + fixedFormat.width).toHexString();
+      var decimal = formatFixed2(numeric, fixedFormat.decimals);
+      return new FixedNumber2(_constructorGuard2, hex2, decimal, fixedFormat);
+    };
+    FixedNumber2.from = function(value, format2) {
+      if (typeof value === "string") {
+        return FixedNumber2.fromString(value, format2);
+      }
+      if (bytes_1.isBytes(value)) {
+        return FixedNumber2.fromBytes(value, format2);
+      }
+      try {
+        return FixedNumber2.fromValue(value, 0, format2);
+      } catch (error2) {
+        if (error2.code !== logger_1.Logger.errors.INVALID_ARGUMENT) {
+          throw error2;
+        }
+      }
+      return logger2.throwArgumentError("invalid FixedNumber value", "value", value);
+    };
+    FixedNumber2.isFixedNumber = function(value) {
+      return !!(value && value._isFixedNumber);
+    };
+    return FixedNumber2;
+  }();
+  exports.FixedNumber = FixedNumber;
+  var ONE = FixedNumber.from(1);
+  var BUMP = FixedNumber.from("0.5");
+});
+
+// node_modules/@ethersproject/bignumber/lib/index.js
+var require_lib3 = __commonJS((exports) => {
+  "use strict";
+  Object.defineProperty(exports, "__esModule", {value: true});
+  exports._base36To16 = exports._base16To36 = exports.parseFixed = exports.FixedNumber = exports.FixedFormat = exports.formatFixed = exports.BigNumber = void 0;
+  var bignumber_1 = require_bignumber();
+  Object.defineProperty(exports, "BigNumber", {enumerable: true, get: function() {
+    return bignumber_1.BigNumber;
+  }});
+  var fixednumber_1 = require_fixednumber();
+  Object.defineProperty(exports, "formatFixed", {enumerable: true, get: function() {
+    return fixednumber_1.formatFixed;
+  }});
+  Object.defineProperty(exports, "FixedFormat", {enumerable: true, get: function() {
+    return fixednumber_1.FixedFormat;
+  }});
+  Object.defineProperty(exports, "FixedNumber", {enumerable: true, get: function() {
+    return fixednumber_1.FixedNumber;
+  }});
+  Object.defineProperty(exports, "parseFixed", {enumerable: true, get: function() {
+    return fixednumber_1.parseFixed;
+  }});
+  var bignumber_2 = require_bignumber();
+  Object.defineProperty(exports, "_base16To36", {enumerable: true, get: function() {
+    return bignumber_2._base16To36;
+  }});
+  Object.defineProperty(exports, "_base36To16", {enumerable: true, get: function() {
+    return bignumber_2._base36To16;
+  }});
+});
 
 // .svelte/vercel/entry.js
 __markAsModule(exports);
@@ -2397,7 +6537,8 @@ if (typeof HTMLElement === "function") {
 }
 
 // .svelte/output/server/app.js
-var css$c = {
+var import_bignumber = __toModule(require_lib3());
+var css$g = {
   code: "#svelte-announcer.svelte-1j55zn5{position:absolute;left:0;top:0;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap;width:1px;height:1px}",
   map: `{"version":3,"file":"root.svelte","sources":["root.svelte"],"sourcesContent":["<!-- This file is generated by @sveltejs/kit \u2014 do not edit it! -->\\n<script>\\n\\timport { setContext, afterUpdate, onMount } from 'svelte';\\n\\n\\t// stores\\n\\texport let stores;\\n\\texport let page;\\n\\n\\texport let components;\\n\\texport let props_0 = null;\\n\\texport let props_1 = null;\\n\\texport let props_2 = null;\\n\\n\\tsetContext('__svelte__', stores);\\n\\n\\t$: stores.page.set(page);\\n\\tafterUpdate(stores.page.notify);\\n\\n\\tlet mounted = false;\\n\\tlet navigated = false;\\n\\tlet title = null;\\n\\n\\tonMount(() => {\\n\\t\\tconst unsubscribe = stores.page.subscribe(() => {\\n\\t\\t\\tif (mounted) {\\n\\t\\t\\t\\tnavigated = true;\\n\\t\\t\\t\\ttitle = document.title || 'untitled page';\\n\\t\\t\\t}\\n\\t\\t});\\n\\n\\t\\tmounted = true;\\n\\t\\treturn unsubscribe;\\n\\t});\\n</script>\\n\\n<svelte:component this={components[0]} {...(props_0 || {})}>\\n\\t{#if components[1]}\\n\\t\\t<svelte:component this={components[1]} {...(props_1 || {})}>\\n\\t\\t\\t{#if components[2]}\\n\\t\\t\\t\\t<svelte:component this={components[2]} {...(props_2 || {})}/>\\n\\t\\t\\t{/if}\\n\\t\\t</svelte:component>\\n\\t{/if}\\n</svelte:component>\\n\\n{#if mounted}\\n\\t<div id=\\"svelte-announcer\\" aria-live=\\"assertive\\" aria-atomic=\\"true\\">\\n\\t\\t{#if navigated}\\n\\t\\t\\tNavigated to {title}\\n\\t\\t{/if}\\n\\t</div>\\n{/if}\\n\\n<style>\\n\\t#svelte-announcer {\\n\\t\\tposition: absolute;\\n\\t\\tleft: 0;\\n\\t\\ttop: 0;\\n\\t\\tclip: rect(0 0 0 0);\\n\\t\\tclip-path: inset(50%);\\n\\t\\toverflow: hidden;\\n\\t\\twhite-space: nowrap;\\n\\t\\twidth: 1px;\\n\\t\\theight: 1px;\\n\\t}\\n</style>"],"names":[],"mappings":"AAsDC,iBAAiB,eAAC,CAAC,AAClB,QAAQ,CAAE,QAAQ,CAClB,IAAI,CAAE,CAAC,CACP,GAAG,CAAE,CAAC,CACN,IAAI,CAAE,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CACnB,SAAS,CAAE,MAAM,GAAG,CAAC,CACrB,QAAQ,CAAE,MAAM,CAChB,WAAW,CAAE,MAAM,CACnB,KAAK,CAAE,GAAG,CACV,MAAM,CAAE,GAAG,AACZ,CAAC"}`
 };
@@ -2435,7 +6576,7 @@ var Root = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     $$bindings.props_1(props_1);
   if ($$props.props_2 === void 0 && $$bindings.props_2 && props_2 !== void 0)
     $$bindings.props_2(props_2);
-  $$result.css.add(css$c);
+  $$result.css.add(css$g);
   {
     stores.page.set(page);
   }
@@ -2482,7 +6623,7 @@ var template = ({head, body}) => `<!DOCTYPE html>
 	</script>
 
 
-	` + head + '\n</head>\n\n<body>\n	<div id="svelte">' + body + "</div>\n</body>\n\n</html>\n\n<style>\n	h1,\n	h2,\n	h3,\n	h4,\n	h5,\n	p,\n	a,\n	li,\n	ul,\n	button,\n	input {\n		font-family: 'Open Sans', sans-serif;\n\n		color: white;\n		margin: 0;\n		inline-size: fit-content;\n	}\n\n	.row {\n		display: flex;\n		flex-direction: row;\n	}\n</style>";
+	` + head + '\n</head>\n\n<body>\n	<div id="svelte">' + body + "</div>\n</body>\n\n</html>\n\n<style>\n	h1,\n	h2,\n	h3,\n	h4,\n	h5,\n	p,\n	a,\n	li,\n	ul,\n	button,\n	input {\n		font-family: 'Open Sans', sans-serif;\n		/* font-family: Poppins, sans-serif; */\n\n\n		color: white;\n		margin: 0;\n		inline-size: fit-content;\n	}\n\n	.row {\n		display: flex;\n		flex-direction: row;\n	}\n</style>";
 var options = null;
 function init(settings) {
   set_paths(settings.paths);
@@ -2491,9 +6632,9 @@ function init(settings) {
     amp: false,
     dev: false,
     entry: {
-      file: "/./_app/start-5284015c.js",
+      file: "/./_app/start-ad1caf53.js",
       css: ["/./_app/assets/start-a8cd1609.css"],
-      js: ["/./_app/start-5284015c.js", "/./_app/chunks/vendor-892edd85.js", "/./_app/chunks/preload-helper-9f12a5fd.js"]
+      js: ["/./_app/start-ad1caf53.js", "/./_app/chunks/vendor-892edd85.js", "/./_app/chunks/preload-helper-9f12a5fd.js"]
     },
     fetched: void 0,
     get_component_path: (id2) => "/./_app/" + entry_lookup[id2],
@@ -2518,7 +6659,7 @@ function init(settings) {
 }
 var empty = () => ({});
 var manifest = {
-  assets: [{file: "favicon.ico", size: 1150, type: "image/vnd.microsoft.icon"}, {file: "images/abstract1.svg", size: 838, type: "image/svg+xml"}, {file: "images/abstract2.svg", size: 526, type: "image/svg+xml"}, {file: "images/abstract3.svg", size: 1684, type: "image/svg+xml"}, {file: "images/arrow-down.png", size: 471, type: "image/png"}, {file: "images/blockparties_icon_black.svg", size: 925, type: "image/svg+xml"}, {file: "images/button_background.svg", size: 1118, type: "image/svg+xml"}, {file: "images/full_logo.svg", size: 10193, type: "image/svg+xml"}, {file: "images/icon.svg", size: 934, type: "image/svg+xml"}, {file: "images/lines.png", size: 3523, type: "image/png"}, {file: "images/lines2.png", size: 4360, type: "image/png"}, {file: "images/lines3.png", size: 7798, type: "image/png"}, {file: "images/lines4.png", size: 12140, type: "image/png"}, {file: "images/lines5.png", size: 6235, type: "image/png"}, {file: "images/people_circle.svg", size: 609329, type: "image/svg+xml"}, {file: "robots.txt", size: 67, type: "text/plain"}],
+  assets: [{file: "favicon.ico", size: 1150, type: "image/vnd.microsoft.icon"}, {file: "images/abstract1.svg", size: 838, type: "image/svg+xml"}, {file: "images/abstract2.svg", size: 526, type: "image/svg+xml"}, {file: "images/abstract3.svg", size: 1684, type: "image/svg+xml"}, {file: "images/arrow-down.png", size: 471, type: "image/png"}, {file: "images/blockparties_icon_black.svg", size: 925, type: "image/svg+xml"}, {file: "images/button_background.svg", size: 1118, type: "image/svg+xml"}, {file: "images/dark_mode.svg", size: 641, type: "image/svg+xml"}, {file: "images/full_logo.svg", size: 10193, type: "image/svg+xml"}, {file: "images/heart_filled.svg", size: 360, type: "image/svg+xml"}, {file: "images/heart_outline.svg", size: 347, type: "image/svg+xml"}, {file: "images/icon.svg", size: 934, type: "image/svg+xml"}, {file: "images/lines.png", size: 3523, type: "image/png"}, {file: "images/lines2.png", size: 4360, type: "image/png"}, {file: "images/lines3.png", size: 7798, type: "image/png"}, {file: "images/lines4.png", size: 12140, type: "image/png"}, {file: "images/lines5.png", size: 6235, type: "image/png"}, {file: "images/noise.png", size: 562261, type: "image/png"}, {file: "images/opensea-logo.webp", size: 19593, type: "image/webp"}, {file: "images/people_circle.svg", size: 609329, type: "image/svg+xml"}, {file: "robots.txt", size: 67, type: "text/plain"}],
   layout: "src/routes/$layout.svelte",
   error: ".svelte/build/components/error.svelte",
   routes: [
@@ -2549,6 +6690,13 @@ var manifest = {
       params: empty,
       a: ["src/routes/$layout.svelte", "src/routes/parties.svelte"],
       b: [".svelte/build/components/error.svelte"]
+    },
+    {
+      type: "page",
+      pattern: /^\/browse\/?$/,
+      params: empty,
+      a: ["src/routes/$layout.svelte", "src/routes/browse.svelte"],
+      b: [".svelte/build/components/error.svelte"]
     }
   ]
 };
@@ -2575,9 +6723,12 @@ var module_lookup = {
   }),
   "src/routes/parties.svelte": () => Promise.resolve().then(function() {
     return parties;
+  }),
+  "src/routes/browse.svelte": () => Promise.resolve().then(function() {
+    return browse;
   })
 };
-var metadata_lookup = {"src/routes/$layout.svelte": {entry: "/./_app/pages/$layout.svelte-0e82bf7b.js", css: ["/./_app/assets/pages/$layout.svelte-e0e581f8.css"], js: ["/./_app/pages/$layout.svelte-0e82bf7b.js", "/./_app/chunks/vendor-892edd85.js"], styles: null}, ".svelte/build/components/error.svelte": {entry: "/./_app/error.svelte-b7e1ac1d.js", css: [], js: ["/./_app/error.svelte-b7e1ac1d.js", "/./_app/chunks/vendor-892edd85.js"], styles: null}, "src/routes/index.svelte": {entry: "/./_app/pages/index.svelte-bbb6c11d.js", css: ["/./_app/assets/pages/index.svelte-b329ed0e.css"], js: ["/./_app/pages/index.svelte-bbb6c11d.js", "/./_app/chunks/vendor-892edd85.js"], styles: null}, "src/routes/index_OLD.svelte": {entry: "/./_app/pages/index_OLD.svelte-e1beaec8.js", css: ["/./_app/assets/pages/index_OLD.svelte-abaca502.css", "/./_app/assets/ScrollButton-f2af9a65.css"], js: ["/./_app/pages/index_OLD.svelte-e1beaec8.js", "/./_app/chunks/vendor-892edd85.js", "/./_app/chunks/ScrollButton-55922565.js"], styles: null}, "src/routes/index_old.svelte": {entry: "/./_app/pages/index_old.svelte-359e9c8f.js", css: ["/./_app/assets/pages/index_old.svelte-2863d0d9.css", "/./_app/assets/ScrollButton-f2af9a65.css"], js: ["/./_app/pages/index_old.svelte-359e9c8f.js", "/./_app/chunks/vendor-892edd85.js", "/./_app/chunks/ScrollButton-55922565.js"], styles: null}, "src/routes/parties.svelte": {entry: "/./_app/pages/parties.svelte-50423c3e.js", css: ["/./_app/assets/pages/parties.svelte-9b0b875a.css"], js: ["/./_app/pages/parties.svelte-50423c3e.js", "/./_app/chunks/vendor-892edd85.js", "/./_app/chunks/preload-helper-9f12a5fd.js"], styles: null}};
+var metadata_lookup = {"src/routes/$layout.svelte": {entry: "/./_app/pages/$layout.svelte-e4277e21.js", css: ["/./_app/assets/pages/$layout.svelte-55d66087.css"], js: ["/./_app/pages/$layout.svelte-e4277e21.js", "/./_app/chunks/vendor-892edd85.js"], styles: null}, ".svelte/build/components/error.svelte": {entry: "/./_app/error.svelte-b7e1ac1d.js", css: [], js: ["/./_app/error.svelte-b7e1ac1d.js", "/./_app/chunks/vendor-892edd85.js"], styles: null}, "src/routes/index.svelte": {entry: "/./_app/pages/index.svelte-15f65640.js", css: ["/./_app/assets/pages/index.svelte-1dc7d2a6.css"], js: ["/./_app/pages/index.svelte-15f65640.js", "/./_app/chunks/vendor-892edd85.js"], styles: null}, "src/routes/index_OLD.svelte": {entry: "/./_app/pages/index_OLD.svelte-e1beaec8.js", css: ["/./_app/assets/pages/index_OLD.svelte-abaca502.css", "/./_app/assets/ScrollButton-f2af9a65.css"], js: ["/./_app/pages/index_OLD.svelte-e1beaec8.js", "/./_app/chunks/vendor-892edd85.js", "/./_app/chunks/ScrollButton-55922565.js"], styles: null}, "src/routes/index_old.svelte": {entry: "/./_app/pages/index_old.svelte-359e9c8f.js", css: ["/./_app/assets/pages/index_old.svelte-2863d0d9.css", "/./_app/assets/ScrollButton-f2af9a65.css"], js: ["/./_app/pages/index_old.svelte-359e9c8f.js", "/./_app/chunks/vendor-892edd85.js", "/./_app/chunks/ScrollButton-55922565.js"], styles: null}, "src/routes/parties.svelte": {entry: "/./_app/pages/parties.svelte-112c57a0.js", css: ["/./_app/assets/pages/parties.svelte-d4724b2d.css", "/./_app/assets/ProgressBar-a3ed2dd6.css"], js: ["/./_app/pages/parties.svelte-112c57a0.js", "/./_app/chunks/vendor-892edd85.js", "/./_app/chunks/preload-helper-9f12a5fd.js", "/./_app/chunks/ProgressBar-04a9a7de.js"], styles: null}, "src/routes/browse.svelte": {entry: "/./_app/pages/browse.svelte-360f6b2d.js", css: ["/./_app/assets/pages/browse.svelte-7d8f9e26.css", "/./_app/assets/ProgressBar-a3ed2dd6.css"], js: ["/./_app/pages/browse.svelte-360f6b2d.js", "/./_app/chunks/vendor-892edd85.js", "/./_app/chunks/ProgressBar-04a9a7de.js", "/./_app/chunks/preload-helper-9f12a5fd.js", "/./_app/chunks/bignumber-011ed6a7.js"], styles: null}};
 async function load_component(file) {
   return {
     module: await module_lookup[file](),
@@ -2591,13 +6742,16 @@ function render(request, {
   const host = request.headers["host"];
   return respond({...request, host}, options, {prerender});
 }
-var css$b = {
-  code: "nav.svelte-rw583c{position:sticky;top:0;z-index:99;width:100%;height:56px;background:#231845}",
-  map: '{"version":3,"file":"$layout.svelte","sources":["$layout.svelte"],"sourcesContent":["<nav>\\n    <h1>NAV BAR</h1>\\n</nav>\\n\\n<svelte:head>\\n    <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />\\n</svelte:head>\\n\\n<slot />\\n\\n<style lang=\\"scss\\">nav {\\n  position: sticky;\\n  top: 0;\\n  z-index: 99;\\n  width: 100%;\\n  height: 56px;\\n  background: #231845;\\n}</style>\\n"],"names":[],"mappings":"AAUmB,GAAG,cAAC,CAAC,AACtB,QAAQ,CAAE,MAAM,CAChB,GAAG,CAAE,CAAC,CACN,OAAO,CAAE,EAAE,CACX,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,AACrB,CAAC"}'
+var css$f = {
+  code: "nav.svelte-1lshaff.svelte-1lshaff{position:sticky;top:0;z-index:99;display:flex;justify-content:space-between;margin:32px;width:calc(100% - 64px);height:56px}nav.svelte-1lshaff .page-row.svelte-1lshaff{display:flex}nav.svelte-1lshaff .page-row h3.svelte-1lshaff{cursor:pointer;color:black;margin-right:32px;font-weight:300}nav.svelte-1lshaff img.svelte-1lshaff{cursor:pointer}",
+  map: '{"version":3,"file":"$layout.svelte","sources":["$layout.svelte"],"sourcesContent":["<nav>\\n    <div class=\\"page-row\\">\\n        <h3>Home</h3>\\n        <h3>Profile</h3>\\n    </div>\\n\\n    <img src=\\"images/dark_mode.svg\\" alt=\\"toggle dark mode\\" />\\n</nav>\\n\\n<svelte:head>\\n    <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\" />\\n</svelte:head>\\n\\n<slot />\\n\\n<style lang=\\"scss\\">nav {\\n  position: sticky;\\n  top: 0;\\n  z-index: 99;\\n  display: flex;\\n  justify-content: space-between;\\n  margin: 32px;\\n  width: calc(100% - 64px);\\n  height: 56px;\\n}\\nnav .page-row {\\n  display: flex;\\n}\\nnav .page-row h3 {\\n  cursor: pointer;\\n  color: black;\\n  margin-right: 32px;\\n  font-weight: 300;\\n}\\nnav img {\\n  cursor: pointer;\\n}</style>\\n"],"names":[],"mappings":"AAemB,GAAG,8BAAC,CAAC,AACtB,QAAQ,CAAE,MAAM,CAChB,GAAG,CAAE,CAAC,CACN,OAAO,CAAE,EAAE,CACX,OAAO,CAAE,IAAI,CACb,eAAe,CAAE,aAAa,CAC9B,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,KAAK,IAAI,CAAC,CAAC,CAAC,IAAI,CAAC,CACxB,MAAM,CAAE,IAAI,AACd,CAAC,AACD,kBAAG,CAAC,SAAS,eAAC,CAAC,AACb,OAAO,CAAE,IAAI,AACf,CAAC,AACD,kBAAG,CAAC,SAAS,CAAC,EAAE,eAAC,CAAC,AAChB,MAAM,CAAE,OAAO,CACf,KAAK,CAAE,KAAK,CACZ,YAAY,CAAE,IAAI,CAClB,WAAW,CAAE,GAAG,AAClB,CAAC,AACD,kBAAG,CAAC,GAAG,eAAC,CAAC,AACP,MAAM,CAAE,OAAO,AACjB,CAAC"}'
 };
 var $layout = create_ssr_component(($$result, $$props, $$bindings, slots) => {
-  $$result.css.add(css$b);
-  return `<nav class="${"svelte-rw583c"}"><h1>NAV BAR</h1></nav>
+  $$result.css.add(css$f);
+  return `<nav class="${"svelte-1lshaff"}"><div class="${"page-row svelte-1lshaff"}"><h3 class="${"svelte-1lshaff"}">Home</h3>
+        <h3 class="${"svelte-1lshaff"}">Profile</h3></div>
+
+    <img src="${"images/dark_mode.svg"}" alt="${"toggle dark mode"}" class="${"svelte-1lshaff"}"></nav>
 
 ${$$result.head += `<meta name="${"viewport"}" content="${"width=device-width, initial-scale=1"}" data-svelte="svelte-k3xj3r">`, ""}
 
@@ -18320,7 +22474,7 @@ if (typeof window !== "undefined") {
     window.__THREE__ = REVISION;
   }
 }
-var css$a = {
+var css$e = {
   code: "div.svelte-n9a9ku{width:200%;height:100%}",
   map: '{"version":3,"file":"Waves.svelte","sources":["Waves.svelte"],"sourcesContent":["<script lang=\\"ts\\">import { onMount } from \\"svelte\\";\\nimport * as THREE from \\"three\\";\\nlet container;\\nlet vertexShader = `\\n    precision mediump float;\\n\\n    varying vec2 vUv;\\n    uniform float uTime;\\n\\n    //\\n    // Description : Array and textureless GLSL 2D/3D/4D simplex\\n    //               noise functions.\\n    //      Author : Ian McEwan, Ashima Arts.\\n    //  Maintainer : ijm\\n    //     Lastmod : 20110822 (ijm)\\n    //     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\\n    //               Distributed under the MIT License. See LICENSE file.\\n    //               https://github.com/ashima/webgl-noise\\n    //\\n\\n    vec3 mod289(vec3 x) {\\n    return x - floor(x * (1.0 / 289.0)) * 289.0;\\n    }\\n\\n    vec4 mod289(vec4 x) {\\n    return x - floor(x * (1.0 / 289.0)) * 289.0;\\n    }\\n\\n    vec4 permute(vec4 x) {\\n        return mod289(((x*34.0)+1.0)*x);\\n    }\\n\\n    vec4 taylorInvSqrt(vec4 r)\\n    {\\n    return 1.79284291400159 - 0.85373472095314 * r;\\n    }\\n\\n    float snoise(vec3 v) {\\n        const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\\n        const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);\\n        \\n        // First corner\\n        vec3 i  = floor(v + dot(v, C.yyy) );\\n        vec3 x0 =   v - i + dot(i, C.xxx) ;\\n        \\n        // Other corners\\n        vec3 g = step(x0.yzx, x0.xyz);\\n        vec3 l = 1.0 - g;\\n        vec3 i1 = min( g.xyz, l.zxy );\\n        vec3 i2 = max( g.xyz, l.zxy );\\n\\n        //   x0 = x0 - 0.0 + 0.0 * C.xxx;\\n        //   x1 = x0 - i1  + 1.0 * C.xxx;\\n        //   x2 = x0 - i2  + 2.0 * C.xxx;\\n        //   x3 = x0 - 1.0 + 3.0 * C.xxx;\\n        vec3 x1 = x0 - i1 + C.xxx;\\n        vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\\n        vec3 x3 = x0 - D.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\\n        \\n        // Permutations\\n        i = mod289(i);\\n        vec4 p = permute( permute( permute(\\n                    i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\\n                + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\\n                + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\\n                \\n        // Gradients: 7x7 points over a square, mapped onto an octahedron.\\n        // The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\\n        float n_ = 0.142857142857; // 1.0/7.0\\n        vec3  ns = n_ * D.wyz - D.xzx;\\n\\n        vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\\n\\n        vec4 x_ = floor(j * ns.z);\\n        vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\\n\\n        vec4 x = x_ *ns.x + ns.yyyy;\\n        vec4 y = y_ *ns.x + ns.yyyy;\\n        vec4 h = 1.0 - abs(x) - abs(y);\\n\\n        vec4 b0 = vec4( x.xy, y.xy );\\n        vec4 b1 = vec4( x.zw, y.zw );\\n\\n        //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\\n        //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\\n        vec4 s0 = floor(b0)*2.0 + 1.0;\\n        vec4 s1 = floor(b1)*2.0 + 1.0;\\n        vec4 sh = -step(h, vec4(0.0));\\n\\n        vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\\n        vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;\\n\\n        vec3 p0 = vec3(a0.xy,h.x);\\n        vec3 p1 = vec3(a0.zw,h.y);\\n        vec3 p2 = vec3(a1.xy,h.z);\\n        vec3 p3 = vec3(a1.zw,h.w);\\n        \\n        // Normalise gradients\\n        vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\\n        p0 *= norm.x;\\n        p1 *= norm.y;\\n        p2 *= norm.z;\\n        p3 *= norm.w;\\n        \\n        // Mix final noise value\\n        vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\\n        m = m * m;\\n        return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1),\\n                                        dot(p2,x2), dot(p3,x3) ) );\\n    }\\n\\n    void main() {\\n        vUv = uv;\\n\\n        vec3 pos = position;\\n        float noiseFreq = 1.5;\\n        float noiseAmp = 0.35;\\n        vec3 noisePos = vec3(pos.x, pos.y * noiseFreq + uTime, pos.z);\\n        pos.z += snoise(noisePos) * noiseAmp;\\n\\n        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.);\\n    }\\n    `;\\nlet fragment = `\\n    varying vec2 vUv;\\n    uniform sampler2D uTexture;\\n\\n    void main() {\\n        // vec3 texture = texture2D(uTexture, vUv).rgb;\\n        gl_FragColor = texture2D(uTexture, vUv);\\n    }\\n    `;\\nlet camera, scene, renderer, clock;\\nlet geometry, material, mesh;\\nonMount(() => {\\n    init();\\n});\\nfunction init() {\\n    clock = new THREE.Clock();\\n    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 10);\\n    camera.position.z = 1;\\n    scene = new THREE.Scene();\\n    scene.background = null;\\n    let texture = new THREE.TextureLoader().load(\\"images/lines5.png\\");\\n    geometry = new THREE.PlaneGeometry(2, 1, 400, 400);\\n    material = new THREE.ShaderMaterial({\\n        transparent: true,\\n        vertexShader,\\n        fragmentShader: fragment,\\n        side: THREE.DoubleSide,\\n        uniforms: {\\n            uTime: { value: 0.0 },\\n            uTexture: { value: texture },\\n        },\\n    });\\n    material.transparent = true;\\n    mesh = new THREE.Mesh(geometry, material);\\n    scene.add(mesh);\\n    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });\\n    renderer.setClearColor(0x000000, 0);\\n    renderer.setSize(window.innerWidth, 400);\\n    renderer.setAnimationLoop(animation);\\n    container.appendChild(renderer.domElement);\\n}\\n// function init2() {\\n//     renderer = new THREE.WebGLRenderer({ alpha: true })\\n//     container.appendChild(renderer.domElement)\\n//     renderer.setSize(container.innerWidth, container.innerHeight)\\n//     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500)\\n//     camera.position.set(0, 0, 100)\\n//     camera.lookAt(0, 0, 0)\\n//     scene = new THREE.Scene()\\n//     const material = new THREE.LineBasicMaterial({ color: 0xffffff })\\n//     const geometry = new THREE.BufferGeometry()\\n//     // geometry.\\n//     for (let i = 0; i < 100; i += 0.5) {\\n//         const points = []\\n//         points.push(new THREE.Vector3(-100, i, 0))\\n//         points.push(new THREE.Vector3(100, i, 0))\\n//         const geometry = new THREE.BufferGeometry().setFromPoints(points)\\n//         const line = new THREE.Line(geometry, material)\\n//         scene.add(line)\\n//     }\\n//     const m = new THREE.MeshBasicMaterial({ color: 0xffff00 })\\n//     const mesh = new THREE.Mesh(geometry, m)\\n//     scene.add(mesh)\\n//     // const gridHelper = new THREE.GridHelper(10, 100)\\n//     // scene.add(gridHelper)\\n//     renderer.setAnimationLoop(animate2)\\n//     // renderer.render(scene, camera)\\n// }\\nfunction animation(time) {\\n    material.uniforms.uTime.value = clock.getElapsedTime() / 4;\\n    renderer.render(scene, camera);\\n}\\n</script>\\n\\n<div bind:this={container} />\\n\\n<style lang=\\"scss\\">div {\\n  width: 200%;\\n  height: 100%;\\n}</style>\\n"],"names":[],"mappings":"AAuMmB,GAAG,cAAC,CAAC,AACtB,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,AACd,CAAC"}'
 };
@@ -18491,57 +22645,59 @@ var Waves = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     material.uniforms.uTime.value = clock.getElapsedTime() / 4;
     renderer.render(scene, camera);
   }
-  $$result.css.add(css$a);
+  $$result.css.add(css$e);
   return `<div class="${"svelte-n9a9ku"}"${add_attribute("this", container, 1)}></div>`;
 });
-var css$9 = {
-  code: 'body{margin:0}nav{display:none}h1.svelte-1n6zcx7.svelte-1n6zcx7.svelte-1n6zcx7,h4.svelte-1n6zcx7.svelte-1n6zcx7.svelte-1n6zcx7,h5.svelte-1n6zcx7.svelte-1n6zcx7.svelte-1n6zcx7,p.svelte-1n6zcx7.svelte-1n6zcx7.svelte-1n6zcx7,a.svelte-1n6zcx7.svelte-1n6zcx7.svelte-1n6zcx7,button.svelte-1n6zcx7.svelte-1n6zcx7.svelte-1n6zcx7,input.svelte-1n6zcx7.svelte-1n6zcx7.svelte-1n6zcx7{font-family:Poppins, sans-serif}a.svelte-1n6zcx7.svelte-1n6zcx7.svelte-1n6zcx7{text-decoration:none;font-weight:600;margin-left:48px}button.svelte-1n6zcx7.svelte-1n6zcx7.svelte-1n6zcx7{cursor:pointer}.nav.svelte-1n6zcx7.svelte-1n6zcx7.svelte-1n6zcx7{display:flex;justify-content:space-between;align-items:center;padding:24px 0}.container.svelte-1n6zcx7.svelte-1n6zcx7.svelte-1n6zcx7{position:relative;width:100%;height:100vh;overflow:hidden;background:linear-gradient(#e1f4ff, #ccd1ff)}.container.svelte-1n6zcx7 h1.svelte-1n6zcx7.svelte-1n6zcx7,.container.svelte-1n6zcx7 h4.svelte-1n6zcx7.svelte-1n6zcx7,.container.svelte-1n6zcx7 h5.svelte-1n6zcx7.svelte-1n6zcx7,.container.svelte-1n6zcx7 a.svelte-1n6zcx7.svelte-1n6zcx7,.container.svelte-1n6zcx7 p.svelte-1n6zcx7.svelte-1n6zcx7{color:black}.container.svelte-1n6zcx7 .content.svelte-1n6zcx7.svelte-1n6zcx7{padding:0 64px;margin:0 auto}.container.svelte-1n6zcx7 .content.svelte-1n6zcx7 p.svelte-1n6zcx7{font-weight:200}.container.svelte-1n6zcx7 .content h5.svelte-1n6zcx7.svelte-1n6zcx7{font-weight:300;font-size:16px;margin-top:8px}.container.svelte-1n6zcx7 .main.svelte-1n6zcx7.svelte-1n6zcx7{display:flex;justify-content:space-around;align-items:center;margin-top:min(4%, 96px)}.container.svelte-1n6zcx7 .main .button-row.svelte-1n6zcx7.svelte-1n6zcx7{margin-top:32px}.container.svelte-1n6zcx7 .main .button-row button.svelte-1n6zcx7.svelte-1n6zcx7{margin-right:16px;box-shadow:0 0 3px 1px #000000aa;background:#592cb6;border-radius:4px;border:none;padding:8px 32px;color:white;font-size:16px;font-weight:600}.container.svelte-1n6zcx7 .main img.svelte-1n6zcx7.svelte-1n6zcx7{width:100%;max-width:400px}.container.svelte-1n6zcx7 .waves.svelte-1n6zcx7.svelte-1n6zcx7{position:absolute;transform:scaleX(2);bottom:0;left:0;right:0;overflow:hidden;height:25vh;width:100%}.how-it-works.svelte-1n6zcx7 .content.svelte-1n6zcx7.svelte-1n6zcx7{max-width:1200px;padding:64px;margin:auto;display:flex}.how-it-works.svelte-1n6zcx7 .content .cards.svelte-1n6zcx7.svelte-1n6zcx7{flex:2;margin-right:32px;border-radius:12px;overflow:hidden;box-shadow:0 0 2px 1px #4d4d4daa;color:white}.how-it-works.svelte-1n6zcx7 .content .cards .step-card.svelte-1n6zcx7.svelte-1n6zcx7{transition:all 0.3s;display:flex;align-items:center;padding:32px 48px;font-size:12px}.how-it-works.svelte-1n6zcx7 .content .cards .step-card.svelte-1n6zcx7.svelte-1n6zcx7:hover{filter:saturate(200%)}.how-it-works.svelte-1n6zcx7 .content .cards .step-card .circle.svelte-1n6zcx7.svelte-1n6zcx7{min-width:64px;min-height:64px;border-radius:50%;background:rgba(176, 139, 255, 0.44);margin-right:32px;background-position:center;background-repeat:no-repeat}.how-it-works.svelte-1n6zcx7 .content .video.svelte-1n6zcx7.svelte-1n6zcx7{flex:3;background:black;border-radius:12px;overflow:hidden;box-shadow:0 0 2px 1px #4d4d4daa}.sign-up.svelte-1n6zcx7.svelte-1n6zcx7.svelte-1n6zcx7{margin:0;padding:32px 0}.sign-up.svelte-1n6zcx7 .custom-button.svelte-1n6zcx7.svelte-1n6zcx7{width:884px;height:180px;background:#8c30f5;border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;background-image:url("images/button_background.svg");background-repeat:no-repeat;background-position:center;margin:32px auto;margin-top:0;box-shadow:0 0 3px 1px #575757aa}.sign-up.svelte-1n6zcx7 .custom-button .form.svelte-1n6zcx7.svelte-1n6zcx7{margin-top:24px;box-shadow:0 0 2px 1px #4d4d4daa;border-radius:6px}.sign-up.svelte-1n6zcx7 .custom-button .form input.svelte-1n6zcx7.svelte-1n6zcx7{margin:0;height:40px;background:#f4f5f7;border-radius:6px 0px 0px 6px;border:none;margin-right:-8px;padding:0 16px;width:220px;color:black}.sign-up.svelte-1n6zcx7 .custom-button .form input.svelte-1n6zcx7.svelte-1n6zcx7:focus{outline:none}.sign-up.svelte-1n6zcx7 .custom-button .form button.svelte-1n6zcx7.svelte-1n6zcx7{background:#18191f;border-radius:0px 6px 6px 0px;border:none;padding:12px 24px;font-weight:600}',
-  map: `{"version":3,"file":"index.svelte","sources":["index.svelte"],"sourcesContent":["<script lang=\\"ts\\">import Waves from \\"$lib/components/splash/Waves.svelte\\";\\nfunction showExtension() {\\n    open(\\"https://google.com\\", \\"blank\\");\\n}\\nfunction showParties() {\\n    location.href = \\"/parties\\";\\n}\\nfunction scrollDown() {\\n    const elem = window.document.getElementsByClassName(\\"how-it-works\\")[0];\\n    scrollTo({ top: elem.getClientRects().item(0).top, behavior: \\"smooth\\" });\\n}\\n</script>\\n\\n<div class=\\"container\\">\\n    <div class=\\"content\\">\\n        <div class=\\"nav\\">\\n            <img style=\\"display: none\\" src=\\"images/button_background.svg\\" alt=\\"\\" />\\n            <div style=\\"display: flex; width: 240px; align-items: center;\\">\\n                <img src=\\"images/blockparties_icon_black.svg\\" alt=\\"logo\\" width=\\"80px\\" />\\n                <h4>Block Parties</h4>\\n            </div>\\n\\n            <div>\\n                <a style=\\"cursor: pointer\\" on:click={scrollDown}>How it works</a>\\n            </div>\\n        </div>\\n\\n        <div class=\\"main\\" style=\\"display:flex\\">\\n            <div>\\n                <p>The future of group transactions</p>\\n                <h1>\\n                    Invest securely\\n                    <br />\\n                    on the blockchain\\n                </h1>\\n\\n                <h5>Buy and sell fractional NFTs with <span style=\\"color: #592cb6\\"><b>Block Parties</b></span></h5>\\n\\n                <div class=\\"button-row\\">\\n                    <button on:click={showParties}>Browse</button>\\n                    <button on:click={showExtension}>Install Extension</button>\\n                </div>\\n            </div>\\n\\n            <div>\\n                <img src=\\"images/people_circle.svg\\" alt=\\"\\" />\\n            </div>\\n        </div>\\n    </div>\\n\\n    <div class=\\"waves\\">\\n        <Waves />\\n    </div>\\n</div>\\n\\n<div class=\\"bottom-half\\">\\n    <div class=\\"how-it-works\\">\\n        <!-- <div class=\\"waves-wrapper\\">\\n        <div class=\\"waves\\">\\n            <Waves />\\n        </div>\\n    </div> -->\\n\\n        <div class=\\"content\\">\\n            <div class=\\"cards\\">\\n                <div class=\\"step-card\\" style=\\"background: #ac69f7\\">\\n                    <div class=\\"circle\\" style=\\"background-image: url('images/abstract3.svg');\\" />\\n                    <div>\\n                        <h4>Step 1</h4>\\n                        <p>Browse the OpenSea marketplace.</p>\\n                    </div>\\n                </div>\\n                <div class=\\"step-card\\" style=\\"background: #9d4ff6\\">\\n                    <div class=\\"circle\\" style=\\"background-image: url('images/abstract2.svg');\\" />\\n                    <div>\\n                        <h4>Step 2</h4>\\n                        <p>Join or create a party and invest!</p>\\n                    </div>\\n                </div>\\n                <div class=\\"step-card\\" style=\\"background: #8c30f5\\">\\n                    <div class=\\"circle\\" style=\\"background-image: url('images/abstract1.svg');\\" />\\n                    <div>\\n                        <h4>Step 3</h4>\\n                        <p>Once the party is full, the NFT is purchased and listed for resale.</p>\\n                    </div>\\n                </div>\\n                <div class=\\"step-card\\" style=\\"background: #721bd4\\">\\n                    <div class=\\"circle\\" style=\\"background-image: url('images/abstract3.svg');\\" />\\n                    <div>\\n                        <h4>Step 4</h4>\\n                        <p>When the NFT gets sold, we distribute the profits to the party.</p>\\n                    </div>\\n                </div>\\n            </div>\\n\\n            <div class=\\"video\\">.</div>\\n        </div>\\n    </div>\\n\\n    <div class=\\"sign-up\\">\\n        <div class=\\"custom-button\\" style=\\"background-image: url({'images/button_background.svg'})\\">\\n            <h1>Join 569 more people in the waitlist</h1>\\n\\n            <div class=\\"form\\">\\n                <input placeholder=\\"Your email address\\" />\\n                <button>Join the waitlist</button>\\n            </div>\\n        </div>\\n    </div>\\n</div>\\n\\n<svelte:head>\\n    <link rel=\\"preconnect\\" href=\\"https://fonts.gstatic.com\\" />\\n    <link\\n        href=\\"https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap\\"\\n        rel=\\"stylesheet\\"\\n    />\\n</svelte:head>\\n\\n<style lang=\\"scss\\">:global(body) {\\n  margin: 0;\\n}\\n\\n:global(nav) {\\n  display: none;\\n}\\n\\nh1,\\nh2,\\nh3,\\nh4,\\nh5,\\np,\\na,\\nbutton,\\ninput {\\n  font-family: Poppins, sans-serif;\\n}\\n\\na {\\n  text-decoration: none;\\n  font-weight: 600;\\n  margin-left: 48px;\\n}\\n\\nbutton {\\n  cursor: pointer;\\n}\\n\\n.nav {\\n  display: flex;\\n  justify-content: space-between;\\n  align-items: center;\\n  padding: 24px 0;\\n}\\n\\n.container {\\n  position: relative;\\n  width: 100%;\\n  height: 100vh;\\n  overflow: hidden;\\n  background: linear-gradient(#e1f4ff, #ccd1ff);\\n}\\n.container h1,\\n.container h3,\\n.container h4,\\n.container h5,\\n.container a,\\n.container p {\\n  color: black;\\n}\\n.container .content {\\n  padding: 0 64px;\\n  margin: 0 auto;\\n}\\n.container .content p {\\n  font-weight: 200;\\n}\\n.container .content h5 {\\n  font-weight: 300;\\n  font-size: 16px;\\n  margin-top: 8px;\\n}\\n.container .main {\\n  display: flex;\\n  justify-content: space-around;\\n  align-items: center;\\n  margin-top: min(4%, 96px);\\n}\\n.container .main .button-row {\\n  margin-top: 32px;\\n}\\n.container .main .button-row button {\\n  margin-right: 16px;\\n  box-shadow: 0 0 3px 1px #000000aa;\\n  background: #592cb6;\\n  border-radius: 4px;\\n  border: none;\\n  padding: 8px 32px;\\n  color: white;\\n  font-size: 16px;\\n  font-weight: 600;\\n}\\n.container .main img {\\n  width: 100%;\\n  max-width: 400px;\\n}\\n.container .waves {\\n  position: absolute;\\n  transform: scaleX(2);\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  overflow: hidden;\\n  height: 25vh;\\n  width: 100%;\\n}\\n\\n.how-it-works .waves-wrapper .waves {\\n  transform: scaleX(2);\\n  overflow: hidden;\\n  height: 10vh;\\n  width: 100%;\\n  position: relative;\\n  top: -32px;\\n}\\n.how-it-works .content {\\n  max-width: 1200px;\\n  padding: 64px;\\n  margin: auto;\\n  display: flex;\\n}\\n.how-it-works .content .cards {\\n  flex: 2;\\n  margin-right: 32px;\\n  border-radius: 12px;\\n  overflow: hidden;\\n  box-shadow: 0 0 2px 1px #4d4d4daa;\\n  color: white;\\n}\\n.how-it-works .content .cards .step-card {\\n  transition: all 0.3s;\\n  display: flex;\\n  align-items: center;\\n  padding: 32px 48px;\\n  font-size: 12px;\\n}\\n.how-it-works .content .cards .step-card:hover {\\n  filter: saturate(200%);\\n}\\n.how-it-works .content .cards .step-card .circle {\\n  min-width: 64px;\\n  min-height: 64px;\\n  border-radius: 50%;\\n  background: rgba(176, 139, 255, 0.44);\\n  margin-right: 32px;\\n  background-position: center;\\n  background-repeat: no-repeat;\\n}\\n.how-it-works .content .video {\\n  flex: 3;\\n  background: black;\\n  border-radius: 12px;\\n  overflow: hidden;\\n  box-shadow: 0 0 2px 1px #4d4d4daa;\\n}\\n\\n.sign-up {\\n  margin: 0;\\n  padding: 32px 0;\\n}\\n.sign-up .custom-button {\\n  width: 884px;\\n  height: 180px;\\n  background: #8c30f5;\\n  border-radius: 16px;\\n  display: flex;\\n  flex-direction: column;\\n  justify-content: center;\\n  align-items: center;\\n  position: relative;\\n  background-image: url(\\"images/button_background.svg\\");\\n  background-repeat: no-repeat;\\n  background-position: center;\\n  margin: 32px auto;\\n  margin-top: 0;\\n  box-shadow: 0 0 3px 1px #575757aa;\\n}\\n.sign-up .custom-button .form {\\n  margin-top: 24px;\\n  box-shadow: 0 0 2px 1px #4d4d4daa;\\n  border-radius: 6px;\\n}\\n.sign-up .custom-button .form input {\\n  margin: 0;\\n  height: 40px;\\n  background: #f4f5f7;\\n  border-radius: 6px 0px 0px 6px;\\n  border: none;\\n  margin-right: -8px;\\n  padding: 0 16px;\\n  width: 220px;\\n  color: black;\\n}\\n.sign-up .custom-button .form input:focus {\\n  outline: none;\\n}\\n.sign-up .custom-button .form button {\\n  background: #18191f;\\n  border-radius: 0px 6px 6px 0px;\\n  border: none;\\n  padding: 12px 24px;\\n  font-weight: 600;\\n}</style>\\n"],"names":[],"mappings":"AAuH2B,IAAI,AAAE,CAAC,AAChC,MAAM,CAAE,CAAC,AACX,CAAC,AAEO,GAAG,AAAE,CAAC,AACZ,OAAO,CAAE,IAAI,AACf,CAAC,AAED,+CAAE,CAGF,+CAAE,CACF,+CAAE,CACF,8CAAC,CACD,8CAAC,CACD,mDAAM,CACN,KAAK,6CAAC,CAAC,AACL,WAAW,CAAE,OAAO,CAAC,CAAC,UAAU,AAClC,CAAC,AAED,CAAC,6CAAC,CAAC,AACD,eAAe,CAAE,IAAI,CACrB,WAAW,CAAE,GAAG,CAChB,WAAW,CAAE,IAAI,AACnB,CAAC,AAED,MAAM,6CAAC,CAAC,AACN,MAAM,CAAE,OAAO,AACjB,CAAC,AAED,IAAI,6CAAC,CAAC,AACJ,OAAO,CAAE,IAAI,CACb,eAAe,CAAE,aAAa,CAC9B,WAAW,CAAE,MAAM,CACnB,OAAO,CAAE,IAAI,CAAC,CAAC,AACjB,CAAC,AAED,UAAU,6CAAC,CAAC,AACV,QAAQ,CAAE,QAAQ,CAClB,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,KAAK,CACb,QAAQ,CAAE,MAAM,CAChB,UAAU,CAAE,gBAAgB,OAAO,CAAC,CAAC,OAAO,CAAC,AAC/C,CAAC,AACD,yBAAU,CAAC,gCAAE,CAEb,yBAAU,CAAC,gCAAE,CACb,yBAAU,CAAC,gCAAE,CACb,yBAAU,CAAC,+BAAC,CACZ,yBAAU,CAAC,CAAC,8BAAC,CAAC,AACZ,KAAK,CAAE,KAAK,AACd,CAAC,AACD,yBAAU,CAAC,QAAQ,8BAAC,CAAC,AACnB,OAAO,CAAE,CAAC,CAAC,IAAI,CACf,MAAM,CAAE,CAAC,CAAC,IAAI,AAChB,CAAC,AACD,yBAAU,CAAC,uBAAQ,CAAC,CAAC,eAAC,CAAC,AACrB,WAAW,CAAE,GAAG,AAClB,CAAC,AACD,yBAAU,CAAC,QAAQ,CAAC,EAAE,8BAAC,CAAC,AACtB,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,CACf,UAAU,CAAE,GAAG,AACjB,CAAC,AACD,yBAAU,CAAC,KAAK,8BAAC,CAAC,AAChB,OAAO,CAAE,IAAI,CACb,eAAe,CAAE,YAAY,CAC7B,WAAW,CAAE,MAAM,CACnB,UAAU,CAAE,IAAI,EAAE,CAAC,CAAC,IAAI,CAAC,AAC3B,CAAC,AACD,yBAAU,CAAC,KAAK,CAAC,WAAW,8BAAC,CAAC,AAC5B,UAAU,CAAE,IAAI,AAClB,CAAC,AACD,yBAAU,CAAC,KAAK,CAAC,WAAW,CAAC,MAAM,8BAAC,CAAC,AACnC,YAAY,CAAE,IAAI,CAClB,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,CACjC,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAClB,MAAM,CAAE,IAAI,CACZ,OAAO,CAAE,GAAG,CAAC,IAAI,CACjB,KAAK,CAAE,KAAK,CACZ,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,GAAG,AAClB,CAAC,AACD,yBAAU,CAAC,KAAK,CAAC,GAAG,8BAAC,CAAC,AACpB,KAAK,CAAE,IAAI,CACX,SAAS,CAAE,KAAK,AAClB,CAAC,AACD,yBAAU,CAAC,MAAM,8BAAC,CAAC,AACjB,QAAQ,CAAE,QAAQ,CAClB,SAAS,CAAE,OAAO,CAAC,CAAC,CACpB,MAAM,CAAE,CAAC,CACT,IAAI,CAAE,CAAC,CACP,KAAK,CAAE,CAAC,CACR,QAAQ,CAAE,MAAM,CAChB,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,AACb,CAAC,AAUD,4BAAa,CAAC,QAAQ,8BAAC,CAAC,AACtB,SAAS,CAAE,MAAM,CACjB,OAAO,CAAE,IAAI,CACb,MAAM,CAAE,IAAI,CACZ,OAAO,CAAE,IAAI,AACf,CAAC,AACD,4BAAa,CAAC,QAAQ,CAAC,MAAM,8BAAC,CAAC,AAC7B,IAAI,CAAE,CAAC,CACP,YAAY,CAAE,IAAI,CAClB,aAAa,CAAE,IAAI,CACnB,QAAQ,CAAE,MAAM,CAChB,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,CACjC,KAAK,CAAE,KAAK,AACd,CAAC,AACD,4BAAa,CAAC,QAAQ,CAAC,MAAM,CAAC,UAAU,8BAAC,CAAC,AACxC,UAAU,CAAE,GAAG,CAAC,IAAI,CACpB,OAAO,CAAE,IAAI,CACb,WAAW,CAAE,MAAM,CACnB,OAAO,CAAE,IAAI,CAAC,IAAI,CAClB,SAAS,CAAE,IAAI,AACjB,CAAC,AACD,4BAAa,CAAC,QAAQ,CAAC,MAAM,CAAC,wCAAU,MAAM,AAAC,CAAC,AAC9C,MAAM,CAAE,SAAS,IAAI,CAAC,AACxB,CAAC,AACD,4BAAa,CAAC,QAAQ,CAAC,MAAM,CAAC,UAAU,CAAC,OAAO,8BAAC,CAAC,AAChD,SAAS,CAAE,IAAI,CACf,UAAU,CAAE,IAAI,CAChB,aAAa,CAAE,GAAG,CAClB,UAAU,CAAE,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,CACrC,YAAY,CAAE,IAAI,CAClB,mBAAmB,CAAE,MAAM,CAC3B,iBAAiB,CAAE,SAAS,AAC9B,CAAC,AACD,4BAAa,CAAC,QAAQ,CAAC,MAAM,8BAAC,CAAC,AAC7B,IAAI,CAAE,CAAC,CACP,UAAU,CAAE,KAAK,CACjB,aAAa,CAAE,IAAI,CACnB,QAAQ,CAAE,MAAM,CAChB,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,AACnC,CAAC,AAED,QAAQ,6CAAC,CAAC,AACR,MAAM,CAAE,CAAC,CACT,OAAO,CAAE,IAAI,CAAC,CAAC,AACjB,CAAC,AACD,uBAAQ,CAAC,cAAc,8BAAC,CAAC,AACvB,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,KAAK,CACb,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,IAAI,CACnB,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,MAAM,CACtB,eAAe,CAAE,MAAM,CACvB,WAAW,CAAE,MAAM,CACnB,QAAQ,CAAE,QAAQ,CAClB,gBAAgB,CAAE,IAAI,8BAA8B,CAAC,CACrD,iBAAiB,CAAE,SAAS,CAC5B,mBAAmB,CAAE,MAAM,CAC3B,MAAM,CAAE,IAAI,CAAC,IAAI,CACjB,UAAU,CAAE,CAAC,CACb,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,AACnC,CAAC,AACD,uBAAQ,CAAC,cAAc,CAAC,KAAK,8BAAC,CAAC,AAC7B,UAAU,CAAE,IAAI,CAChB,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,CACjC,aAAa,CAAE,GAAG,AACpB,CAAC,AACD,uBAAQ,CAAC,cAAc,CAAC,KAAK,CAAC,KAAK,8BAAC,CAAC,AACnC,MAAM,CAAE,CAAC,CACT,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,GAAG,CAC9B,MAAM,CAAE,IAAI,CACZ,YAAY,CAAE,IAAI,CAClB,OAAO,CAAE,CAAC,CAAC,IAAI,CACf,KAAK,CAAE,KAAK,CACZ,KAAK,CAAE,KAAK,AACd,CAAC,AACD,uBAAQ,CAAC,cAAc,CAAC,KAAK,CAAC,mCAAK,MAAM,AAAC,CAAC,AACzC,OAAO,CAAE,IAAI,AACf,CAAC,AACD,uBAAQ,CAAC,cAAc,CAAC,KAAK,CAAC,MAAM,8BAAC,CAAC,AACpC,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,GAAG,CAC9B,MAAM,CAAE,IAAI,CACZ,OAAO,CAAE,IAAI,CAAC,IAAI,CAClB,WAAW,CAAE,GAAG,AAClB,CAAC"}`
+var css$d = {
+  code: 'body{margin:0;background:linear-gradient(150.81deg, rgba(43, 112, 216, 0.39) 17.62%, rgba(181, 180, 246, 0.73) 45.08%, rgba(80, 77, 240, 0.3) 99.97%, #f2dcbf 99.98%, #9113de 99.99%), linear-gradient(150.81deg, rgba(117, 236, 229, 0.74) 26%, rgba(180, 180, 217, 0.73) 52.53%, rgba(80, 77, 240, 0.3) 99.97%, #f2dcbf 99.98%, #785191 99.99%);mix-blend-mode:soft-light}h1.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg,h4.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg,h5.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg,p.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg,a.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg,button.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg,input.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg{font-family:Poppins, sans-serif}a.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg{text-decoration:none;font-weight:600;margin-left:48px}button.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg{cursor:pointer}.nav.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg{display:flex;justify-content:space-between;align-items:center;padding:24px 0}.container.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg{position:relative;width:100%;height:100vh;overflow:hidden}.container.svelte-ow7ctg h1.svelte-ow7ctg.svelte-ow7ctg,.container.svelte-ow7ctg h4.svelte-ow7ctg.svelte-ow7ctg,.container.svelte-ow7ctg h5.svelte-ow7ctg.svelte-ow7ctg,.container.svelte-ow7ctg a.svelte-ow7ctg.svelte-ow7ctg,.container.svelte-ow7ctg p.svelte-ow7ctg.svelte-ow7ctg{color:black}.container.svelte-ow7ctg .content.svelte-ow7ctg.svelte-ow7ctg{padding:0 64px;margin:0 auto}.container.svelte-ow7ctg .content.svelte-ow7ctg p.svelte-ow7ctg{font-weight:200}.container.svelte-ow7ctg .content h5.svelte-ow7ctg.svelte-ow7ctg{font-weight:300;font-size:16px;margin-top:8px}.container.svelte-ow7ctg .main.svelte-ow7ctg.svelte-ow7ctg{display:flex;justify-content:space-around;align-items:center;margin-top:min(4%, 96px)}.container.svelte-ow7ctg .main .button-row.svelte-ow7ctg.svelte-ow7ctg{margin-top:32px}.container.svelte-ow7ctg .main .button-row button.svelte-ow7ctg.svelte-ow7ctg{margin-right:16px;box-shadow:0 0 3px 1px #000000aa;background:#592cb6;border-radius:4px;border:none;padding:8px 32px;color:white;font-size:16px;font-weight:600}.container.svelte-ow7ctg .main img.svelte-ow7ctg.svelte-ow7ctg{width:100%;max-width:400px}.container.svelte-ow7ctg .waves.svelte-ow7ctg.svelte-ow7ctg{position:absolute;transform:scaleX(2);bottom:0;left:0;right:0;overflow:hidden;height:25vh;width:100%}.how-it-works.svelte-ow7ctg .content.svelte-ow7ctg.svelte-ow7ctg{max-width:1200px;padding:64px;margin:auto;display:flex}.how-it-works.svelte-ow7ctg .content .cards.svelte-ow7ctg.svelte-ow7ctg{flex:2;margin-right:32px;border-radius:12px;overflow:hidden;box-shadow:0 0 2px 1px #4d4d4daa;color:white}.how-it-works.svelte-ow7ctg .content .cards .step-card.svelte-ow7ctg.svelte-ow7ctg{transition:all 0.3s;display:flex;align-items:center;padding:32px 48px;font-size:12px}.how-it-works.svelte-ow7ctg .content .cards .step-card.svelte-ow7ctg.svelte-ow7ctg:hover{filter:saturate(200%)}.how-it-works.svelte-ow7ctg .content .cards .step-card .circle.svelte-ow7ctg.svelte-ow7ctg{min-width:64px;min-height:64px;border-radius:50%;background:rgba(176, 139, 255, 0.44);margin-right:32px;background-position:center;background-repeat:no-repeat}.how-it-works.svelte-ow7ctg .content .video.svelte-ow7ctg.svelte-ow7ctg{flex:3;background:black;border-radius:12px;overflow:hidden;box-shadow:0 0 2px 1px #4d4d4daa}.sign-up.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg{margin:0;margin-bottom:32px;padding:32px 0}.sign-up.svelte-ow7ctg .custom-button.svelte-ow7ctg.svelte-ow7ctg{width:884px;height:180px;background:#8c30f5;border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;background-image:url("images/button_background.svg");background-repeat:no-repeat;background-position:center;margin:auto;margin-top:0;box-shadow:0 0 3px 1px #575757aa}.sign-up.svelte-ow7ctg .custom-button .form.svelte-ow7ctg.svelte-ow7ctg{margin-top:24px;box-shadow:0 0 2px 1px #4d4d4daa;border-radius:6px}.sign-up.svelte-ow7ctg .custom-button .form input.svelte-ow7ctg.svelte-ow7ctg{margin:0;height:40px;background:#f4f5f7;border-radius:6px 0px 0px 6px;border:none;margin-right:-8px;padding:0 16px;width:220px;color:black}.sign-up.svelte-ow7ctg .custom-button .form input.svelte-ow7ctg.svelte-ow7ctg:focus{outline:none}.sign-up.svelte-ow7ctg .custom-button .form button.svelte-ow7ctg.svelte-ow7ctg{background:#18191f;border-radius:0px 6px 6px 0px;border:none;padding:12px 24px;font-weight:600}.noise.svelte-ow7ctg.svelte-ow7ctg.svelte-ow7ctg{position:absolute;top:0;left:0;right:0;bottom:0;mix-blend-mode:overlay;opacity:0.1}.noise.svelte-ow7ctg img.svelte-ow7ctg.svelte-ow7ctg{width:100%;height:100%}nav{display:none !important}',
+  map: `{"version":3,"file":"index.svelte","sources":["index.svelte"],"sourcesContent":["<script lang=\\"ts\\">import Waves from \\"$lib/components/splash/Waves.svelte\\";\\nfunction showExtension() {\\n    open(\\"https://google.com\\", \\"blank\\");\\n}\\nfunction showParties() {\\n    location.href = \\"/parties\\";\\n}\\nfunction scrollDown() {\\n    const elem = window.document.getElementsByClassName(\\"how-it-works\\")[0];\\n    scrollTo({ top: elem.getClientRects().item(0).top, behavior: \\"smooth\\" });\\n}\\n</script>\\n\\n<div class=\\"noise\\">\\n    <img src=\\"/images/noise.png\\" alt=\\"\\" />\\n</div>\\n\\n<div class=\\"container\\">\\n    <div class=\\"content\\">\\n        <div class=\\"nav\\">\\n            <img style=\\"display: none\\" src=\\"images/button_background.svg\\" alt=\\"\\" />\\n            <div style=\\"display: flex; width: 240px; align-items: center;\\">\\n                <img src=\\"images/blockparties_icon_black.svg\\" alt=\\"logo\\" width=\\"80px\\" />\\n                <h4>Block Parties</h4>\\n            </div>\\n\\n            <div>\\n                <a style=\\"cursor: pointer\\" on:click={scrollDown}>How it works</a>\\n            </div>\\n        </div>\\n\\n        <div class=\\"main\\" style=\\"display:flex\\">\\n            <div>\\n                <p>The future of group transactions</p>\\n                <h1>\\n                    Invest securely\\n                    <br />\\n                    on the blockchain\\n                </h1>\\n\\n                <h5>Buy and sell fractional NFTs with <span style=\\"color: #592cb6\\"><b>Block Parties</b></span></h5>\\n\\n                <div class=\\"button-row\\">\\n                    <button on:click={showParties}>Browse</button>\\n                    <button on:click={showExtension}>Install Extension</button>\\n                </div>\\n            </div>\\n\\n            <div>\\n                <img src=\\"images/people_circle.svg\\" alt=\\"\\" />\\n            </div>\\n        </div>\\n    </div>\\n\\n    <div class=\\"waves\\">\\n        <Waves />\\n    </div>\\n</div>\\n\\n<div class=\\"bottom-half\\">\\n    <div class=\\"how-it-works\\">\\n        <!-- <div class=\\"waves-wrapper\\">\\n        <div class=\\"waves\\">\\n            <Waves />\\n        </div>\\n    </div> -->\\n\\n        <div class=\\"content\\">\\n            <div class=\\"cards\\">\\n                <div class=\\"step-card\\" style=\\"background: #ac69f7\\">\\n                    <div class=\\"circle\\" style=\\"background-image: url('images/abstract3.svg');\\" />\\n                    <div>\\n                        <h4>Step 1</h4>\\n                        <p>Browse the OpenSea marketplace.</p>\\n                    </div>\\n                </div>\\n                <div class=\\"step-card\\" style=\\"background: #9d4ff6\\">\\n                    <div class=\\"circle\\" style=\\"background-image: url('images/abstract2.svg');\\" />\\n                    <div>\\n                        <h4>Step 2</h4>\\n                        <p>Join or create a party and invest!</p>\\n                    </div>\\n                </div>\\n                <div class=\\"step-card\\" style=\\"background: #8c30f5\\">\\n                    <div class=\\"circle\\" style=\\"background-image: url('images/abstract1.svg');\\" />\\n                    <div>\\n                        <h4>Step 3</h4>\\n                        <p>Once the party is full, the NFT is purchased and listed for resale.</p>\\n                    </div>\\n                </div>\\n                <div class=\\"step-card\\" style=\\"background: #721bd4\\">\\n                    <div class=\\"circle\\" style=\\"background-image: url('images/abstract3.svg');\\" />\\n                    <div>\\n                        <h4>Step 4</h4>\\n                        <p>When the NFT gets sold, we distribute the profits to the party.</p>\\n                    </div>\\n                </div>\\n            </div>\\n\\n            <div class=\\"video\\">.</div>\\n        </div>\\n    </div>\\n</div>\\n\\n<div class=\\"sign-up\\">\\n    <div class=\\"custom-button\\" style=\\"background-image: url({'images/button_background.svg'})\\">\\n        <h1>Join 100+ people in the waitlist</h1>\\n\\n        <div class=\\"form\\">\\n            <input placeholder=\\"Your email address\\" />\\n            <button>Join the waitlist</button>\\n        </div>\\n    </div>\\n</div>\\n\\n<svelte:head>\\n    <link rel=\\"preconnect\\" href=\\"https://fonts.gstatic.com\\" />\\n    <link\\n        href=\\"https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap\\"\\n        rel=\\"stylesheet\\"\\n    />\\n</svelte:head>\\n\\n<style lang=\\"scss\\">:global(body) {\\n  margin: 0;\\n  background: linear-gradient(150.81deg, rgba(43, 112, 216, 0.39) 17.62%, rgba(181, 180, 246, 0.73) 45.08%, rgba(80, 77, 240, 0.3) 99.97%, #f2dcbf 99.98%, #9113de 99.99%), linear-gradient(150.81deg, rgba(117, 236, 229, 0.74) 26%, rgba(180, 180, 217, 0.73) 52.53%, rgba(80, 77, 240, 0.3) 99.97%, #f2dcbf 99.98%, #785191 99.99%);\\n  mix-blend-mode: soft-light;\\n}\\n\\nh1,\\nh2,\\nh3,\\nh4,\\nh5,\\np,\\na,\\nbutton,\\ninput {\\n  font-family: Poppins, sans-serif;\\n}\\n\\na {\\n  text-decoration: none;\\n  font-weight: 600;\\n  margin-left: 48px;\\n}\\n\\nbutton {\\n  cursor: pointer;\\n}\\n\\n.nav {\\n  display: flex;\\n  justify-content: space-between;\\n  align-items: center;\\n  padding: 24px 0;\\n}\\n\\n.container {\\n  position: relative;\\n  width: 100%;\\n  height: 100vh;\\n  overflow: hidden;\\n}\\n.container h1,\\n.container h3,\\n.container h4,\\n.container h5,\\n.container a,\\n.container p {\\n  color: black;\\n}\\n.container .content {\\n  padding: 0 64px;\\n  margin: 0 auto;\\n}\\n.container .content p {\\n  font-weight: 200;\\n}\\n.container .content h5 {\\n  font-weight: 300;\\n  font-size: 16px;\\n  margin-top: 8px;\\n}\\n.container .main {\\n  display: flex;\\n  justify-content: space-around;\\n  align-items: center;\\n  margin-top: min(4%, 96px);\\n}\\n.container .main .button-row {\\n  margin-top: 32px;\\n}\\n.container .main .button-row button {\\n  margin-right: 16px;\\n  box-shadow: 0 0 3px 1px #000000aa;\\n  background: #592cb6;\\n  border-radius: 4px;\\n  border: none;\\n  padding: 8px 32px;\\n  color: white;\\n  font-size: 16px;\\n  font-weight: 600;\\n}\\n.container .main img {\\n  width: 100%;\\n  max-width: 400px;\\n}\\n.container .waves {\\n  position: absolute;\\n  transform: scaleX(2);\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  overflow: hidden;\\n  height: 25vh;\\n  width: 100%;\\n}\\n\\n.how-it-works .waves-wrapper .waves {\\n  transform: scaleX(2);\\n  overflow: hidden;\\n  height: 10vh;\\n  width: 100%;\\n  position: relative;\\n  top: -32px;\\n}\\n.how-it-works .content {\\n  max-width: 1200px;\\n  padding: 64px;\\n  margin: auto;\\n  display: flex;\\n}\\n.how-it-works .content .cards {\\n  flex: 2;\\n  margin-right: 32px;\\n  border-radius: 12px;\\n  overflow: hidden;\\n  box-shadow: 0 0 2px 1px #4d4d4daa;\\n  color: white;\\n}\\n.how-it-works .content .cards .step-card {\\n  transition: all 0.3s;\\n  display: flex;\\n  align-items: center;\\n  padding: 32px 48px;\\n  font-size: 12px;\\n}\\n.how-it-works .content .cards .step-card:hover {\\n  filter: saturate(200%);\\n}\\n.how-it-works .content .cards .step-card .circle {\\n  min-width: 64px;\\n  min-height: 64px;\\n  border-radius: 50%;\\n  background: rgba(176, 139, 255, 0.44);\\n  margin-right: 32px;\\n  background-position: center;\\n  background-repeat: no-repeat;\\n}\\n.how-it-works .content .video {\\n  flex: 3;\\n  background: black;\\n  border-radius: 12px;\\n  overflow: hidden;\\n  box-shadow: 0 0 2px 1px #4d4d4daa;\\n}\\n\\n.sign-up {\\n  margin: 0;\\n  margin-bottom: 32px;\\n  padding: 32px 0;\\n}\\n.sign-up .custom-button {\\n  width: 884px;\\n  height: 180px;\\n  background: #8c30f5;\\n  border-radius: 16px;\\n  display: flex;\\n  flex-direction: column;\\n  justify-content: center;\\n  align-items: center;\\n  position: relative;\\n  background-image: url(\\"images/button_background.svg\\");\\n  background-repeat: no-repeat;\\n  background-position: center;\\n  margin: auto;\\n  margin-top: 0;\\n  box-shadow: 0 0 3px 1px #575757aa;\\n}\\n.sign-up .custom-button .form {\\n  margin-top: 24px;\\n  box-shadow: 0 0 2px 1px #4d4d4daa;\\n  border-radius: 6px;\\n}\\n.sign-up .custom-button .form input {\\n  margin: 0;\\n  height: 40px;\\n  background: #f4f5f7;\\n  border-radius: 6px 0px 0px 6px;\\n  border: none;\\n  margin-right: -8px;\\n  padding: 0 16px;\\n  width: 220px;\\n  color: black;\\n}\\n.sign-up .custom-button .form input:focus {\\n  outline: none;\\n}\\n.sign-up .custom-button .form button {\\n  background: #18191f;\\n  border-radius: 0px 6px 6px 0px;\\n  border: none;\\n  padding: 12px 24px;\\n  font-weight: 600;\\n}\\n\\n.noise {\\n  position: absolute;\\n  top: 0;\\n  left: 0;\\n  right: 0;\\n  bottom: 0;\\n  mix-blend-mode: overlay;\\n  opacity: 0.1;\\n}\\n.noise img {\\n  width: 100%;\\n  height: 100%;\\n}\\n\\n:global(nav) {\\n  display: none !important;\\n}</style>\\n"],"names":[],"mappings":"AA2H2B,IAAI,AAAE,CAAC,AAChC,MAAM,CAAE,CAAC,CACT,UAAU,CAAE,gBAAgB,SAAS,CAAC,CAAC,KAAK,EAAE,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,CAAC,MAAM,CAAC,CAAC,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,CAAC,MAAM,CAAC,CAAC,KAAK,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,MAAM,CAAC,CAAC,OAAO,CAAC,MAAM,CAAC,CAAC,OAAO,CAAC,MAAM,CAAC,CAAC,CAAC,gBAAgB,SAAS,CAAC,CAAC,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,CAAC,GAAG,CAAC,CAAC,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,CAAC,MAAM,CAAC,CAAC,KAAK,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,MAAM,CAAC,CAAC,OAAO,CAAC,MAAM,CAAC,CAAC,OAAO,CAAC,MAAM,CAAC,CACpU,cAAc,CAAE,UAAU,AAC5B,CAAC,AAED,4CAAE,CAGF,4CAAE,CACF,4CAAE,CACF,2CAAC,CACD,2CAAC,CACD,gDAAM,CACN,KAAK,0CAAC,CAAC,AACL,WAAW,CAAE,OAAO,CAAC,CAAC,UAAU,AAClC,CAAC,AAED,CAAC,0CAAC,CAAC,AACD,eAAe,CAAE,IAAI,CACrB,WAAW,CAAE,GAAG,CAChB,WAAW,CAAE,IAAI,AACnB,CAAC,AAED,MAAM,0CAAC,CAAC,AACN,MAAM,CAAE,OAAO,AACjB,CAAC,AAED,IAAI,0CAAC,CAAC,AACJ,OAAO,CAAE,IAAI,CACb,eAAe,CAAE,aAAa,CAC9B,WAAW,CAAE,MAAM,CACnB,OAAO,CAAE,IAAI,CAAC,CAAC,AACjB,CAAC,AAED,UAAU,0CAAC,CAAC,AACV,QAAQ,CAAE,QAAQ,CAClB,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,KAAK,CACb,QAAQ,CAAE,MAAM,AAClB,CAAC,AACD,wBAAU,CAAC,8BAAE,CAEb,wBAAU,CAAC,8BAAE,CACb,wBAAU,CAAC,8BAAE,CACb,wBAAU,CAAC,6BAAC,CACZ,wBAAU,CAAC,CAAC,4BAAC,CAAC,AACZ,KAAK,CAAE,KAAK,AACd,CAAC,AACD,wBAAU,CAAC,QAAQ,4BAAC,CAAC,AACnB,OAAO,CAAE,CAAC,CAAC,IAAI,CACf,MAAM,CAAE,CAAC,CAAC,IAAI,AAChB,CAAC,AACD,wBAAU,CAAC,sBAAQ,CAAC,CAAC,cAAC,CAAC,AACrB,WAAW,CAAE,GAAG,AAClB,CAAC,AACD,wBAAU,CAAC,QAAQ,CAAC,EAAE,4BAAC,CAAC,AACtB,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,CACf,UAAU,CAAE,GAAG,AACjB,CAAC,AACD,wBAAU,CAAC,KAAK,4BAAC,CAAC,AAChB,OAAO,CAAE,IAAI,CACb,eAAe,CAAE,YAAY,CAC7B,WAAW,CAAE,MAAM,CACnB,UAAU,CAAE,IAAI,EAAE,CAAC,CAAC,IAAI,CAAC,AAC3B,CAAC,AACD,wBAAU,CAAC,KAAK,CAAC,WAAW,4BAAC,CAAC,AAC5B,UAAU,CAAE,IAAI,AAClB,CAAC,AACD,wBAAU,CAAC,KAAK,CAAC,WAAW,CAAC,MAAM,4BAAC,CAAC,AACnC,YAAY,CAAE,IAAI,CAClB,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,CACjC,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAClB,MAAM,CAAE,IAAI,CACZ,OAAO,CAAE,GAAG,CAAC,IAAI,CACjB,KAAK,CAAE,KAAK,CACZ,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,GAAG,AAClB,CAAC,AACD,wBAAU,CAAC,KAAK,CAAC,GAAG,4BAAC,CAAC,AACpB,KAAK,CAAE,IAAI,CACX,SAAS,CAAE,KAAK,AAClB,CAAC,AACD,wBAAU,CAAC,MAAM,4BAAC,CAAC,AACjB,QAAQ,CAAE,QAAQ,CAClB,SAAS,CAAE,OAAO,CAAC,CAAC,CACpB,MAAM,CAAE,CAAC,CACT,IAAI,CAAE,CAAC,CACP,KAAK,CAAE,CAAC,CACR,QAAQ,CAAE,MAAM,CAChB,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,AACb,CAAC,AAUD,2BAAa,CAAC,QAAQ,4BAAC,CAAC,AACtB,SAAS,CAAE,MAAM,CACjB,OAAO,CAAE,IAAI,CACb,MAAM,CAAE,IAAI,CACZ,OAAO,CAAE,IAAI,AACf,CAAC,AACD,2BAAa,CAAC,QAAQ,CAAC,MAAM,4BAAC,CAAC,AAC7B,IAAI,CAAE,CAAC,CACP,YAAY,CAAE,IAAI,CAClB,aAAa,CAAE,IAAI,CACnB,QAAQ,CAAE,MAAM,CAChB,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,CACjC,KAAK,CAAE,KAAK,AACd,CAAC,AACD,2BAAa,CAAC,QAAQ,CAAC,MAAM,CAAC,UAAU,4BAAC,CAAC,AACxC,UAAU,CAAE,GAAG,CAAC,IAAI,CACpB,OAAO,CAAE,IAAI,CACb,WAAW,CAAE,MAAM,CACnB,OAAO,CAAE,IAAI,CAAC,IAAI,CAClB,SAAS,CAAE,IAAI,AACjB,CAAC,AACD,2BAAa,CAAC,QAAQ,CAAC,MAAM,CAAC,sCAAU,MAAM,AAAC,CAAC,AAC9C,MAAM,CAAE,SAAS,IAAI,CAAC,AACxB,CAAC,AACD,2BAAa,CAAC,QAAQ,CAAC,MAAM,CAAC,UAAU,CAAC,OAAO,4BAAC,CAAC,AAChD,SAAS,CAAE,IAAI,CACf,UAAU,CAAE,IAAI,CAChB,aAAa,CAAE,GAAG,CAClB,UAAU,CAAE,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,CACrC,YAAY,CAAE,IAAI,CAClB,mBAAmB,CAAE,MAAM,CAC3B,iBAAiB,CAAE,SAAS,AAC9B,CAAC,AACD,2BAAa,CAAC,QAAQ,CAAC,MAAM,4BAAC,CAAC,AAC7B,IAAI,CAAE,CAAC,CACP,UAAU,CAAE,KAAK,CACjB,aAAa,CAAE,IAAI,CACnB,QAAQ,CAAE,MAAM,CAChB,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,AACnC,CAAC,AAED,QAAQ,0CAAC,CAAC,AACR,MAAM,CAAE,CAAC,CACT,aAAa,CAAE,IAAI,CACnB,OAAO,CAAE,IAAI,CAAC,CAAC,AACjB,CAAC,AACD,sBAAQ,CAAC,cAAc,4BAAC,CAAC,AACvB,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,KAAK,CACb,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,IAAI,CACnB,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,MAAM,CACtB,eAAe,CAAE,MAAM,CACvB,WAAW,CAAE,MAAM,CACnB,QAAQ,CAAE,QAAQ,CAClB,gBAAgB,CAAE,IAAI,8BAA8B,CAAC,CACrD,iBAAiB,CAAE,SAAS,CAC5B,mBAAmB,CAAE,MAAM,CAC3B,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,CAAC,CACb,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,AACnC,CAAC,AACD,sBAAQ,CAAC,cAAc,CAAC,KAAK,4BAAC,CAAC,AAC7B,UAAU,CAAE,IAAI,CAChB,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,CACjC,aAAa,CAAE,GAAG,AACpB,CAAC,AACD,sBAAQ,CAAC,cAAc,CAAC,KAAK,CAAC,KAAK,4BAAC,CAAC,AACnC,MAAM,CAAE,CAAC,CACT,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,GAAG,CAC9B,MAAM,CAAE,IAAI,CACZ,YAAY,CAAE,IAAI,CAClB,OAAO,CAAE,CAAC,CAAC,IAAI,CACf,KAAK,CAAE,KAAK,CACZ,KAAK,CAAE,KAAK,AACd,CAAC,AACD,sBAAQ,CAAC,cAAc,CAAC,KAAK,CAAC,iCAAK,MAAM,AAAC,CAAC,AACzC,OAAO,CAAE,IAAI,AACf,CAAC,AACD,sBAAQ,CAAC,cAAc,CAAC,KAAK,CAAC,MAAM,4BAAC,CAAC,AACpC,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,GAAG,CAC9B,MAAM,CAAE,IAAI,CACZ,OAAO,CAAE,IAAI,CAAC,IAAI,CAClB,WAAW,CAAE,GAAG,AAClB,CAAC,AAED,MAAM,0CAAC,CAAC,AACN,QAAQ,CAAE,QAAQ,CAClB,GAAG,CAAE,CAAC,CACN,IAAI,CAAE,CAAC,CACP,KAAK,CAAE,CAAC,CACR,MAAM,CAAE,CAAC,CACT,cAAc,CAAE,OAAO,CACvB,OAAO,CAAE,GAAG,AACd,CAAC,AACD,oBAAM,CAAC,GAAG,4BAAC,CAAC,AACV,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,AACd,CAAC,AAEO,GAAG,AAAE,CAAC,AACZ,OAAO,CAAE,IAAI,CAAC,UAAU,AAC1B,CAAC"}`
 };
 var Routes = create_ssr_component(($$result, $$props, $$bindings, slots) => {
-  $$result.css.add(css$9);
-  return `<div class="${"container svelte-1n6zcx7"}"><div class="${"content svelte-1n6zcx7"}"><div class="${"nav svelte-1n6zcx7"}"><img style="${"display: none"}" src="${"images/button_background.svg"}" alt="${""}" class="${"svelte-1n6zcx7"}">
-            <div style="${"display: flex; width: 240px; align-items: center;"}"><img src="${"images/blockparties_icon_black.svg"}" alt="${"logo"}" width="${"80px"}" class="${"svelte-1n6zcx7"}">
-                <h4 class="${"svelte-1n6zcx7"}">Block Parties</h4></div>
+  $$result.css.add(css$d);
+  return `<div class="${"noise svelte-ow7ctg"}"><img src="${"/images/noise.png"}" alt="${""}" class="${"svelte-ow7ctg"}"></div>
 
-            <div><a style="${"cursor: pointer"}" class="${"svelte-1n6zcx7"}">How it works</a></div></div>
+<div class="${"container svelte-ow7ctg"}"><div class="${"content svelte-ow7ctg"}"><div class="${"nav svelte-ow7ctg"}"><img style="${"display: none"}" src="${"images/button_background.svg"}" alt="${""}" class="${"svelte-ow7ctg"}">
+            <div style="${"display: flex; width: 240px; align-items: center;"}"><img src="${"images/blockparties_icon_black.svg"}" alt="${"logo"}" width="${"80px"}" class="${"svelte-ow7ctg"}">
+                <h4 class="${"svelte-ow7ctg"}">Block Parties</h4></div>
 
-        <div class="${"main svelte-1n6zcx7"}" style="${"display:flex"}"><div><p class="${"svelte-1n6zcx7"}">The future of group transactions</p>
-                <h1 class="${"svelte-1n6zcx7"}">Invest securely
+            <div><a style="${"cursor: pointer"}" class="${"svelte-ow7ctg"}">How it works</a></div></div>
+
+        <div class="${"main svelte-ow7ctg"}" style="${"display:flex"}"><div><p class="${"svelte-ow7ctg"}">The future of group transactions</p>
+                <h1 class="${"svelte-ow7ctg"}">Invest securely
                     <br>
                     on the blockchain
                 </h1>
 
-                <h5 class="${"svelte-1n6zcx7"}">Buy and sell fractional NFTs with <span style="${"color: #592cb6"}"><b>Block Parties</b></span></h5>
+                <h5 class="${"svelte-ow7ctg"}">Buy and sell fractional NFTs with <span style="${"color: #592cb6"}"><b>Block Parties</b></span></h5>
 
-                <div class="${"button-row svelte-1n6zcx7"}"><button class="${"svelte-1n6zcx7"}">Browse</button>
-                    <button class="${"svelte-1n6zcx7"}">Install Extension</button></div></div>
+                <div class="${"button-row svelte-ow7ctg"}"><button class="${"svelte-ow7ctg"}">Browse</button>
+                    <button class="${"svelte-ow7ctg"}">Install Extension</button></div></div>
 
-            <div><img src="${"images/people_circle.svg"}" alt="${""}" class="${"svelte-1n6zcx7"}"></div></div></div>
+            <div><img src="${"images/people_circle.svg"}" alt="${""}" class="${"svelte-ow7ctg"}"></div></div></div>
 
-    <div class="${"waves svelte-1n6zcx7"}">${validate_component(Waves, "Waves").$$render($$result, {}, {}, {})}</div></div>
+    <div class="${"waves svelte-ow7ctg"}">${validate_component(Waves, "Waves").$$render($$result, {}, {}, {})}</div></div>
 
-<div class="${"bottom-half"}"><div class="${"how-it-works svelte-1n6zcx7"}">
+<div class="${"bottom-half"}"><div class="${"how-it-works svelte-ow7ctg"}">
 
-        <div class="${"content svelte-1n6zcx7"}"><div class="${"cards svelte-1n6zcx7"}"><div class="${"step-card svelte-1n6zcx7"}" style="${"background: #ac69f7"}"><div class="${"circle svelte-1n6zcx7"}" style="${"background-image: url('images/abstract3.svg');"}"></div>
-                    <div><h4 class="${"svelte-1n6zcx7"}">Step 1</h4>
-                        <p class="${"svelte-1n6zcx7"}">Browse the OpenSea marketplace.</p></div></div>
-                <div class="${"step-card svelte-1n6zcx7"}" style="${"background: #9d4ff6"}"><div class="${"circle svelte-1n6zcx7"}" style="${"background-image: url('images/abstract2.svg');"}"></div>
-                    <div><h4 class="${"svelte-1n6zcx7"}">Step 2</h4>
-                        <p class="${"svelte-1n6zcx7"}">Join or create a party and invest!</p></div></div>
-                <div class="${"step-card svelte-1n6zcx7"}" style="${"background: #8c30f5"}"><div class="${"circle svelte-1n6zcx7"}" style="${"background-image: url('images/abstract1.svg');"}"></div>
-                    <div><h4 class="${"svelte-1n6zcx7"}">Step 3</h4>
-                        <p class="${"svelte-1n6zcx7"}">Once the party is full, the NFT is purchased and listed for resale.</p></div></div>
-                <div class="${"step-card svelte-1n6zcx7"}" style="${"background: #721bd4"}"><div class="${"circle svelte-1n6zcx7"}" style="${"background-image: url('images/abstract3.svg');"}"></div>
-                    <div><h4 class="${"svelte-1n6zcx7"}">Step 4</h4>
-                        <p class="${"svelte-1n6zcx7"}">When the NFT gets sold, we distribute the profits to the party.</p></div></div></div>
+        <div class="${"content svelte-ow7ctg"}"><div class="${"cards svelte-ow7ctg"}"><div class="${"step-card svelte-ow7ctg"}" style="${"background: #ac69f7"}"><div class="${"circle svelte-ow7ctg"}" style="${"background-image: url('images/abstract3.svg');"}"></div>
+                    <div><h4 class="${"svelte-ow7ctg"}">Step 1</h4>
+                        <p class="${"svelte-ow7ctg"}">Browse the OpenSea marketplace.</p></div></div>
+                <div class="${"step-card svelte-ow7ctg"}" style="${"background: #9d4ff6"}"><div class="${"circle svelte-ow7ctg"}" style="${"background-image: url('images/abstract2.svg');"}"></div>
+                    <div><h4 class="${"svelte-ow7ctg"}">Step 2</h4>
+                        <p class="${"svelte-ow7ctg"}">Join or create a party and invest!</p></div></div>
+                <div class="${"step-card svelte-ow7ctg"}" style="${"background: #8c30f5"}"><div class="${"circle svelte-ow7ctg"}" style="${"background-image: url('images/abstract1.svg');"}"></div>
+                    <div><h4 class="${"svelte-ow7ctg"}">Step 3</h4>
+                        <p class="${"svelte-ow7ctg"}">Once the party is full, the NFT is purchased and listed for resale.</p></div></div>
+                <div class="${"step-card svelte-ow7ctg"}" style="${"background: #721bd4"}"><div class="${"circle svelte-ow7ctg"}" style="${"background-image: url('images/abstract3.svg');"}"></div>
+                    <div><h4 class="${"svelte-ow7ctg"}">Step 4</h4>
+                        <p class="${"svelte-ow7ctg"}">When the NFT gets sold, we distribute the profits to the party.</p></div></div></div>
 
-            <div class="${"video svelte-1n6zcx7"}">.</div></div></div>
+            <div class="${"video svelte-ow7ctg"}">.</div></div></div></div>
 
-    <div class="${"sign-up svelte-1n6zcx7"}"><div class="${"custom-button svelte-1n6zcx7"}" style="${"background-image: url(" + escape3("images/button_background.svg") + ")"}"><h1 class="${"svelte-1n6zcx7"}">Join 569 more people in the waitlist</h1>
+<div class="${"sign-up svelte-ow7ctg"}"><div class="${"custom-button svelte-ow7ctg"}" style="${"background-image: url(" + escape3("images/button_background.svg") + ")"}"><h1 class="${"svelte-ow7ctg"}">Join 100+ people in the waitlist</h1>
 
-            <div class="${"form svelte-1n6zcx7"}"><input placeholder="${"Your email address"}" class="${"svelte-1n6zcx7"}">
-                <button class="${"svelte-1n6zcx7"}">Join the waitlist</button></div></div></div></div>
+        <div class="${"form svelte-ow7ctg"}"><input placeholder="${"Your email address"}" class="${"svelte-ow7ctg"}">
+            <button class="${"svelte-ow7ctg"}">Join the waitlist</button></div></div></div>
 
 ${$$result.head += `<link rel="${"preconnect"}" href="${"https://fonts.gstatic.com"}" data-svelte="svelte-hmbbtn"><link href="${"https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap"}" rel="${"stylesheet"}" data-svelte="svelte-hmbbtn">`, ""}`;
 });
@@ -18550,17 +22706,17 @@ var index$2 = /* @__PURE__ */ Object.freeze({
   [Symbol.toStringTag]: "Module",
   default: Routes
 });
-var css$8 = {
+var css$c = {
   code: "div.svelte-1hpzauj{cursor:pointer;transition:all 0.5s;width:fit-content;background:#ffffffaa;padding:16px;border-radius:50%}div.svelte-1hpzauj:hover{background:#ffffffdd}img.svelte-1hpzauj{width:32px;height:32px;margin:0 0 -8px 0}",
   map: '{"version":3,"file":"ScrollButton.svelte","sources":["ScrollButton.svelte"],"sourcesContent":["<script>\\n</script>\\n\\n<div>\\n    <img src=\\"./images/arrow-down.png\\" alt=\\"scroll down\\" />\\n    <!-- <h1>ASDASD</h1> -->\\n</div>\\n\\n<style lang=\\"scss\\">div {\\n  cursor: pointer;\\n  transition: all 0.5s;\\n  width: fit-content;\\n  background: #ffffffaa;\\n  padding: 16px;\\n  border-radius: 50%;\\n}\\ndiv:hover {\\n  background: #ffffffdd;\\n}\\n\\nimg {\\n  width: 32px;\\n  height: 32px;\\n  margin: 0 0 -8px 0;\\n}</style>\\n"],"names":[],"mappings":"AAQmB,GAAG,eAAC,CAAC,AACtB,MAAM,CAAE,OAAO,CACf,UAAU,CAAE,GAAG,CAAC,IAAI,CACpB,KAAK,CAAE,WAAW,CAClB,UAAU,CAAE,SAAS,CACrB,OAAO,CAAE,IAAI,CACb,aAAa,CAAE,GAAG,AACpB,CAAC,AACD,kBAAG,MAAM,AAAC,CAAC,AACT,UAAU,CAAE,SAAS,AACvB,CAAC,AAED,GAAG,eAAC,CAAC,AACH,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,MAAM,CAAE,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAAC,AACpB,CAAC"}'
 };
 var ScrollButton = create_ssr_component(($$result, $$props, $$bindings, slots) => {
-  $$result.css.add(css$8);
+  $$result.css.add(css$c);
   return `<div class="${"svelte-1hpzauj"}"><img src="${"./images/arrow-down.png"}" alt="${"scroll down"}" class="${"svelte-1hpzauj"}">
     
 </div>`;
 });
-var css$7 = {
+var css$b = {
   code: "nav{display:none}body{margin:0;height:100vh;background:linear-gradient(235.71deg, #400a84 7.8%, #1b0a30 92.44%)}main.svelte-qgj3c0.svelte-qgj3c0{padding:1em;width:480px;margin:auto;position:absolute;top:calc(50% - 200px);left:calc(50% - 240px)}main.svelte-qgj3c0 h3.svelte-qgj3c0{margin-top:16px;margin-bottom:8px}.email-form.svelte-qgj3c0.svelte-qgj3c0{width:480px;margin:32px auto;display:flex;flex-direction:column;align-items:flex-start;padding:24px;background:linear-gradient(0deg, #040a11, #040a11), #0352af;box-shadow:0px 4px 4px rgba(0, 0, 0, 0.25);border-radius:8px}.email-form.svelte-qgj3c0 .form-input.svelte-qgj3c0{width:100%;display:flex}.email-form.svelte-qgj3c0 .form-input input.svelte-qgj3c0{flex:1;height:48px;border:none;background:rgba(142, 145, 148, 0.1);border-radius:4px;color:white;margin-right:16px;padding:0 16px}.email-form.svelte-qgj3c0 .form-input button.svelte-qgj3c0{height:48px;width:80px;border:none;background:#400a84;border-radius:4px;padding:8px;color:white;font-weight:600;font-size:14px}.email-form.svelte-qgj3c0 h5.svelte-qgj3c0{margin:0}.email-form.svelte-qgj3c0 p.svelte-qgj3c0{font-size:12px;font-weight:300;text-align:start;margin-top:8px;color:#aaa}",
   map: `{"version":3,"file":"index_OLD.svelte","sources":["index_OLD.svelte"],"sourcesContent":["<script lang=\\"ts\\">// import Api from \\"$lib/api/beta\\"\\n// import axios from \\"axios\\"\\nvar __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\nimport ScrollButton from \\"$lib/components/splash/ScrollButton.svelte\\";\\nlet email;\\nfunction signUp() {\\n    return __awaiter(this, void 0, void 0, function* () {\\n        yield fetch(\\"http://3.143.138.224:8000/join-beta\\", {\\n            method: \\"post\\",\\n            headers: {\\n                \\"Content-Type\\": \\"application/json\\",\\n            },\\n            body: JSON.stringify({\\n                email: email,\\n                createdAt: new Date(),\\n            }),\\n        });\\n        alert(\\"Thank you for registering!\\");\\n    });\\n}\\n</script>\\n\\n<svelte:head>\\n    <title>Block Parties</title>\\n    <meta name=\\"og:title\\" content=\\"Block Parties\\" />\\n    <meta name=\\"og:description\\" content=\\"Invest with others safely and securely, powered by blockchain technology.\\" />\\n</svelte:head>\\n\\n<main>\\n    <h1>Block Parties</h1>\\n\\n    <div>\\n        <h3>An <b>Evolution</b> in Investing... coming soon</h3>\\n        <p>\\n            Leveraging the blockchain to make group investing as <b>secure</b>, <b>easy</b>, and <b>social</b> as ever.\\n        </p>\\n    </div>\\n\\n    <div class=\\"email-form\\">\\n        <h5>Reserve your seat in the limited access beta</h5>\\n        <br /><br />\\n        <div class=\\"form-input\\">\\n            <input bind:value={email} type=\\"email\\" placeholder=\\"Enter your email\\" />\\n            <button on:click={signUp}>Submit</button>\\n        </div>\\n        <p>We won't use your email for anything other than letting you know when beta opens.</p>\\n        <br />\\n        <p>Wanna chat? <a href=\\"https://discord.gg/TNGQuuazez\\"> Join our Discord</a></p>\\n    </div>\\n\\n    <div class=\\"scroll-button\\">\\n        <ScrollButton />\\n    </div>\\n</main>\\n\\n<style lang=\\"scss\\">:global(nav) {\\n  display: none;\\n}\\n\\n:global(body) {\\n  margin: 0;\\n  height: 100vh;\\n  background: linear-gradient(235.71deg, #400a84 7.8%, #1b0a30 92.44%);\\n}\\n\\nmain {\\n  padding: 1em;\\n  width: 480px;\\n  margin: auto;\\n  position: absolute;\\n  top: calc(50% - 200px);\\n  left: calc(50% - 240px);\\n}\\nmain h3 {\\n  margin-top: 16px;\\n  margin-bottom: 8px;\\n}\\n\\n.email-form {\\n  width: 480px;\\n  margin: 32px auto;\\n  display: flex;\\n  flex-direction: column;\\n  align-items: flex-start;\\n  padding: 24px;\\n  background: linear-gradient(0deg, #040a11, #040a11), #0352af;\\n  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);\\n  border-radius: 8px;\\n}\\n.email-form .form-input {\\n  width: 100%;\\n  display: flex;\\n}\\n.email-form .form-input input {\\n  flex: 1;\\n  height: 48px;\\n  border: none;\\n  background: rgba(142, 145, 148, 0.1);\\n  border-radius: 4px;\\n  color: white;\\n  margin-right: 16px;\\n  padding: 0 16px;\\n}\\n.email-form .form-input button {\\n  height: 48px;\\n  width: 80px;\\n  border: none;\\n  background: #400a84;\\n  border-radius: 4px;\\n  padding: 8px;\\n  color: white;\\n  font-weight: 600;\\n  font-size: 14px;\\n}\\n.email-form h5 {\\n  margin: 0;\\n}\\n.email-form p {\\n  font-size: 12px;\\n  font-weight: 300;\\n  text-align: start;\\n  margin-top: 8px;\\n  color: #aaa;\\n}</style>\\n"],"names":[],"mappings":"AA+D2B,GAAG,AAAE,CAAC,AAC/B,OAAO,CAAE,IAAI,AACf,CAAC,AAEO,IAAI,AAAE,CAAC,AACb,MAAM,CAAE,CAAC,CACT,MAAM,CAAE,KAAK,CACb,UAAU,CAAE,gBAAgB,SAAS,CAAC,CAAC,OAAO,CAAC,IAAI,CAAC,CAAC,OAAO,CAAC,MAAM,CAAC,AACtE,CAAC,AAED,IAAI,4BAAC,CAAC,AACJ,OAAO,CAAE,GAAG,CACZ,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,IAAI,CACZ,QAAQ,CAAE,QAAQ,CAClB,GAAG,CAAE,KAAK,GAAG,CAAC,CAAC,CAAC,KAAK,CAAC,CACtB,IAAI,CAAE,KAAK,GAAG,CAAC,CAAC,CAAC,KAAK,CAAC,AACzB,CAAC,AACD,kBAAI,CAAC,EAAE,cAAC,CAAC,AACP,UAAU,CAAE,IAAI,CAChB,aAAa,CAAE,GAAG,AACpB,CAAC,AAED,WAAW,4BAAC,CAAC,AACX,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,IAAI,CAAC,IAAI,CACjB,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,MAAM,CACtB,WAAW,CAAE,UAAU,CACvB,OAAO,CAAE,IAAI,CACb,UAAU,CAAE,gBAAgB,IAAI,CAAC,CAAC,OAAO,CAAC,CAAC,OAAO,CAAC,CAAC,CAAC,OAAO,CAC5D,UAAU,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAC3C,aAAa,CAAE,GAAG,AACpB,CAAC,AACD,yBAAW,CAAC,WAAW,cAAC,CAAC,AACvB,KAAK,CAAE,IAAI,CACX,OAAO,CAAE,IAAI,AACf,CAAC,AACD,yBAAW,CAAC,WAAW,CAAC,KAAK,cAAC,CAAC,AAC7B,IAAI,CAAE,CAAC,CACP,MAAM,CAAE,IAAI,CACZ,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CACpC,aAAa,CAAE,GAAG,CAClB,KAAK,CAAE,KAAK,CACZ,YAAY,CAAE,IAAI,CAClB,OAAO,CAAE,CAAC,CAAC,IAAI,AACjB,CAAC,AACD,yBAAW,CAAC,WAAW,CAAC,MAAM,cAAC,CAAC,AAC9B,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAClB,OAAO,CAAE,GAAG,CACZ,KAAK,CAAE,KAAK,CACZ,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,AACjB,CAAC,AACD,yBAAW,CAAC,EAAE,cAAC,CAAC,AACd,MAAM,CAAE,CAAC,AACX,CAAC,AACD,yBAAW,CAAC,CAAC,cAAC,CAAC,AACb,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,GAAG,CAChB,UAAU,CAAE,KAAK,CACjB,UAAU,CAAE,GAAG,CACf,KAAK,CAAE,IAAI,AACb,CAAC"}`
 };
@@ -18593,7 +22749,7 @@ var Index_OLD = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     });
   });
   let email;
-  $$result.css.add(css$7);
+  $$result.css.add(css$b);
   return `${$$result.head += `${$$result.title = `<title>Block Parties</title>`, ""}<meta name="${"og:title"}" content="${"Block Parties"}" data-svelte="svelte-wfknh5"><meta name="${"og:description"}" content="${"Invest with others safely and securely, powered by blockchain technology."}" data-svelte="svelte-wfknh5">`, ""}
 
 <main class="${"svelte-qgj3c0"}"><h1>Block Parties</h1>
@@ -18618,7 +22774,7 @@ var index_OLD = /* @__PURE__ */ Object.freeze({
   [Symbol.toStringTag]: "Module",
   default: Index_OLD
 });
-var css$6 = {
+var css$a = {
   code: "body{margin:0}nav{display:none}.content.svelte-1ggmcc.svelte-1ggmcc{max-width:1200px;margin:auto;padding:0 32px}ol.svelte-1ggmcc.svelte-1ggmcc{margin:0}button.svelte-1ggmcc.svelte-1ggmcc{cursor:pointer;background:#0352af;box-shadow:0px 2px 4px 2px rgba(0, 0, 0, 0.25);border-radius:4px;border:none;padding:12px;font-weight:600;font-size:16px}.logo.svelte-1ggmcc.svelte-1ggmcc{filter:brightness(0) saturate(100%) invert(0%) sepia(7%) saturate(349%) hue-rotate(75deg) brightness(100%) contrast(100%) invert(100%)}.divider.svelte-1ggmcc.svelte-1ggmcc{width:4px;height:100%;background:white}.button-row.svelte-1ggmcc.svelte-1ggmcc{display:flex;flex-flow:row wrap;justify-content:center;margin:16px}.button-row.svelte-1ggmcc button.svelte-1ggmcc{margin:8px}.card.svelte-1ggmcc.svelte-1ggmcc{background:#0e0606;box-shadow:0px 4px 4px 4px rgba(32, 32, 32, 0.25);border-radius:24px;overflow:hidden}.full-height.svelte-1ggmcc.svelte-1ggmcc{height:100vh}.section.svelte-1ggmcc.svelte-1ggmcc{width:100%;background:linear-gradient(180deg, #5c329f 0%, #13053e 100%)}.one.svelte-1ggmcc.svelte-1ggmcc{display:flex;flex-direction:column;align-items:center}.one.svelte-1ggmcc button.svelte-1ggmcc{width:240px}.two.svelte-1ggmcc.svelte-1ggmcc{display:flex;flex-direction:row;height:50vh;background:lightgray}.three.svelte-1ggmcc.svelte-1ggmcc{background:#161616;padding:64px 0}.three.svelte-1ggmcc .question.svelte-1ggmcc{font-weight:600;font-size:18px;margin-bottom:4px}.three.svelte-1ggmcc .answer.svelte-1ggmcc{margin:8px 0}.three.svelte-1ggmcc h1.svelte-1ggmcc{padding:0 0 48px 0}.three.svelte-1ggmcc hr.svelte-1ggmcc{border:none;border-bottom:1px solid rgba(255, 255, 255, 0.75);margin:32px 0}.email-form.svelte-1ggmcc.svelte-1ggmcc{width:480px;margin:32px auto;display:flex;flex-direction:column;align-items:flex-start;padding:24px;background:linear-gradient(0deg, #040a11, #040a11), #0352af;box-shadow:0px 4px 4px rgba(0, 0, 0, 0.25);border-radius:8px}.email-form.svelte-1ggmcc .form-input.svelte-1ggmcc{width:100%;display:flex}.email-form.svelte-1ggmcc .form-input input.svelte-1ggmcc{flex:1;height:48px;border:none;background:rgba(142, 145, 148, 0.1);border-radius:4px;color:white;margin-right:16px;padding:0 16px}.email-form.svelte-1ggmcc .form-input button.svelte-1ggmcc{height:48px;width:80px;border:none;background:#400a84;border-radius:4px;padding:8px;color:white;font-weight:600;font-size:14px}.email-form.svelte-1ggmcc h5.svelte-1ggmcc{margin:0}.email-form.svelte-1ggmcc p.svelte-1ggmcc{font-size:12px;font-weight:300;text-align:start;margin-top:8px;color:#aaa}.scroll-button.svelte-1ggmcc.svelte-1ggmcc{position:absolute;bottom:32px;left:calc(50% - 32px)}",
   map: `{"version":3,"file":"index_old.svelte","sources":["index_old.svelte"],"sourcesContent":["<script context=\\"module\\">\\n    // export const prerender = true\\n</script>\\n\\n<script lang=\\"ts\\">var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\nimport ScrollButton from \\"$lib/components/splash/ScrollButton.svelte\\";\\nfunction browse() {\\n    // location.href = \\"/parties\\"\\n    alert(\\"Coming Soon!\\");\\n}\\nfunction installExtension() {\\n    // location.href = \\"https://google.com\\"\\n    alert(\\"Coming Soon!\\");\\n}\\nlet email;\\nfunction signUp() {\\n    return __awaiter(this, void 0, void 0, function* () {\\n        yield fetch(\\"http://3.143.138.224:8000/join-beta\\", {\\n            method: \\"post\\",\\n            headers: {\\n                \\"Content-Type\\": \\"application/json\\",\\n            },\\n            body: JSON.stringify({\\n                email: email,\\n                createdAt: new Date(),\\n            }),\\n        });\\n        alert(\\"Thank you for registering!\\");\\n    });\\n}\\nfunction scroll() {\\n    const elem = document.getElementsByClassName(\\"two\\")[0];\\n    scrollTo({\\n        top: elem.getBoundingClientRect().top,\\n        behavior: \\"smooth\\",\\n    });\\n}\\n</script>\\n\\n<div class=\\"section one full-height\\">\\n    <div class=\\"content\\">\\n        <img src=\\"images/full_logo.svg\\" class=\\"logo\\" alt=\\"Block Parties\\" />\\n\\n        <!-- <p>Block Parties</p> -->\\n\\n        <!-- <p>\\n            Block Parties lets you buy and sell fractional NFTs. We leverage Ethereum smart contracts to enable\\n            trustless group investing.\\n        </p> -->\\n\\n        <div class=\\"button-row\\">\\n            <button on:click={browse}>Browse</button>\\n            <button on:click={installExtension}>Install the Extension</button>\\n        </div>\\n\\n        <div class=\\"email-form\\">\\n            <h5>Reserve your seat in the limited access beta</h5>\\n            <br /><br />\\n            <div class=\\"form-input\\">\\n                <input bind:value={email} type=\\"email\\" placeholder=\\"Enter your email\\" />\\n                <button on:click={signUp}>Submit</button>\\n            </div>\\n            <p>We won't use your email for anything other than letting you know when beta opens.</p>\\n            <br />\\n            <p>Wanna chat? <a href=\\"https://discord.gg/TNGQuuazez\\"> Join our Discord</a></p>\\n        </div>\\n\\n        <div class=\\"scroll-button\\" on:click={scroll}>\\n            <ScrollButton />\\n        </div>\\n\\n        <!-- \\n        <div class=\\"card\\">\\n            <div style=\\"height: 65vh;\\">\\n                <iframe\\n                    width=\\"100%\\"\\n                    height=\\"100%\\"\\n                    src=\\"https://www.youtube.com/embed/4LwXiQ1Zxig\\"\\n                    title=\\"YouTube video player\\"\\n                    frameborder=\\"0\\"\\n                    allow=\\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\\"\\n                    allowfullscreen\\n                />\\n            </div>\\n        </div> -->\\n    </div>\\n</div>\\n\\n<div class=\\"section two\\">\\n    <div class=\\"content\\">\\n        <div class=\\"row\\">\\n            <div class=\\"card\\">\\n                <ol>\\n                    <li>Find an NFT you want to flip.</li>\\n                    <li>Choose a party, or create a new one.</li>\\n                    <li>Invest!</li>\\n                    <li>Share the party with friends and others, and watch investments roll in.</li>\\n                    <li>Block Parties buys the NFT on your behalf, and lists it for sale.</li>\\n                    <li>Your NFT gets sold - profit!</li>\\n                </ol>\\n            </div>\\n\\n            <div class=\\"divider\\" />\\n\\n            <div class=\\"card\\">\\n                <ol>\\n                    <li>Find an NFT you want to flip.</li>\\n                    <li>Choose a party, or create a new one.</li>\\n                    <li>Invest!</li>\\n                    <li>Share the party with friends and others, and watch investments roll in.</li>\\n                    <li>Block Parties buys the NFT on your behalf, and lists it for sale.</li>\\n                    <li>Your NFT gets sold - profit!</li>\\n                </ol>\\n            </div>\\n        </div>\\n    </div>\\n</div>\\n\\n<div class=\\"section three\\">\\n    <div class=\\"content\\">\\n        <h1>Frequently Asked Questions</h1>\\n\\n        <p class=\\"question\\">What do I need to get started investing?</p>\\n        <p class=\\"answer\\">\\n            To invest, all you need is a web compatible Ethereum wallet. We recommend the popular wallet + extension\\n            MetaMask. (include link). To create new parties, you'll need to install our Chrome Extension.\\n        </p>\\n        <hr />\\n\\n        <p class=\\"question\\">Can I withdraw money invested in a party?</p>\\n        <p class=\\"answer\\">\\n            Yes, you can withdraw your investment in any party at any time, up to the point the NFT is purchased.\\n        </p>\\n        <hr />\\n\\n        <p class=\\"question\\">Where is my invested money stored?</p>\\n        <p class=\\"answer\\">\\n            While a party is still collectings funds, your investment is stored securely on a proprietary smart contract\\n            in the Ethereum blockchain. At no point do your funds enter a wallet that\u2019s not yours or, after a successful\\n            purchase, the person(s) selling the NFT, fees excluded.\\n        </p>\\n        <hr />\\n\\n        <p class=\\"question\\">My party\u2019s NFT doesn\u2019t seem to be selling. What can I do?</p>\\n        <p class=\\"answer\\">\\n            The NFT market is still young and somewhat exotic. Many NFTs will naturally take some time to sell, but if\\n            you're still concerned after some time, reach out to us directly, and we'll do our best to help you sell.\\n        </p>\\n        <hr />\\n\\n        <p class=\\"question\\">I have some feedback, concerns, or additional questions.</p>\\n        <p class=\\"answer\\">\\n            If you'd like to get in touch with us, we've setup a public Discord server where our team is available to\\n            talk to.\\n        </p>\\n    </div>\\n</div>\\n\\n<style lang=\\"scss\\">:global(body) {\\n  margin: 0;\\n}\\n\\n:global(nav) {\\n  display: none;\\n}\\n\\n.content {\\n  max-width: 1200px;\\n  margin: auto;\\n  padding: 0 32px;\\n}\\n\\nol {\\n  margin: 0;\\n}\\n\\nbutton {\\n  cursor: pointer;\\n  background: #0352af;\\n  box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.25);\\n  border-radius: 4px;\\n  border: none;\\n  padding: 12px;\\n  font-weight: 600;\\n  font-size: 16px;\\n}\\n\\n.logo {\\n  filter: brightness(0) saturate(100%) invert(0%) sepia(7%) saturate(349%) hue-rotate(75deg) brightness(100%) contrast(100%) invert(100%);\\n}\\n\\n.divider {\\n  width: 4px;\\n  height: 100%;\\n  background: white;\\n}\\n\\n.button-row {\\n  display: flex;\\n  flex-flow: row wrap;\\n  justify-content: center;\\n  margin: 16px;\\n}\\n.button-row button {\\n  margin: 8px;\\n}\\n\\n.card {\\n  background: #0e0606;\\n  box-shadow: 0px 4px 4px 4px rgba(32, 32, 32, 0.25);\\n  border-radius: 24px;\\n  overflow: hidden;\\n}\\n\\n.full-height {\\n  height: 100vh;\\n}\\n\\n.section {\\n  width: 100%;\\n  background: linear-gradient(180deg, #5c329f 0%, #13053e 100%);\\n}\\n\\n.one {\\n  display: flex;\\n  flex-direction: column;\\n  align-items: center;\\n}\\n.one button {\\n  width: 240px;\\n}\\n\\n.two {\\n  display: flex;\\n  flex-direction: row;\\n  height: 50vh;\\n  background: lightgray;\\n}\\n\\n.three {\\n  background: #161616;\\n  padding: 64px 0;\\n}\\n.three .question {\\n  font-weight: 600;\\n  font-size: 18px;\\n  margin-bottom: 4px;\\n}\\n.three .answer {\\n  margin: 8px 0;\\n}\\n.three h1 {\\n  padding: 0 0 48px 0;\\n}\\n.three hr {\\n  border: none;\\n  border-bottom: 1px solid rgba(255, 255, 255, 0.75);\\n  margin: 32px 0;\\n}\\n\\n.email-form {\\n  width: 480px;\\n  margin: 32px auto;\\n  display: flex;\\n  flex-direction: column;\\n  align-items: flex-start;\\n  padding: 24px;\\n  background: linear-gradient(0deg, #040a11, #040a11), #0352af;\\n  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);\\n  border-radius: 8px;\\n}\\n.email-form .form-input {\\n  width: 100%;\\n  display: flex;\\n}\\n.email-form .form-input input {\\n  flex: 1;\\n  height: 48px;\\n  border: none;\\n  background: rgba(142, 145, 148, 0.1);\\n  border-radius: 4px;\\n  color: white;\\n  margin-right: 16px;\\n  padding: 0 16px;\\n}\\n.email-form .form-input button {\\n  height: 48px;\\n  width: 80px;\\n  border: none;\\n  background: #400a84;\\n  border-radius: 4px;\\n  padding: 8px;\\n  color: white;\\n  font-weight: 600;\\n  font-size: 14px;\\n}\\n.email-form h5 {\\n  margin: 0;\\n}\\n.email-form p {\\n  font-size: 12px;\\n  font-weight: 300;\\n  text-align: start;\\n  margin-top: 8px;\\n  color: #aaa;\\n}\\n\\n.scroll-button {\\n  position: absolute;\\n  bottom: 32px;\\n  left: calc(50% - 32px);\\n}</style>\\n"],"names":[],"mappings":"AAsK2B,IAAI,AAAE,CAAC,AAChC,MAAM,CAAE,CAAC,AACX,CAAC,AAEO,GAAG,AAAE,CAAC,AACZ,OAAO,CAAE,IAAI,AACf,CAAC,AAED,QAAQ,4BAAC,CAAC,AACR,SAAS,CAAE,MAAM,CACjB,MAAM,CAAE,IAAI,CACZ,OAAO,CAAE,CAAC,CAAC,IAAI,AACjB,CAAC,AAED,EAAE,4BAAC,CAAC,AACF,MAAM,CAAE,CAAC,AACX,CAAC,AAED,MAAM,4BAAC,CAAC,AACN,MAAM,CAAE,OAAO,CACf,UAAU,CAAE,OAAO,CACnB,UAAU,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAC/C,aAAa,CAAE,GAAG,CAClB,MAAM,CAAE,IAAI,CACZ,OAAO,CAAE,IAAI,CACb,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,AACjB,CAAC,AAED,KAAK,4BAAC,CAAC,AACL,MAAM,CAAE,WAAW,CAAC,CAAC,CAAC,SAAS,IAAI,CAAC,CAAC,OAAO,EAAE,CAAC,CAAC,MAAM,EAAE,CAAC,CAAC,SAAS,IAAI,CAAC,CAAC,WAAW,KAAK,CAAC,CAAC,WAAW,IAAI,CAAC,CAAC,SAAS,IAAI,CAAC,CAAC,OAAO,IAAI,CAAC,AACzI,CAAC,AAED,QAAQ,4BAAC,CAAC,AACR,KAAK,CAAE,GAAG,CACV,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,KAAK,AACnB,CAAC,AAED,WAAW,4BAAC,CAAC,AACX,OAAO,CAAE,IAAI,CACb,SAAS,CAAE,GAAG,CAAC,IAAI,CACnB,eAAe,CAAE,MAAM,CACvB,MAAM,CAAE,IAAI,AACd,CAAC,AACD,yBAAW,CAAC,MAAM,cAAC,CAAC,AAClB,MAAM,CAAE,GAAG,AACb,CAAC,AAED,KAAK,4BAAC,CAAC,AACL,UAAU,CAAE,OAAO,CACnB,UAAU,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,KAAK,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,IAAI,CAAC,CAClD,aAAa,CAAE,IAAI,CACnB,QAAQ,CAAE,MAAM,AAClB,CAAC,AAED,YAAY,4BAAC,CAAC,AACZ,MAAM,CAAE,KAAK,AACf,CAAC,AAED,QAAQ,4BAAC,CAAC,AACR,KAAK,CAAE,IAAI,CACX,UAAU,CAAE,gBAAgB,MAAM,CAAC,CAAC,OAAO,CAAC,EAAE,CAAC,CAAC,OAAO,CAAC,IAAI,CAAC,AAC/D,CAAC,AAED,IAAI,4BAAC,CAAC,AACJ,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,MAAM,CACtB,WAAW,CAAE,MAAM,AACrB,CAAC,AACD,kBAAI,CAAC,MAAM,cAAC,CAAC,AACX,KAAK,CAAE,KAAK,AACd,CAAC,AAED,IAAI,4BAAC,CAAC,AACJ,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,GAAG,CACnB,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,SAAS,AACvB,CAAC,AAED,MAAM,4BAAC,CAAC,AACN,UAAU,CAAE,OAAO,CACnB,OAAO,CAAE,IAAI,CAAC,CAAC,AACjB,CAAC,AACD,oBAAM,CAAC,SAAS,cAAC,CAAC,AAChB,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,CACf,aAAa,CAAE,GAAG,AACpB,CAAC,AACD,oBAAM,CAAC,OAAO,cAAC,CAAC,AACd,MAAM,CAAE,GAAG,CAAC,CAAC,AACf,CAAC,AACD,oBAAM,CAAC,EAAE,cAAC,CAAC,AACT,OAAO,CAAE,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAAC,AACrB,CAAC,AACD,oBAAM,CAAC,EAAE,cAAC,CAAC,AACT,MAAM,CAAE,IAAI,CACZ,aAAa,CAAE,GAAG,CAAC,KAAK,CAAC,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,CAClD,MAAM,CAAE,IAAI,CAAC,CAAC,AAChB,CAAC,AAED,WAAW,4BAAC,CAAC,AACX,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,IAAI,CAAC,IAAI,CACjB,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,MAAM,CACtB,WAAW,CAAE,UAAU,CACvB,OAAO,CAAE,IAAI,CACb,UAAU,CAAE,gBAAgB,IAAI,CAAC,CAAC,OAAO,CAAC,CAAC,OAAO,CAAC,CAAC,CAAC,OAAO,CAC5D,UAAU,CAAE,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,CAC3C,aAAa,CAAE,GAAG,AACpB,CAAC,AACD,yBAAW,CAAC,WAAW,cAAC,CAAC,AACvB,KAAK,CAAE,IAAI,CACX,OAAO,CAAE,IAAI,AACf,CAAC,AACD,yBAAW,CAAC,WAAW,CAAC,KAAK,cAAC,CAAC,AAC7B,IAAI,CAAE,CAAC,CACP,MAAM,CAAE,IAAI,CACZ,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CACpC,aAAa,CAAE,GAAG,CAClB,KAAK,CAAE,KAAK,CACZ,YAAY,CAAE,IAAI,CAClB,OAAO,CAAE,CAAC,CAAC,IAAI,AACjB,CAAC,AACD,yBAAW,CAAC,WAAW,CAAC,MAAM,cAAC,CAAC,AAC9B,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAClB,OAAO,CAAE,GAAG,CACZ,KAAK,CAAE,KAAK,CACZ,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,AACjB,CAAC,AACD,yBAAW,CAAC,EAAE,cAAC,CAAC,AACd,MAAM,CAAE,CAAC,AACX,CAAC,AACD,yBAAW,CAAC,CAAC,cAAC,CAAC,AACb,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,GAAG,CAChB,UAAU,CAAE,KAAK,CACjB,UAAU,CAAE,GAAG,CACf,KAAK,CAAE,IAAI,AACb,CAAC,AAED,cAAc,4BAAC,CAAC,AACd,QAAQ,CAAE,QAAQ,CAClB,MAAM,CAAE,IAAI,CACZ,IAAI,CAAE,KAAK,GAAG,CAAC,CAAC,CAAC,IAAI,CAAC,AACxB,CAAC"}`
 };
@@ -18651,7 +22807,7 @@ var Index_old = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     });
   });
   let email;
-  $$result.css.add(css$6);
+  $$result.css.add(css$a);
   return `<div class="${"section one full-height svelte-1ggmcc"}"><div class="${"content svelte-1ggmcc"}"><img src="${"images/full_logo.svg"}" class="${"logo svelte-1ggmcc"}" alt="${"Block Parties"}">
 
         
@@ -18726,7 +22882,7 @@ var index_old = /* @__PURE__ */ Object.freeze({
   [Symbol.toStringTag]: "Module",
   default: Index_old
 });
-var css$5 = {
+var css$9 = {
   code: "button.svelte-kiycwk{flex:1;height:40px;background:#0352af;border-radius:4px;border:none;color:white;font-weight:600}",
   map: '{"version":3,"file":"RoundButton.svelte","sources":["RoundButton.svelte"],"sourcesContent":["<script lang=\\"ts\\">export let text;\\n</script>\\n\\n<button on:click>{text}</button>\\n\\n<style lang=\\"scss\\">button {\\n  flex: 1;\\n  height: 40px;\\n  background: #0352af;\\n  border-radius: 4px;\\n  border: none;\\n  color: white;\\n  font-weight: 600;\\n}</style>\\n"],"names":[],"mappings":"AAKmB,MAAM,cAAC,CAAC,AACzB,IAAI,CAAE,CAAC,CACP,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAClB,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,KAAK,CACZ,WAAW,CAAE,GAAG,AAClB,CAAC"}'
 };
@@ -18734,7 +22890,7 @@ var RoundButton = create_ssr_component(($$result, $$props, $$bindings, slots) =>
   let {text} = $$props;
   if ($$props.text === void 0 && $$bindings.text && text !== void 0)
     $$bindings.text(text);
-  $$result.css.add(css$5);
+  $$result.css.add(css$9);
   return `<button class="${"svelte-kiycwk"}">${escape3(text)}</button>`;
 });
 var Spacer = create_ssr_component(($$result, $$props, $$bindings, slots) => {
@@ -18746,7 +22902,7 @@ var Spacer = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     $$bindings.height(height);
   return `<div style="${"height: " + escape3(height) + "; width: " + escape3(width)}"></div>`;
 });
-var css$4 = {
+var css$8 = {
   code: ".outer.svelte-1y1u3h3{width:100%;display:flex;align-items:center;justify-content:space-between}input.svelte-1y1u3h3{background:rgba(15, 15, 15, 0.5);border-radius:4px;border:none;height:24px;padding:8px 16px}p.svelte-1y1u3h3{font-weight:600}",
   map: '{"version":3,"file":"ValueInput.svelte","sources":["ValueInput.svelte"],"sourcesContent":["<script lang=\\"ts\\">// TODO: OBTAIN UPDATED SOMEHOW\\nlet conversionRate = 2080;\\nexport let value;\\n</script>\\n\\n<div class=\\"outer\\">\\n    <input type=\\"text\\" bind:value placeholder=\\"Amount (in ETH)\\" />\\n    <p>\u2248 ${value * conversionRate}</p>\\n</div>\\n\\n<style lang=\\"scss\\">.outer {\\n  width: 100%;\\n  display: flex;\\n  align-items: center;\\n  justify-content: space-between;\\n}\\n\\ninput {\\n  background: rgba(15, 15, 15, 0.5);\\n  border-radius: 4px;\\n  border: none;\\n  height: 24px;\\n  padding: 8px 16px;\\n}\\n\\np {\\n  font-weight: 600;\\n}</style>\\n"],"names":[],"mappings":"AAUmB,MAAM,eAAC,CAAC,AACzB,KAAK,CAAE,IAAI,CACX,OAAO,CAAE,IAAI,CACb,WAAW,CAAE,MAAM,CACnB,eAAe,CAAE,aAAa,AAChC,CAAC,AAED,KAAK,eAAC,CAAC,AACL,UAAU,CAAE,KAAK,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,GAAG,CAAC,CACjC,aAAa,CAAE,GAAG,CAClB,MAAM,CAAE,IAAI,CACZ,MAAM,CAAE,IAAI,CACZ,OAAO,CAAE,GAAG,CAAC,IAAI,AACnB,CAAC,AAED,CAAC,eAAC,CAAC,AACD,WAAW,CAAE,GAAG,AAClB,CAAC"}'
 };
@@ -18755,12 +22911,12 @@ var ValueInput = create_ssr_component(($$result, $$props, $$bindings, slots) => 
   let {value} = $$props;
   if ($$props.value === void 0 && $$bindings.value && value !== void 0)
     $$bindings.value(value);
-  $$result.css.add(css$4);
+  $$result.css.add(css$8);
   return `<div class="${"outer svelte-1y1u3h3"}"><input type="${"text"}" placeholder="${"Amount (in ETH)"}" class="${"svelte-1y1u3h3"}"${add_attribute("value", value, 1)}>
     <p class="${"svelte-1y1u3h3"}">\u2248 $${escape3(value * conversionRate)}</p>
 </div>`;
 });
-var css$3 = {
+var css$7 = {
   code: "div.svelte-qox25m{z-index:100;position:fixed;top:0;left:0;right:0;bottom:0;background:#000000aa}",
   map: '{"version":3,"file":"ModalPopup.svelte","sources":["ModalPopup.svelte"],"sourcesContent":["<script lang=\\"ts\\">export let dismiss;\\n</script>\\n\\n<div on:click={dismiss}>\\n    <slot />\\n</div>\\n\\n<style lang=\\"scss\\">div {\\n  z-index: 100;\\n  position: fixed;\\n  top: 0;\\n  left: 0;\\n  right: 0;\\n  bottom: 0;\\n  background: #000000aa;\\n}</style>\\n"],"names":[],"mappings":"AAOmB,GAAG,cAAC,CAAC,AACtB,OAAO,CAAE,GAAG,CACZ,QAAQ,CAAE,KAAK,CACf,GAAG,CAAE,CAAC,CACN,IAAI,CAAE,CAAC,CACP,KAAK,CAAE,CAAC,CACR,MAAM,CAAE,CAAC,CACT,UAAU,CAAE,SAAS,AACvB,CAAC"}'
 };
@@ -18768,13 +22924,13 @@ create_ssr_component(($$result, $$props, $$bindings, slots) => {
   let {dismiss} = $$props;
   if ($$props.dismiss === void 0 && $$bindings.dismiss && dismiss !== void 0)
     $$bindings.dismiss(dismiss);
-  $$result.css.add(css$3);
+  $$result.css.add(css$7);
   return `<div class="${"svelte-qox25m"}">${slots.default ? slots.default({}) : ``}
 </div>`;
 });
-var css$2 = {
-  code: ".progress-bar.svelte-xnha8o.svelte-xnha8o{height:24px;width:100%;background:#161616cc}.progress-bar.svelte-xnha8o .progress-bar-fill.svelte-xnha8o{transition:0.5s all;height:100%;width:0%;background:green}.progress-bar.svelte-xnha8o p.svelte-xnha8o{position:relative;top:-22px;left:16px;font-size:14px;font-weight:600}",
-  map: '{"version":3,"file":"ProgressBar.svelte","sources":["ProgressBar.svelte"],"sourcesContent":["<script lang=\\"ts\\">var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\n;\\nimport { onMount } from \\"svelte\\";\\nexport let value;\\nexport let total;\\nlet bar;\\nlet eth;\\n$: {\\n    if (bar != undefined && value != undefined && total != undefined) {\\n        console.log(\\"v: \\" + eth.utils.formatEther(value) + \\" t: \\" + total.toString() + \\" w: \\" + value.div(total));\\n        // console.log(\\"TOTAL\\" + total.toString())\\n        // console.log(\\"WOAH \\" + value.div(total))\\n        bar.style.width = fraction(value, total) + \\"%\\";\\n    }\\n}\\n$: console.log(\\"VALUE: \\" + (value === null || value === void 0 ? void 0 : value.toString()));\\nonMount(() => __awaiter(void 0, void 0, void 0, function* () {\\n    const module = yield import(\\"$lib/api/eth\\");\\n    eth = module.EthHelper;\\n}));\\nfunction fraction(num, den) {\\n    let digitsDen = den.toString().length;\\n    let digitsNum = num.toString().length;\\n    let digitsDiff = digitsDen - digitsNum;\\n    if (digitsDiff > 4) {\\n        return 0;\\n    }\\n    else {\\n        let d = Number.parseInt(den.toString().substring(0, 4).padEnd(4, \\"0\\"));\\n        let n = Number.parseInt(num.toString().substring(0, 4).padEnd(4, \\"0\\")) / Math.pow(10, (digitsDen - digitsNum));\\n        return (n / d) * 100;\\n    }\\n}\\n</script>\\n\\n<div class=\\"progress-bar\\">\\n    <div class=\\"progress-bar-fill\\" bind:this={bar} />\\n\\n    {#if value && total}\\n        <p>{eth.utils.formatEther(value)} / {eth.utils.formatEther(total)} ETH</p>\\n    {/if}\\n</div>\\n\\n<style lang=\\"scss\\">.progress-bar {\\n  height: 24px;\\n  width: 100%;\\n  background: #161616cc;\\n}\\n.progress-bar .progress-bar-fill {\\n  transition: 0.5s all;\\n  height: 100%;\\n  width: 0%;\\n  background: green;\\n}\\n.progress-bar p {\\n  position: relative;\\n  top: -22px;\\n  left: 16px;\\n  font-size: 14px;\\n  font-weight: 600;\\n}</style>\\n"],"names":[],"mappings":"AAmDmB,aAAa,4BAAC,CAAC,AAChC,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,CACX,UAAU,CAAE,SAAS,AACvB,CAAC,AACD,2BAAa,CAAC,kBAAkB,cAAC,CAAC,AAChC,UAAU,CAAE,IAAI,CAAC,GAAG,CACpB,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,EAAE,CACT,UAAU,CAAE,KAAK,AACnB,CAAC,AACD,2BAAa,CAAC,CAAC,cAAC,CAAC,AACf,QAAQ,CAAE,QAAQ,CAClB,GAAG,CAAE,KAAK,CACV,IAAI,CAAE,IAAI,CACV,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,GAAG,AAClB,CAAC"}'
+var css$6 = {
+  code: ".progress-bar.svelte-ts3p85.svelte-ts3p85{height:16px;width:100%;background:#dcdcdc;border-radius:8px;overflow:hidden}.progress-bar.svelte-ts3p85 .progress-bar-fill.svelte-ts3p85{transition:0.5s all;height:100%;width:0%;background:#7148c8}",
+  map: '{"version":3,"file":"ProgressBar.svelte","sources":["ProgressBar.svelte"],"sourcesContent":["<script lang=\\"ts\\">var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\n;\\nimport { onMount } from \\"svelte\\";\\nexport let value;\\nexport let total;\\nlet bar;\\nlet eth;\\n$: {\\n    if (bar != undefined && value != undefined && total != undefined) {\\n        // console.log(\\"v: \\" + eth.utils.formatEther(value) + \\" t: \\" + total.toString() + \\" w: \\" + value.div(total))\\n        // console.log(\\"TOTAL\\" + total.toString())\\n        // console.log(\\"WOAH \\" + value.div(total))\\n        bar.style.width = fraction(value, total) + \\"%\\";\\n    }\\n}\\n$: console.log(\\"VALUE: \\" + (value === null || value === void 0 ? void 0 : value.toString()));\\nonMount(() => __awaiter(void 0, void 0, void 0, function* () {\\n    const module = yield import(\\"$lib/api/eth\\");\\n    eth = module.EthHelper;\\n}));\\nfunction fraction(num, den) {\\n    let digitsDen = den.toString().length;\\n    let digitsNum = num.toString().length;\\n    let digitsDiff = digitsDen - digitsNum;\\n    if (digitsDiff > 4) {\\n        return 0;\\n    }\\n    else {\\n        let d = Number.parseInt(den.toString().substring(0, 4).padEnd(4, \\"0\\"));\\n        let n = Number.parseInt(num.toString().substring(0, 4).padEnd(4, \\"0\\")) / Math.pow(10, (digitsDen - digitsNum));\\n        return (n / d) * 100;\\n    }\\n}\\n</script>\\n\\n<div class=\\"progress-bar\\">\\n    <div class=\\"progress-bar-fill\\" bind:this={bar} />\\n\\n    <!-- {#if value && total}\\n        <p>{eth.utils.formatEther(value)} / {eth.utils.formatEther(total)} ETH</p>\\n    {/if} -->\\n</div>\\n\\n<style lang=\\"scss\\">.progress-bar {\\n  height: 16px;\\n  width: 100%;\\n  background: #dcdcdc;\\n  border-radius: 8px;\\n  overflow: hidden;\\n}\\n.progress-bar .progress-bar-fill {\\n  transition: 0.5s all;\\n  height: 100%;\\n  width: 0%;\\n  background: #7148c8;\\n}\\n.progress-bar p {\\n  position: relative;\\n  top: -22px;\\n  left: 16px;\\n  font-size: 14px;\\n  font-weight: 600;\\n}</style>\\n"],"names":[],"mappings":"AAmDmB,aAAa,4BAAC,CAAC,AAChC,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,CACX,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAClB,QAAQ,CAAE,MAAM,AAClB,CAAC,AACD,2BAAa,CAAC,kBAAkB,cAAC,CAAC,AAChC,UAAU,CAAE,IAAI,CAAC,GAAG,CACpB,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,EAAE,CACT,UAAU,CAAE,OAAO,AACrB,CAAC"}'
 };
 var ProgressBar = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   var __awaiter2 = function(thisArg, _arguments, P, generator) {
@@ -18807,31 +22963,30 @@ var ProgressBar = create_ssr_component(($$result, $$props, $$bindings, slots) =>
   let {value} = $$props;
   let {total} = $$props;
   let bar;
-  let eth$1;
   onMount(() => __awaiter2(void 0, void 0, void 0, function* () {
     const module2 = yield Promise.resolve().then(function() {
       return eth;
     });
-    eth$1 = module2.EthHelper;
+    module2.EthHelper;
   }));
   if ($$props.value === void 0 && $$bindings.value && value !== void 0)
     $$bindings.value(value);
   if ($$props.total === void 0 && $$bindings.total && total !== void 0)
     $$bindings.total(total);
-  $$result.css.add(css$2);
+  $$result.css.add(css$6);
   {
     console.log("VALUE: " + (value === null || value === void 0 ? void 0 : value.toString()));
   }
-  return `<div class="${"progress-bar svelte-xnha8o"}"><div class="${"progress-bar-fill svelte-xnha8o"}"${add_attribute("this", bar, 1)}></div>
+  return `<div class="${"progress-bar svelte-ts3p85"}"><div class="${"progress-bar-fill svelte-ts3p85"}"${add_attribute("this", bar, 1)}></div>
 
-    ${value && total ? `<p class="${"svelte-xnha8o"}">${escape3(eth$1.utils.formatEther(value))} / ${escape3(eth$1.utils.formatEther(total))} ETH</p>` : ``}
+    
 </div>`;
 });
-var css$1 = {
+var css$5 = {
   code: ".outer.svelte-haj4xh.svelte-haj4xh{transition:all 0.25s;position:relative;background:blue;width:400px;height:500px;border-radius:4px;background:#023b70;box-shadow:0 0 1px 2px #00000066}.outer.svelte-haj4xh.svelte-haj4xh:hover{box-shadow:0 2px 2px 4px #00000066;background:#023b70dd}.header.svelte-haj4xh.svelte-haj4xh{height:40%;background:#eeeeee;border-radius:4px 4px 0 0}.header.svelte-haj4xh img.svelte-haj4xh{width:100%;height:100%;object-fit:contain}.header.svelte-haj4xh button.svelte-haj4xh{cursor:pointer;transition:250ms all;position:absolute;right:16px;top:calc(40% - 52px);border:1px solid #9b9b9b;border-radius:4px;background:rgba(34, 34, 34, 0.6);padding:8px 12px;font-weight:600}.header.svelte-haj4xh button.svelte-haj4xh:hover{background:#1462aa}.bottom-half.svelte-haj4xh.svelte-haj4xh{padding:16px}.bottom-half.svelte-haj4xh .title-row.svelte-haj4xh{display:flex;justify-content:space-between}.bottom-half.svelte-haj4xh .title-row h4.svelte-haj4xh{color:white}.bottom-half.svelte-haj4xh .description.svelte-haj4xh{font-size:14px;font-weight:300;width:100%;overflow-y:scroll;max-height:80px;margin:16px 0}.bottom-half.svelte-haj4xh .footer.svelte-haj4xh{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 4px 4px;display:flex;flex-direction:column;justify-content:space-between;padding:16px 16px;background:rgba(0, 0, 0, 0.25)}.bottom-half.svelte-haj4xh .footer p.svelte-haj4xh{font-weight:600}",
   map: `{"version":3,"file":"PartyCard.svelte","sources":["PartyCard.svelte"],"sourcesContent":["<script lang=\\"ts\\">var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\n;\\nimport { onMount } from \\"svelte\\";\\nimport RoundButton from \\"./common/RoundButton.svelte\\";\\nimport Spacer from \\"./common/Spacer.svelte\\";\\nimport ValueInput from \\"./common/ValueInput.svelte\\";\\nimport ModalPopup from \\"./ModalPopup.svelte\\";\\nimport ProgressBar from \\"./ProgressBar.svelte\\";\\nexport let party;\\nlet showPopup = false;\\nlet eth;\\nlet investmentAmount;\\nlet raisedAmount;\\nlet totalAmount;\\nonMount(() => __awaiter(void 0, void 0, void 0, function* () {\\n    const module = yield import(\\"$lib/api/eth\\");\\n    eth = module.EthHelper;\\n    console.log(party);\\n    // Vercel doesn't support websockets...\\n    // eth.onInvestment((partyId: BigNumber, amount: BigNumber, event) => {\\n    //     if (partyId.toNumber() == party.id) {\\n    //         raisedAmount += amount.toNumber() // TODO: this won't work for large numbers\\n    //         console.log(\\"AMOUNT\\" + raisedAmount)\\n    //     }\\n    // })\\n    setInterval(() => __awaiter(void 0, void 0, void 0, function* () {\\n        raisedAmount = yield eth.fetchPartyContributions(party.id);\\n        console.log(\\"AMOUNT: \\" + raisedAmount);\\n    }), 10000);\\n    raisedAmount = yield eth.fetchPartyContributions(party.id);\\n    raisedAmount = raisedAmount;\\n    totalAmount = party.targetAmount;\\n    console.log(\\"AMOUNT: \\" + raisedAmount);\\n}));\\nfunction invest() {\\n    return __awaiter(this, void 0, void 0, function* () {\\n        // const amt = eth.newBigNumber(investmentAmount * 1e18).toString()\\n        eth.invest(party.id, investmentAmount);\\n    });\\n}\\nfunction openOpenSea() {\\n    window.open(party.url, \\"_blank\\");\\n}\\n</script>\\n\\n<!-- SET TO TRUE TO ENABLE -->\\n<div class=\\"outer\\" on:click={() => (showPopup = false)}>\\n    <div class=\\"header\\">\\n        <img src={party.asset.image_preview_url} alt=\\"token\\" />\\n\\n        <button on:click={openOpenSea}>View on OpenSea</button>\\n    </div>\\n    <!-- \\n    <div class=\\"progress-bar\\">\\n        <div class=\\"progress-bar-fill\\" bind:this={progressBar} />\\n    </div> -->\\n\\n    <!-- TODO: Figure out how to handle bignumbers... -->\\n    <ProgressBar value={raisedAmount} total={totalAmount} />\\n\\n    <div class=\\"bottom-half\\">\\n        <div class=\\"title-row\\">\\n            <h4>{party.asset.name ? party.asset.name : \\"Unnamed Asset\\"}</h4>\\n            <!-- <Tag text=\\"HIGH\\" color={\\"red\\"} /> -->\\n        </div>\\n\\n        <p class=\\"description\\">{party.asset.description ? party.asset.description : \\"No description available.\\"}</p>\\n\\n        <div class=\\"footer\\">\\n            <!-- <div>O O O O</div>\\n            <p>$15k - $50k invested</p> -->\\n\\n            <ValueInput bind:value={investmentAmount} />\\n            <Spacer height={\\"16px\\"} />\\n\\n            <div class=\\"row\\">\\n                <RoundButton text={\\"Invest\\"} on:click={invest} />\\n                <!-- <RoundButton text={\\"Withdraw\\"} /> -->\\n            </div>\\n        </div>\\n    </div>\\n</div>\\n\\n{#if showPopup}\\n    <ModalPopup dismiss={() => (showPopup = false)} />\\n{/if}\\n\\n<style lang=\\"scss\\">.outer {\\n  transition: all 0.25s;\\n  position: relative;\\n  background: blue;\\n  width: 400px;\\n  height: 500px;\\n  border-radius: 4px;\\n  background: #023b70;\\n  box-shadow: 0 0 1px 2px #00000066;\\n}\\n.outer:hover {\\n  box-shadow: 0 2px 2px 4px #00000066;\\n  background: #023b70dd;\\n}\\n\\n.header {\\n  height: 40%;\\n  background: #eeeeee;\\n  border-radius: 4px 4px 0 0;\\n}\\n.header img {\\n  width: 100%;\\n  height: 100%;\\n  object-fit: contain;\\n}\\n.header button {\\n  cursor: pointer;\\n  transition: 250ms all;\\n  position: absolute;\\n  right: 16px;\\n  top: calc(40% - 52px);\\n  border: 1px solid #9b9b9b;\\n  border-radius: 4px;\\n  background: rgba(34, 34, 34, 0.6);\\n  padding: 8px 12px;\\n  font-weight: 600;\\n}\\n.header button:hover {\\n  background: #1462aa;\\n}\\n\\n.bottom-half {\\n  padding: 16px;\\n}\\n.bottom-half .title-row {\\n  display: flex;\\n  justify-content: space-between;\\n}\\n.bottom-half .title-row h4 {\\n  color: white;\\n}\\n.bottom-half .description {\\n  font-size: 14px;\\n  font-weight: 300;\\n  width: 100%;\\n  overflow-y: scroll;\\n  max-height: 80px;\\n  margin: 16px 0;\\n}\\n.bottom-half .footer {\\n  position: absolute;\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  border-radius: 0 0 4px 4px;\\n  display: flex;\\n  flex-direction: column;\\n  justify-content: space-between;\\n  padding: 16px 16px;\\n  background: rgba(0, 0, 0, 0.25);\\n}\\n.bottom-half .footer p {\\n  font-weight: 600;\\n}</style>\\n"],"names":[],"mappings":"AA+FmB,MAAM,4BAAC,CAAC,AACzB,UAAU,CAAE,GAAG,CAAC,KAAK,CACrB,QAAQ,CAAE,QAAQ,CAClB,UAAU,CAAE,IAAI,CAChB,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,KAAK,CACb,aAAa,CAAE,GAAG,CAClB,UAAU,CAAE,OAAO,CACnB,UAAU,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,AACnC,CAAC,AACD,kCAAM,MAAM,AAAC,CAAC,AACZ,UAAU,CAAE,CAAC,CAAC,GAAG,CAAC,GAAG,CAAC,GAAG,CAAC,SAAS,CACnC,UAAU,CAAE,SAAS,AACvB,CAAC,AAED,OAAO,4BAAC,CAAC,AACP,MAAM,CAAE,GAAG,CACX,UAAU,CAAE,OAAO,CACnB,aAAa,CAAE,GAAG,CAAC,GAAG,CAAC,CAAC,CAAC,CAAC,AAC5B,CAAC,AACD,qBAAO,CAAC,GAAG,cAAC,CAAC,AACX,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,AACrB,CAAC,AACD,qBAAO,CAAC,MAAM,cAAC,CAAC,AACd,MAAM,CAAE,OAAO,CACf,UAAU,CAAE,KAAK,CAAC,GAAG,CACrB,QAAQ,CAAE,QAAQ,CAClB,KAAK,CAAE,IAAI,CACX,GAAG,CAAE,KAAK,GAAG,CAAC,CAAC,CAAC,IAAI,CAAC,CACrB,MAAM,CAAE,GAAG,CAAC,KAAK,CAAC,OAAO,CACzB,aAAa,CAAE,GAAG,CAClB,UAAU,CAAE,KAAK,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,GAAG,CAAC,CACjC,OAAO,CAAE,GAAG,CAAC,IAAI,CACjB,WAAW,CAAE,GAAG,AAClB,CAAC,AACD,qBAAO,CAAC,oBAAM,MAAM,AAAC,CAAC,AACpB,UAAU,CAAE,OAAO,AACrB,CAAC,AAED,YAAY,4BAAC,CAAC,AACZ,OAAO,CAAE,IAAI,AACf,CAAC,AACD,0BAAY,CAAC,UAAU,cAAC,CAAC,AACvB,OAAO,CAAE,IAAI,CACb,eAAe,CAAE,aAAa,AAChC,CAAC,AACD,0BAAY,CAAC,UAAU,CAAC,EAAE,cAAC,CAAC,AAC1B,KAAK,CAAE,KAAK,AACd,CAAC,AACD,0BAAY,CAAC,YAAY,cAAC,CAAC,AACzB,SAAS,CAAE,IAAI,CACf,WAAW,CAAE,GAAG,CAChB,KAAK,CAAE,IAAI,CACX,UAAU,CAAE,MAAM,CAClB,UAAU,CAAE,IAAI,CAChB,MAAM,CAAE,IAAI,CAAC,CAAC,AAChB,CAAC,AACD,0BAAY,CAAC,OAAO,cAAC,CAAC,AACpB,QAAQ,CAAE,QAAQ,CAClB,MAAM,CAAE,CAAC,CACT,IAAI,CAAE,CAAC,CACP,KAAK,CAAE,CAAC,CACR,aAAa,CAAE,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,GAAG,CAC1B,OAAO,CAAE,IAAI,CACb,cAAc,CAAE,MAAM,CACtB,eAAe,CAAE,aAAa,CAC9B,OAAO,CAAE,IAAI,CAAC,IAAI,CAClB,UAAU,CAAE,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,AACjC,CAAC,AACD,0BAAY,CAAC,OAAO,CAAC,CAAC,cAAC,CAAC,AACtB,WAAW,CAAE,GAAG,AAClB,CAAC"}`
 };
-var PartyCard = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+var PartyCard$1 = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   var __awaiter2 = function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve2) {
@@ -18881,7 +23036,7 @@ var PartyCard = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   }));
   if ($$props.party === void 0 && $$bindings.party && party !== void 0)
     $$bindings.party(party);
-  $$result.css.add(css$1);
+  $$result.css.add(css$5);
   let $$settled;
   let $$rendered;
   do {
@@ -18917,7 +23072,7 @@ ${``}`;
   } while (!$$settled);
   return $$rendered;
 });
-var css = {
+var css$4 = {
   code: "body{margin:0;background:#0c0218}.outer.svelte-1iwtxv7.svelte-1iwtxv7{display:flex}main.svelte-1iwtxv7.svelte-1iwtxv7{display:flex;flex-flow:row wrap;justify-content:space-around;padding:32px}main.svelte-1iwtxv7 div.svelte-1iwtxv7{padding:24px 16px}",
   map: `{"version":3,"file":"parties.svelte","sources":["parties.svelte"],"sourcesContent":["<!-- <script context=\\"module\\" lang=\\"ts\\" \u2702prettier:content\u2702=\\"CiAgICBleHBvcnQgYXN5bmMgZnVuY3Rpb24gbG9hZCh7IHBhZ2UsIGZldGNoLCBzZXNzaW9uLCBjb250ZXh0IH0pIHsKICAgICAgICAvLyBsZXQgcGFydGllcyA9IGF3YWl0IEFwaS5QYXJ0aWVzLmdldFBhcnRpZXMoKQoKICAgICAgICByZXR1cm4gewogICAgICAgICAgICBwcm9wczogewogICAgICAgICAgICAgICAgcGFydGllczogcGFydGllcywKICAgICAgICAgICAgfSwKICAgICAgICB9CiAgICB9Cg==\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\" \u2702prettier:content\u2702=\\"e30=\\">{}</script> -->\\n<script lang=\\"ts\\">var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\\n    return new (P || (P = Promise))(function (resolve, reject) {\\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\\n        function rejected(value) { try { step(generator[\\"throw\\"](value)); } catch (e) { reject(e); } }\\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\\n    });\\n};\\nimport PartyCard from \\"$lib/components/PartyCard.svelte\\";\\nimport { onMount } from \\"svelte\\";\\nlet parties = [];\\nonMount(() => __awaiter(void 0, void 0, void 0, function* () {\\n    let p = yield (yield fetch(\\"http://3.143.138.224:8000/parties\\")).json();\\n    p = p.slice(-20);\\n    // p = p.slice(5, )\\n    let tokenPairs = p.map((item) => [item.tokenContract, item.tokenId]);\\n    console.log(tokenPairs);\\n    let searchParams = new URLSearchParams({});\\n    tokenPairs.forEach((item) => {\\n        if (item[0] != undefined && item[1] != undefined) {\\n            searchParams.append(\\"asset_contract_addresses\\", item[0]);\\n            searchParams.append(\\"token_ids\\", item[1]);\\n        }\\n    });\\n    console.log(searchParams.toString());\\n    // return await res.json()\\n    const response = yield (yield fetch(\\"https://rinkeby-api.opensea.io/api/v1/assets?\\" + searchParams)).json();\\n    const assets = response[\\"assets\\"];\\n    console.log(assets);\\n    parties = p\\n        .map((p) => {\\n        p = Object.assign(Object.assign({}, p), { asset: assets.find((asset) => p.tokenId == asset.token_id && p.tokenContract == asset.asset_contract[\\"address\\"]) });\\n        return p;\\n    })\\n        .filter((p) => p.asset != null);\\n    console.log(parties);\\n    // parties = await Promise.all(\\n    //     p.map(async (party) => {\\n    //         const res = await fetch(\\n    //             \\"https://api.opensea.io/api/v1/assets?\\" +\\n    //                 new URLSearchParams({\\n    //                     token_ids: party.tokenId,\\n    //                     asset_contract_address: party.tokenContract,\\n    //                 })\\n    //         )\\n    //         const assets = (await res.json())[\\"assets\\"]\\n    //         console.log(assets)\\n    //         if (assets == undefined) return undefined\\n    //         party = { ...party, asset: assets[0] }\\n    //         return party\\n    //     })\\n    // )\\n}));\\n</script>\\n\\n<svelte:head>\\n    <title>Block Parties | Directory</title>\\n    <meta name=\\"og:title\\" content=\\"Block Parties | Directory\\" />\\n    <meta name=\\"og:description\\" content=\\"Find a party to invest in digital assets with.\\" />\\n</svelte:head>\\n\\n<div class=\\"outer\\">\\n    <!-- <div class=\\"sidebar\\">\\n        <h1>Party Directory</h1>\\n\\n        <p>Investing is done best when effort, knowledge, and resources are effectively pooled together.</p>\\n        <br />\\n        <p>\\n            To get started, look for clubs with similar interests as you and a risk tolerance you're comfortable with.\\n        </p>\\n    </div> -->\\n\\n    <main>\\n        {#each parties as party}\\n            <div>\\n                <PartyCard {party} />\\n            </div>\\n        {/each}\\n    </main>\\n</div>\\n\\n<style lang=\\"scss\\">:global(body) {\\n  margin: 0;\\n  background: #0c0218;\\n}\\n\\n.outer {\\n  display: flex;\\n}\\n\\n.sidebar {\\n  position: sticky;\\n  align-self: flex-start;\\n  z-index: 99;\\n  top: 56px;\\n  height: calc(100vh - 2 * 60px);\\n  left: 0;\\n  bottom: 0;\\n  min-width: 280px;\\n  background: #1b0a30;\\n  padding: 32px 16px;\\n}\\n.sidebar h1 {\\n  margin-bottom: 16px;\\n}\\n.sidebar p {\\n  font-weight: 400;\\n  font-size: 14px;\\n  line-height: 19px;\\n  color: #eeeeee;\\n}\\n\\nmain {\\n  display: flex;\\n  flex-flow: row wrap;\\n  justify-content: space-around;\\n  padding: 32px;\\n}\\nmain div {\\n  padding: 24px 16px;\\n}</style>\\n"],"names":[],"mappings":"AAmF2B,IAAI,AAAE,CAAC,AAChC,MAAM,CAAE,CAAC,CACT,UAAU,CAAE,OAAO,AACrB,CAAC,AAED,MAAM,8BAAC,CAAC,AACN,OAAO,CAAE,IAAI,AACf,CAAC,AAwBD,IAAI,8BAAC,CAAC,AACJ,OAAO,CAAE,IAAI,CACb,SAAS,CAAE,GAAG,CAAC,IAAI,CACnB,eAAe,CAAE,YAAY,CAC7B,OAAO,CAAE,IAAI,AACf,CAAC,AACD,mBAAI,CAAC,GAAG,eAAC,CAAC,AACR,OAAO,CAAE,IAAI,CAAC,IAAI,AACpB,CAAC"}`
 };
@@ -18974,7 +23129,7 @@ var Parties = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     }).filter((p2) => p2.asset != null);
     console.log(parties2);
   }));
-  $$result.css.add(css);
+  $$result.css.add(css$4);
   return `
 
 
@@ -18982,7 +23137,7 @@ ${$$result.head += `${$$result.title = `<title>Block Parties | Directory</title>
 
 <div class="${"outer svelte-1iwtxv7"}">
 
-    <main class="${"svelte-1iwtxv7"}">${each(parties2, (party) => `<div class="${"svelte-1iwtxv7"}">${validate_component(PartyCard, "PartyCard").$$render($$result, {party}, {}, {})}
+    <main class="${"svelte-1iwtxv7"}">${each(parties2, (party) => `<div class="${"svelte-1iwtxv7"}">${validate_component(PartyCard$1, "PartyCard").$$render($$result, {party}, {}, {})}
             </div>`)}</main>
 </div>`;
 });
@@ -18991,2864 +23146,93 @@ var parties = /* @__PURE__ */ Object.freeze({
   [Symbol.toStringTag]: "Module",
   default: Parties
 });
-var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
-function getAugmentedNamespace(n) {
-  if (n.__esModule)
-    return n;
-  var a = Object.defineProperty({}, "__esModule", {value: true});
-  Object.keys(n).forEach(function(k) {
-    var d = Object.getOwnPropertyDescriptor(n, k);
-    Object.defineProperty(a, k, d.get ? d : {
-      enumerable: true,
-      get: function() {
-        return n[k];
+var css$3 = {
+  code: "div.svelte-1f1zagb{display:flex;align-items:center}img.svelte-1f1zagb{width:28px;height:28px;margin-right:8px}p.svelte-1f1zagb{color:black;font-weight:600;font-size:18px}",
+  map: '{"version":3,"file":"Heart.svelte","sources":["Heart.svelte"],"sourcesContent":["<script lang=\\"ts\\">export let partyId;\\nlet liked = false;\\nlet likes = 0;\\nfunction toggle() {\\n    liked = !liked;\\n    likes = liked ? likes + 1 : likes - 1;\\n}\\n</script>\\n\\n<div on:click={toggle}>\\n    <img src={liked ? \\"images/heart_filled.svg\\" : \\"images/heart_outline.svg\\"} alt={liked ? \\"unlike\\" : \\"like\\"} />\\n    <p>{likes}</p>\\n</div>\\n\\n<style lang=\\"scss\\">div {\\n  display: flex;\\n  align-items: center;\\n}\\n\\nimg {\\n  width: 28px;\\n  height: 28px;\\n  margin-right: 8px;\\n}\\n\\np {\\n  color: black;\\n  font-weight: 600;\\n  font-size: 18px;\\n}</style>\\n"],"names":[],"mappings":"AAcmB,GAAG,eAAC,CAAC,AACtB,OAAO,CAAE,IAAI,CACb,WAAW,CAAE,MAAM,AACrB,CAAC,AAED,GAAG,eAAC,CAAC,AACH,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,YAAY,CAAE,GAAG,AACnB,CAAC,AAED,CAAC,eAAC,CAAC,AACD,KAAK,CAAE,KAAK,CACZ,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,AACjB,CAAC"}'
+};
+var Heart = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+  let {partyId} = $$props;
+  let likes = 0;
+  if ($$props.partyId === void 0 && $$bindings.partyId && partyId !== void 0)
+    $$bindings.partyId(partyId);
+  $$result.css.add(css$3);
+  return `<div class="${"svelte-1f1zagb"}"><img${add_attribute("src", "images/heart_outline.svg", 0)}${add_attribute("alt", "like", 0)} class="${"svelte-1f1zagb"}">
+    <p class="${"svelte-1f1zagb"}">${escape3(likes)}</p>
+</div>`;
+});
+var css$2 = {
+  code: "body{background:#f1f1f1}p.svelte-v8viic.svelte-v8viic{color:black}.outer.svelte-v8viic.svelte-v8viic{position:relative;width:320px;height:500px;background:white;padding:32px;box-shadow:0px 8px 16px rgba(0, 0, 0, 0.08)}.details.svelte-v8viic .title-row.svelte-v8viic{display:flex;justify-content:space-between}.details.svelte-v8viic .title-row .type.svelte-v8viic{color:#65635f;font-weight:600;font-size:14px}.details.svelte-v8viic .title-row .opensea-logo.svelte-v8viic{width:36px;height:36px}.details.svelte-v8viic .usd-amount.svelte-v8viic{color:#65635f;font-weight:300}.details.svelte-v8viic .progress-bar.svelte-v8viic{margin:12px 0 4px 0}.img-container.svelte-v8viic.svelte-v8viic{height:60%;padding:16px 0}.img-container.svelte-v8viic img.svelte-v8viic{width:100%;height:100%;object-fit:contain}.bottom-row.svelte-v8viic.svelte-v8viic{position:absolute;bottom:24px;right:36px}",
+  map: '{"version":3,"file":"PartyCard.svelte","sources":["PartyCard.svelte"],"sourcesContent":["<script>\\n    import { BigNumber } from \\"@ethersproject/bignumber\\"\\n\\n    import ProgressBar from \\"../ProgressBar.svelte\\"\\n    import Heart from \\"./Heart.svelte\\"\\n</script>\\n\\n<div class=\\"outer\\">\\n    <div class=\\"img-container\\">\\n        <img\\n            src=\\"https://lh3.googleusercontent.com/ZNozFHViHaobS-ifGkSSlXkqoIbW6Z-ExZIpbvTkMkNHdM8H66loXZwAWZ7XdXZSI0gb1LBUtVcLeLvkxy0VHmHYPIbMRmMSl7KqOw=s0\\"\\n            alt=\\"asset\\"\\n        />\\n    </div>\\n    <div class=\\"details\\">\\n        <div class=\\"title-row\\">\\n            <div>\\n                <p><b>ASCII Punk #70 </b></p>\\n                <p class=\\"type\\">ASCII Punks</p>\\n            </div>\\n            <img class=\\"opensea-logo\\" src=\\"images/opensea-logo.webp\\" alt=\\"view on opensea\\" />\\n        </div>\\n\\n        <div class=\\"progress-bar\\">\\n            <ProgressBar value={BigNumber.from(60)} total={BigNumber.from(100)} />\\n        </div>\\n\\n        <p><b>0.15 ETH</b> <span class=\\"usd-amount\\">| $400.12</span></p>\\n    </div>\\n\\n    <div class=\\"bottom-row\\">\\n        <Heart partyId={\\"123\\"} />\\n    </div>\\n</div>\\n\\n<style lang=\\"scss\\">:global(body) {\\n  background: #f1f1f1;\\n}\\n\\nh1,\\nh2,\\nh3,\\nh4,\\nh5,\\nh6,\\np {\\n  color: black;\\n}\\n\\n.outer {\\n  position: relative;\\n  width: 320px;\\n  height: 500px;\\n  background: white;\\n  padding: 32px;\\n  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.08);\\n}\\n\\n.details .title-row {\\n  display: flex;\\n  justify-content: space-between;\\n}\\n.details .title-row .type {\\n  color: #65635f;\\n  font-weight: 600;\\n  font-size: 14px;\\n}\\n.details .title-row .opensea-logo {\\n  width: 36px;\\n  height: 36px;\\n}\\n.details .usd-amount {\\n  color: #65635f;\\n  font-weight: 300;\\n}\\n.details .progress-bar {\\n  margin: 12px 0 4px 0;\\n}\\n\\n.img-container {\\n  height: 60%;\\n  padding: 16px 0;\\n}\\n.img-container img {\\n  width: 100%;\\n  height: 100%;\\n  object-fit: contain;\\n}\\n\\n.bottom-row {\\n  position: absolute;\\n  bottom: 24px;\\n  right: 36px;\\n}</style>\\n"],"names":[],"mappings":"AAmC2B,IAAI,AAAE,CAAC,AAChC,UAAU,CAAE,OAAO,AACrB,CAAC,AAQD,CAAC,4BAAC,CAAC,AACD,KAAK,CAAE,KAAK,AACd,CAAC,AAED,MAAM,4BAAC,CAAC,AACN,QAAQ,CAAE,QAAQ,CAClB,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,KAAK,CACb,UAAU,CAAE,KAAK,CACjB,OAAO,CAAE,IAAI,CACb,UAAU,CAAE,GAAG,CAAC,GAAG,CAAC,IAAI,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,IAAI,CAAC,AAC9C,CAAC,AAED,sBAAQ,CAAC,UAAU,cAAC,CAAC,AACnB,OAAO,CAAE,IAAI,CACb,eAAe,CAAE,aAAa,AAChC,CAAC,AACD,sBAAQ,CAAC,UAAU,CAAC,KAAK,cAAC,CAAC,AACzB,KAAK,CAAE,OAAO,CACd,WAAW,CAAE,GAAG,CAChB,SAAS,CAAE,IAAI,AACjB,CAAC,AACD,sBAAQ,CAAC,UAAU,CAAC,aAAa,cAAC,CAAC,AACjC,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,AACd,CAAC,AACD,sBAAQ,CAAC,WAAW,cAAC,CAAC,AACpB,KAAK,CAAE,OAAO,CACd,WAAW,CAAE,GAAG,AAClB,CAAC,AACD,sBAAQ,CAAC,aAAa,cAAC,CAAC,AACtB,MAAM,CAAE,IAAI,CAAC,CAAC,CAAC,GAAG,CAAC,CAAC,AACtB,CAAC,AAED,cAAc,4BAAC,CAAC,AACd,MAAM,CAAE,GAAG,CACX,OAAO,CAAE,IAAI,CAAC,CAAC,AACjB,CAAC,AACD,4BAAc,CAAC,GAAG,cAAC,CAAC,AAClB,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,AACrB,CAAC,AAED,WAAW,4BAAC,CAAC,AACX,QAAQ,CAAE,QAAQ,CAClB,MAAM,CAAE,IAAI,CACZ,KAAK,CAAE,IAAI,AACb,CAAC"}'
+};
+var PartyCard = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+  $$result.css.add(css$2);
+  return `<div class="${"outer svelte-v8viic"}"><div class="${"img-container svelte-v8viic"}"><img src="${"https://lh3.googleusercontent.com/ZNozFHViHaobS-ifGkSSlXkqoIbW6Z-ExZIpbvTkMkNHdM8H66loXZwAWZ7XdXZSI0gb1LBUtVcLeLvkxy0VHmHYPIbMRmMSl7KqOw=s0"}" alt="${"asset"}" class="${"svelte-v8viic"}"></div>
+    <div class="${"details svelte-v8viic"}"><div class="${"title-row svelte-v8viic"}"><div><p class="${"svelte-v8viic"}"><b>ASCII Punk #70 </b></p>
+                <p class="${"type svelte-v8viic"}">ASCII Punks</p></div>
+            <img class="${"opensea-logo svelte-v8viic"}" src="${"images/opensea-logo.webp"}" alt="${"view on opensea"}"></div>
+
+        <div class="${"progress-bar svelte-v8viic"}">${validate_component(ProgressBar, "ProgressBar").$$render($$result, {
+    value: import_bignumber.BigNumber.from(60),
+    total: import_bignumber.BigNumber.from(100)
+  }, {}, {})}</div>
+
+        <p class="${"svelte-v8viic"}"><b>0.15 ETH</b> <span class="${"usd-amount svelte-v8viic"}">| $400.12</span></p></div>
+
+    <div class="${"bottom-row svelte-v8viic"}">${validate_component(Heart, "Heart").$$render($$result, {partyId: "123"}, {}, {})}</div>
+</div>`;
+});
+var css$1 = {
+  code: ".outer.svelte-nhiw42{margin:auto;background:rgba(49, 58, 52, 0.26);height:6px;width:max(20vw, 256px)}.inner.svelte-nhiw42{position:relative;height:100%;background:#313a34}",
+  map: `{"version":3,"file":"Scrollbar.svelte","sources":["Scrollbar.svelte"],"sourcesContent":["<script lang=\\"ts\\">export let container;\\nlet innerBar;\\n// Bind only once we're sure container is not undefined\\n$: {\\n    if (container != null) {\\n        container.onscroll = update;\\n        innerBar.style.width = (100 * container.clientWidth) / container.scrollWidth + \\"%\\";\\n    }\\n}\\nfunction update() {\\n    innerBar.style.left = (100 * container.scrollLeft) / container.scrollWidth + \\"%\\";\\n}\\n</script>\\n\\n<div class=\\"outer\\">\\n    <div bind:this={innerBar} class=\\"inner\\" />\\n</div>\\n\\n<style lang=\\"scss\\">.outer {\\n  margin: auto;\\n  background: rgba(49, 58, 52, 0.26);\\n  height: 6px;\\n  width: max(20vw, 256px);\\n}\\n\\n.inner {\\n  position: relative;\\n  height: 100%;\\n  background: #313a34;\\n}</style>\\n"],"names":[],"mappings":"AAkBmB,MAAM,cAAC,CAAC,AACzB,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,KAAK,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,IAAI,CAAC,CAClC,MAAM,CAAE,GAAG,CACX,KAAK,CAAE,IAAI,IAAI,CAAC,CAAC,KAAK,CAAC,AACzB,CAAC,AAED,MAAM,cAAC,CAAC,AACN,QAAQ,CAAE,QAAQ,CAClB,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,AACrB,CAAC"}`
+};
+var Scrollbar = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+  let {container} = $$props;
+  let innerBar;
+  function update8() {
+    innerBar.style.left = 100 * container.scrollLeft / container.scrollWidth + "%";
+  }
+  if ($$props.container === void 0 && $$bindings.container && container !== void 0)
+    $$bindings.container(container);
+  $$result.css.add(css$1);
+  {
+    {
+      if (container != null) {
+        container.onscroll = update8;
+        innerBar.style.width = 100 * container.clientWidth / container.scrollWidth + "%";
       }
-    });
-  });
-  return a;
-}
-function createCommonjsModule$1(fn) {
-  var module2 = {exports: {}};
-  return fn(module2, module2.exports), module2.exports;
-}
-var __viteBrowserExternal = {};
-var __viteBrowserExternal$1 = /* @__PURE__ */ Object.freeze({
+    }
+  }
+  return `<div class="${"outer svelte-nhiw42"}"><div class="${"inner svelte-nhiw42"}"${add_attribute("this", innerBar, 1)}></div>
+</div>`;
+});
+var css = {
+  code: ".spot.svelte-16ia5gm.svelte-16ia5gm{z-index:-1;width:25vw;height:25vw;background:linear-gradient(134.27deg, rgba(115, 230, 237, 0.26) 5.56%, rgba(53, 22, 242, 0.26) 49.74%, rgba(119, 47, 210, 0.26) 93.01%);filter:blur(250px);border-radius:332px}.mid-left.svelte-16ia5gm.svelte-16ia5gm{position:absolute;left:-5%;top:20%}.bottom-right.svelte-16ia5gm.svelte-16ia5gm{position:absolute;right:15%;bottom:10%}.header.svelte-16ia5gm.svelte-16ia5gm{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:5vh auto;padding:0 32px}.header.svelte-16ia5gm h1.svelte-16ia5gm{color:#161412;font-weight:300}.header.svelte-16ia5gm input.svelte-16ia5gm,.header.svelte-16ia5gm select.svelte-16ia5gm{height:40px;background:#f9f9f9;border:1px solid #e6e6e6;box-sizing:border-box;border-radius:20px;color:black;padding:16px 24px;margin-left:16px}.header.svelte-16ia5gm input.svelte-16ia5gm:focus,.header.svelte-16ia5gm select.svelte-16ia5gm:focus{outline:none}.header.svelte-16ia5gm select.svelte-16ia5gm{padding:0 24px;position:relative;top:-2px}.header.svelte-16ia5gm .svelte-16ia5gm::placeholder{color:#737373}.card-row.svelte-16ia5gm.svelte-16ia5gm{display:flex;width:100%;overflow-x:scroll}.card-row.svelte-16ia5gm .card.svelte-16ia5gm{margin:0 32px}.svelte-16ia5gm.svelte-16ia5gm::-webkit-scrollbar{display:none}.scrollbar.svelte-16ia5gm.svelte-16ia5gm{margin:auto;margin-top:64px}",
+  map: '{"version":3,"file":"browse.svelte","sources":["browse.svelte"],"sourcesContent":["<script lang=\\"ts\\">import PartyCard from \\"$lib/components/browse/PartyCard.svelte\\";\\nimport Scrollbar from \\"$lib/components/common/Scrollbar.svelte\\";\\nlet cardRow;\\n</script>\\n\\n<div class=\\"spot mid-left\\" />\\n<div class=\\"spot bottom-right\\" />\\n\\n<div>\\n    <div>\\n        <div class=\\"header\\">\\n            <h1>Browse Parties</h1>\\n\\n            <div>\\n                <!-- <h3>Search</h3> -->\\n                <div>\\n                    <input placeholder=\\"Search\\" />\\n                    <select>\\n                        <option value=\\"public\\">Public</option>\\n                        <option value=\\"private\\">Private</option>\\n                        <option value=\\"waitlist\\">Waitlist</option>\\n                    </select>\\n                </div>\\n            </div>\\n        </div>\\n\\n        <div bind:this={cardRow} class=\\"card-row\\">\\n            {#each [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as _}\\n                <div class=\\"card\\">\\n                    <PartyCard />\\n                </div>\\n            {/each}\\n        </div>\\n    </div>\\n\\n    <div class=\\"scrollbar\\">\\n        <Scrollbar container={cardRow} />\\n    </div>\\n</div>\\n\\n<style lang=\\"scss\\">.spot {\\n  z-index: -1;\\n  width: 25vw;\\n  height: 25vw;\\n  background: linear-gradient(134.27deg, rgba(115, 230, 237, 0.26) 5.56%, rgba(53, 22, 242, 0.26) 49.74%, rgba(119, 47, 210, 0.26) 93.01%);\\n  filter: blur(250px);\\n  border-radius: 332px;\\n}\\n\\n.mid-left {\\n  position: absolute;\\n  left: -5%;\\n  top: 20%;\\n}\\n\\n.bottom-right {\\n  position: absolute;\\n  right: 15%;\\n  bottom: 10%;\\n}\\n\\n.header {\\n  display: flex;\\n  justify-content: space-between;\\n  align-items: center;\\n  max-width: 1200px;\\n  margin: 5vh auto;\\n  padding: 0 32px;\\n}\\n.header h1 {\\n  color: #161412;\\n  font-weight: 300;\\n}\\n.header h3 {\\n  color: #252b42;\\n}\\n.header input,\\n.header select {\\n  height: 40px;\\n  background: #f9f9f9;\\n  border: 1px solid #e6e6e6;\\n  box-sizing: border-box;\\n  border-radius: 20px;\\n  color: black;\\n  padding: 16px 24px;\\n  margin-left: 16px;\\n}\\n.header input:focus,\\n.header select:focus {\\n  outline: none;\\n}\\n.header select {\\n  padding: 0 24px;\\n  position: relative;\\n  top: -2px;\\n}\\n.header ::placeholder {\\n  color: #737373;\\n}\\n\\n.card-row {\\n  display: flex;\\n  width: 100%;\\n  overflow-x: scroll;\\n}\\n.card-row .card {\\n  margin: 0 32px;\\n}\\n\\n::-webkit-scrollbar {\\n  display: none;\\n}\\n\\n.scrollbar {\\n  margin: auto;\\n  margin-top: 64px;\\n}</style>\\n"],"names":[],"mappings":"AAwCmB,KAAK,8BAAC,CAAC,AACxB,OAAO,CAAE,EAAE,CACX,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,gBAAgB,SAAS,CAAC,CAAC,KAAK,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,CAAC,KAAK,CAAC,CAAC,KAAK,EAAE,CAAC,CAAC,EAAE,CAAC,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,CAAC,MAAM,CAAC,CAAC,KAAK,GAAG,CAAC,CAAC,EAAE,CAAC,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,CAAC,MAAM,CAAC,CACxI,MAAM,CAAE,KAAK,KAAK,CAAC,CACnB,aAAa,CAAE,KAAK,AACtB,CAAC,AAED,SAAS,8BAAC,CAAC,AACT,QAAQ,CAAE,QAAQ,CAClB,IAAI,CAAE,GAAG,CACT,GAAG,CAAE,GAAG,AACV,CAAC,AAED,aAAa,8BAAC,CAAC,AACb,QAAQ,CAAE,QAAQ,CAClB,KAAK,CAAE,GAAG,CACV,MAAM,CAAE,GAAG,AACb,CAAC,AAED,OAAO,8BAAC,CAAC,AACP,OAAO,CAAE,IAAI,CACb,eAAe,CAAE,aAAa,CAC9B,WAAW,CAAE,MAAM,CACnB,SAAS,CAAE,MAAM,CACjB,MAAM,CAAE,GAAG,CAAC,IAAI,CAChB,OAAO,CAAE,CAAC,CAAC,IAAI,AACjB,CAAC,AACD,sBAAO,CAAC,EAAE,eAAC,CAAC,AACV,KAAK,CAAE,OAAO,CACd,WAAW,CAAE,GAAG,AAClB,CAAC,AAID,sBAAO,CAAC,oBAAK,CACb,sBAAO,CAAC,MAAM,eAAC,CAAC,AACd,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,OAAO,CACnB,MAAM,CAAE,GAAG,CAAC,KAAK,CAAC,OAAO,CACzB,UAAU,CAAE,UAAU,CACtB,aAAa,CAAE,IAAI,CACnB,KAAK,CAAE,KAAK,CACZ,OAAO,CAAE,IAAI,CAAC,IAAI,CAClB,WAAW,CAAE,IAAI,AACnB,CAAC,AACD,sBAAO,CAAC,oBAAK,MAAM,CACnB,sBAAO,CAAC,qBAAM,MAAM,AAAC,CAAC,AACpB,OAAO,CAAE,IAAI,AACf,CAAC,AACD,sBAAO,CAAC,MAAM,eAAC,CAAC,AACd,OAAO,CAAE,CAAC,CAAC,IAAI,CACf,QAAQ,CAAE,QAAQ,CAClB,GAAG,CAAE,IAAI,AACX,CAAC,AACD,sBAAO,gBAAC,aAAa,AAAC,CAAC,AACrB,KAAK,CAAE,OAAO,AAChB,CAAC,AAED,SAAS,8BAAC,CAAC,AACT,OAAO,CAAE,IAAI,CACb,KAAK,CAAE,IAAI,CACX,UAAU,CAAE,MAAM,AACpB,CAAC,AACD,wBAAS,CAAC,KAAK,eAAC,CAAC,AACf,MAAM,CAAE,CAAC,CAAC,IAAI,AAChB,CAAC,8BAED,mBAAmB,AAAC,CAAC,AACnB,OAAO,CAAE,IAAI,AACf,CAAC,AAED,UAAU,8BAAC,CAAC,AACV,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,IAAI,AAClB,CAAC"}'
+};
+var Browse = create_ssr_component(($$result, $$props, $$bindings, slots) => {
+  let cardRow;
+  $$result.css.add(css);
+  return `<div class="${"spot mid-left svelte-16ia5gm"}"></div>
+<div class="${"spot bottom-right svelte-16ia5gm"}"></div>
+
+<div class="${"svelte-16ia5gm"}"><div class="${"svelte-16ia5gm"}"><div class="${"header svelte-16ia5gm"}"><h1 class="${"svelte-16ia5gm"}">Browse Parties</h1>
+
+            <div class="${"svelte-16ia5gm"}">
+                <div class="${"svelte-16ia5gm"}"><input placeholder="${"Search"}" class="${"svelte-16ia5gm"}">
+                    <select class="${"svelte-16ia5gm"}"><option value="${"public"}" class="${"svelte-16ia5gm"}">Public</option><option value="${"private"}" class="${"svelte-16ia5gm"}">Private</option><option value="${"waitlist"}" class="${"svelte-16ia5gm"}">Waitlist</option></select></div></div></div>
+
+        <div class="${"card-row svelte-16ia5gm"}"${add_attribute("this", cardRow, 1)}>${each([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], (_) => `<div class="${"card svelte-16ia5gm"}">${validate_component(PartyCard, "PartyCard").$$render($$result, {}, {}, {})}
+                </div>`)}</div></div>
+
+    <div class="${"scrollbar svelte-16ia5gm"}">${validate_component(Scrollbar, "Scrollbar").$$render($$result, {container: cardRow}, {}, {})}</div>
+</div>`;
+});
+var browse = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   [Symbol.toStringTag]: "Module",
-  default: __viteBrowserExternal
+  default: Browse
 });
-var require$$0 = /* @__PURE__ */ getAugmentedNamespace(__viteBrowserExternal$1);
-var bn = createCommonjsModule$1(function(module2) {
-  (function(module22, exports) {
-    function assert2(val, msg) {
-      if (!val)
-        throw new Error(msg || "Assertion failed");
-    }
-    function inherits(ctor, superCtor) {
-      ctor.super_ = superCtor;
-      var TempCtor = function() {
-      };
-      TempCtor.prototype = superCtor.prototype;
-      ctor.prototype = new TempCtor();
-      ctor.prototype.constructor = ctor;
-    }
-    function BN2(number, base2, endian) {
-      if (BN2.isBN(number)) {
-        return number;
-      }
-      this.negative = 0;
-      this.words = null;
-      this.length = 0;
-      this.red = null;
-      if (number !== null) {
-        if (base2 === "le" || base2 === "be") {
-          endian = base2;
-          base2 = 10;
-        }
-        this._init(number || 0, base2 || 10, endian || "be");
-      }
-    }
-    if (typeof module22 === "object") {
-      module22.exports = BN2;
-    } else {
-      exports.BN = BN2;
-    }
-    BN2.BN = BN2;
-    BN2.wordSize = 26;
-    var Buffer2;
-    try {
-      if (typeof window !== "undefined" && typeof window.Buffer !== "undefined") {
-        Buffer2 = window.Buffer;
-      } else {
-        Buffer2 = require$$0.Buffer;
-      }
-    } catch (e) {
-    }
-    BN2.isBN = function isBN(num) {
-      if (num instanceof BN2) {
-        return true;
-      }
-      return num !== null && typeof num === "object" && num.constructor.wordSize === BN2.wordSize && Array.isArray(num.words);
-    };
-    BN2.max = function max(left, right) {
-      if (left.cmp(right) > 0)
-        return left;
-      return right;
-    };
-    BN2.min = function min(left, right) {
-      if (left.cmp(right) < 0)
-        return left;
-      return right;
-    };
-    BN2.prototype._init = function init5(number, base2, endian) {
-      if (typeof number === "number") {
-        return this._initNumber(number, base2, endian);
-      }
-      if (typeof number === "object") {
-        return this._initArray(number, base2, endian);
-      }
-      if (base2 === "hex") {
-        base2 = 16;
-      }
-      assert2(base2 === (base2 | 0) && base2 >= 2 && base2 <= 36);
-      number = number.toString().replace(/\s+/g, "");
-      var start = 0;
-      if (number[0] === "-") {
-        start++;
-        this.negative = 1;
-      }
-      if (start < number.length) {
-        if (base2 === 16) {
-          this._parseHex(number, start, endian);
-        } else {
-          this._parseBase(number, base2, start);
-          if (endian === "le") {
-            this._initArray(this.toArray(), base2, endian);
-          }
-        }
-      }
-    };
-    BN2.prototype._initNumber = function _initNumber(number, base2, endian) {
-      if (number < 0) {
-        this.negative = 1;
-        number = -number;
-      }
-      if (number < 67108864) {
-        this.words = [number & 67108863];
-        this.length = 1;
-      } else if (number < 4503599627370496) {
-        this.words = [
-          number & 67108863,
-          number / 67108864 & 67108863
-        ];
-        this.length = 2;
-      } else {
-        assert2(number < 9007199254740992);
-        this.words = [
-          number & 67108863,
-          number / 67108864 & 67108863,
-          1
-        ];
-        this.length = 3;
-      }
-      if (endian !== "le")
-        return;
-      this._initArray(this.toArray(), base2, endian);
-    };
-    BN2.prototype._initArray = function _initArray(number, base2, endian) {
-      assert2(typeof number.length === "number");
-      if (number.length <= 0) {
-        this.words = [0];
-        this.length = 1;
-        return this;
-      }
-      this.length = Math.ceil(number.length / 3);
-      this.words = new Array(this.length);
-      for (var i = 0; i < this.length; i++) {
-        this.words[i] = 0;
-      }
-      var j, w;
-      var off = 0;
-      if (endian === "be") {
-        for (i = number.length - 1, j = 0; i >= 0; i -= 3) {
-          w = number[i] | number[i - 1] << 8 | number[i - 2] << 16;
-          this.words[j] |= w << off & 67108863;
-          this.words[j + 1] = w >>> 26 - off & 67108863;
-          off += 24;
-          if (off >= 26) {
-            off -= 26;
-            j++;
-          }
-        }
-      } else if (endian === "le") {
-        for (i = 0, j = 0; i < number.length; i += 3) {
-          w = number[i] | number[i + 1] << 8 | number[i + 2] << 16;
-          this.words[j] |= w << off & 67108863;
-          this.words[j + 1] = w >>> 26 - off & 67108863;
-          off += 24;
-          if (off >= 26) {
-            off -= 26;
-            j++;
-          }
-        }
-      }
-      return this.strip();
-    };
-    function parseHex4Bits(string, index2) {
-      var c = string.charCodeAt(index2);
-      if (c >= 65 && c <= 70) {
-        return c - 55;
-      } else if (c >= 97 && c <= 102) {
-        return c - 87;
-      } else {
-        return c - 48 & 15;
-      }
-    }
-    function parseHexByte(string, lowerBound, index2) {
-      var r2 = parseHex4Bits(string, index2);
-      if (index2 - 1 >= lowerBound) {
-        r2 |= parseHex4Bits(string, index2 - 1) << 4;
-      }
-      return r2;
-    }
-    BN2.prototype._parseHex = function _parseHex(number, start, endian) {
-      this.length = Math.ceil((number.length - start) / 6);
-      this.words = new Array(this.length);
-      for (var i = 0; i < this.length; i++) {
-        this.words[i] = 0;
-      }
-      var off = 0;
-      var j = 0;
-      var w;
-      if (endian === "be") {
-        for (i = number.length - 1; i >= start; i -= 2) {
-          w = parseHexByte(number, start, i) << off;
-          this.words[j] |= w & 67108863;
-          if (off >= 18) {
-            off -= 18;
-            j += 1;
-            this.words[j] |= w >>> 26;
-          } else {
-            off += 8;
-          }
-        }
-      } else {
-        var parseLength = number.length - start;
-        for (i = parseLength % 2 === 0 ? start + 1 : start; i < number.length; i += 2) {
-          w = parseHexByte(number, start, i) << off;
-          this.words[j] |= w & 67108863;
-          if (off >= 18) {
-            off -= 18;
-            j += 1;
-            this.words[j] |= w >>> 26;
-          } else {
-            off += 8;
-          }
-        }
-      }
-      this.strip();
-    };
-    function parseBase(str, start, end, mul3) {
-      var r2 = 0;
-      var len = Math.min(str.length, end);
-      for (var i = start; i < len; i++) {
-        var c = str.charCodeAt(i) - 48;
-        r2 *= mul3;
-        if (c >= 49) {
-          r2 += c - 49 + 10;
-        } else if (c >= 17) {
-          r2 += c - 17 + 10;
-        } else {
-          r2 += c;
-        }
-      }
-      return r2;
-    }
-    BN2.prototype._parseBase = function _parseBase(number, base2, start) {
-      this.words = [0];
-      this.length = 1;
-      for (var limbLen = 0, limbPow = 1; limbPow <= 67108863; limbPow *= base2) {
-        limbLen++;
-      }
-      limbLen--;
-      limbPow = limbPow / base2 | 0;
-      var total = number.length - start;
-      var mod = total % limbLen;
-      var end = Math.min(total, total - mod) + start;
-      var word = 0;
-      for (var i = start; i < end; i += limbLen) {
-        word = parseBase(number, i, i + limbLen, base2);
-        this.imuln(limbPow);
-        if (this.words[0] + word < 67108864) {
-          this.words[0] += word;
-        } else {
-          this._iaddn(word);
-        }
-      }
-      if (mod !== 0) {
-        var pow = 1;
-        word = parseBase(number, i, number.length, base2);
-        for (i = 0; i < mod; i++) {
-          pow *= base2;
-        }
-        this.imuln(pow);
-        if (this.words[0] + word < 67108864) {
-          this.words[0] += word;
-        } else {
-          this._iaddn(word);
-        }
-      }
-      this.strip();
-    };
-    BN2.prototype.copy = function copy(dest) {
-      dest.words = new Array(this.length);
-      for (var i = 0; i < this.length; i++) {
-        dest.words[i] = this.words[i];
-      }
-      dest.length = this.length;
-      dest.negative = this.negative;
-      dest.red = this.red;
-    };
-    BN2.prototype.clone = function clone2() {
-      var r2 = new BN2(null);
-      this.copy(r2);
-      return r2;
-    };
-    BN2.prototype._expand = function _expand(size) {
-      while (this.length < size) {
-        this.words[this.length++] = 0;
-      }
-      return this;
-    };
-    BN2.prototype.strip = function strip() {
-      while (this.length > 1 && this.words[this.length - 1] === 0) {
-        this.length--;
-      }
-      return this._normSign();
-    };
-    BN2.prototype._normSign = function _normSign() {
-      if (this.length === 1 && this.words[0] === 0) {
-        this.negative = 0;
-      }
-      return this;
-    };
-    BN2.prototype.inspect = function inspect4() {
-      return (this.red ? "<BN-R: " : "<BN: ") + this.toString(16) + ">";
-    };
-    var zeros2 = [
-      "",
-      "0",
-      "00",
-      "000",
-      "0000",
-      "00000",
-      "000000",
-      "0000000",
-      "00000000",
-      "000000000",
-      "0000000000",
-      "00000000000",
-      "000000000000",
-      "0000000000000",
-      "00000000000000",
-      "000000000000000",
-      "0000000000000000",
-      "00000000000000000",
-      "000000000000000000",
-      "0000000000000000000",
-      "00000000000000000000",
-      "000000000000000000000",
-      "0000000000000000000000",
-      "00000000000000000000000",
-      "000000000000000000000000",
-      "0000000000000000000000000"
-    ];
-    var groupSizes = [
-      0,
-      0,
-      25,
-      16,
-      12,
-      11,
-      10,
-      9,
-      8,
-      8,
-      7,
-      7,
-      7,
-      7,
-      6,
-      6,
-      6,
-      6,
-      6,
-      6,
-      6,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5,
-      5
-    ];
-    var groupBases = [
-      0,
-      0,
-      33554432,
-      43046721,
-      16777216,
-      48828125,
-      60466176,
-      40353607,
-      16777216,
-      43046721,
-      1e7,
-      19487171,
-      35831808,
-      62748517,
-      7529536,
-      11390625,
-      16777216,
-      24137569,
-      34012224,
-      47045881,
-      64e6,
-      4084101,
-      5153632,
-      6436343,
-      7962624,
-      9765625,
-      11881376,
-      14348907,
-      17210368,
-      20511149,
-      243e5,
-      28629151,
-      33554432,
-      39135393,
-      45435424,
-      52521875,
-      60466176
-    ];
-    BN2.prototype.toString = function toString(base2, padding2) {
-      base2 = base2 || 10;
-      padding2 = padding2 | 0 || 1;
-      var out;
-      if (base2 === 16 || base2 === "hex") {
-        out = "";
-        var off = 0;
-        var carry = 0;
-        for (var i = 0; i < this.length; i++) {
-          var w = this.words[i];
-          var word = ((w << off | carry) & 16777215).toString(16);
-          carry = w >>> 24 - off & 16777215;
-          if (carry !== 0 || i !== this.length - 1) {
-            out = zeros2[6 - word.length] + word + out;
-          } else {
-            out = word + out;
-          }
-          off += 2;
-          if (off >= 26) {
-            off -= 26;
-            i--;
-          }
-        }
-        if (carry !== 0) {
-          out = carry.toString(16) + out;
-        }
-        while (out.length % padding2 !== 0) {
-          out = "0" + out;
-        }
-        if (this.negative !== 0) {
-          out = "-" + out;
-        }
-        return out;
-      }
-      if (base2 === (base2 | 0) && base2 >= 2 && base2 <= 36) {
-        var groupSize = groupSizes[base2];
-        var groupBase = groupBases[base2];
-        out = "";
-        var c = this.clone();
-        c.negative = 0;
-        while (!c.isZero()) {
-          var r2 = c.modn(groupBase).toString(base2);
-          c = c.idivn(groupBase);
-          if (!c.isZero()) {
-            out = zeros2[groupSize - r2.length] + r2 + out;
-          } else {
-            out = r2 + out;
-          }
-        }
-        if (this.isZero()) {
-          out = "0" + out;
-        }
-        while (out.length % padding2 !== 0) {
-          out = "0" + out;
-        }
-        if (this.negative !== 0) {
-          out = "-" + out;
-        }
-        return out;
-      }
-      assert2(false, "Base should be between 2 and 36");
-    };
-    BN2.prototype.toNumber = function toNumber() {
-      var ret = this.words[0];
-      if (this.length === 2) {
-        ret += this.words[1] * 67108864;
-      } else if (this.length === 3 && this.words[2] === 1) {
-        ret += 4503599627370496 + this.words[1] * 67108864;
-      } else if (this.length > 2) {
-        assert2(false, "Number can only safely store up to 53 bits");
-      }
-      return this.negative !== 0 ? -ret : ret;
-    };
-    BN2.prototype.toJSON = function toJSON2() {
-      return this.toString(16);
-    };
-    BN2.prototype.toBuffer = function toBuffer(endian, length) {
-      assert2(typeof Buffer2 !== "undefined");
-      return this.toArrayLike(Buffer2, endian, length);
-    };
-    BN2.prototype.toArray = function toArray2(endian, length) {
-      return this.toArrayLike(Array, endian, length);
-    };
-    BN2.prototype.toArrayLike = function toArrayLike(ArrayType, endian, length) {
-      var byteLength = this.byteLength();
-      var reqLength = length || Math.max(1, byteLength);
-      assert2(byteLength <= reqLength, "byte array longer than desired length");
-      assert2(reqLength > 0, "Requested array length <= 0");
-      this.strip();
-      var littleEndian = endian === "le";
-      var res = new ArrayType(reqLength);
-      var b, i;
-      var q = this.clone();
-      if (!littleEndian) {
-        for (i = 0; i < reqLength - byteLength; i++) {
-          res[i] = 0;
-        }
-        for (i = 0; !q.isZero(); i++) {
-          b = q.andln(255);
-          q.iushrn(8);
-          res[reqLength - i - 1] = b;
-        }
-      } else {
-        for (i = 0; !q.isZero(); i++) {
-          b = q.andln(255);
-          q.iushrn(8);
-          res[i] = b;
-        }
-        for (; i < reqLength; i++) {
-          res[i] = 0;
-        }
-      }
-      return res;
-    };
-    if (Math.clz32) {
-      BN2.prototype._countBits = function _countBits(w) {
-        return 32 - Math.clz32(w);
-      };
-    } else {
-      BN2.prototype._countBits = function _countBits(w) {
-        var t = w;
-        var r2 = 0;
-        if (t >= 4096) {
-          r2 += 13;
-          t >>>= 13;
-        }
-        if (t >= 64) {
-          r2 += 7;
-          t >>>= 7;
-        }
-        if (t >= 8) {
-          r2 += 4;
-          t >>>= 4;
-        }
-        if (t >= 2) {
-          r2 += 2;
-          t >>>= 2;
-        }
-        return r2 + t;
-      };
-    }
-    BN2.prototype._zeroBits = function _zeroBits(w) {
-      if (w === 0)
-        return 26;
-      var t = w;
-      var r2 = 0;
-      if ((t & 8191) === 0) {
-        r2 += 13;
-        t >>>= 13;
-      }
-      if ((t & 127) === 0) {
-        r2 += 7;
-        t >>>= 7;
-      }
-      if ((t & 15) === 0) {
-        r2 += 4;
-        t >>>= 4;
-      }
-      if ((t & 3) === 0) {
-        r2 += 2;
-        t >>>= 2;
-      }
-      if ((t & 1) === 0) {
-        r2++;
-      }
-      return r2;
-    };
-    BN2.prototype.bitLength = function bitLength() {
-      var w = this.words[this.length - 1];
-      var hi = this._countBits(w);
-      return (this.length - 1) * 26 + hi;
-    };
-    function toBitArray(num) {
-      var w = new Array(num.bitLength());
-      for (var bit = 0; bit < w.length; bit++) {
-        var off = bit / 26 | 0;
-        var wbit = bit % 26;
-        w[bit] = (num.words[off] & 1 << wbit) >>> wbit;
-      }
-      return w;
-    }
-    BN2.prototype.zeroBits = function zeroBits() {
-      if (this.isZero())
-        return 0;
-      var r2 = 0;
-      for (var i = 0; i < this.length; i++) {
-        var b = this._zeroBits(this.words[i]);
-        r2 += b;
-        if (b !== 26)
-          break;
-      }
-      return r2;
-    };
-    BN2.prototype.byteLength = function byteLength() {
-      return Math.ceil(this.bitLength() / 8);
-    };
-    BN2.prototype.toTwos = function toTwos(width) {
-      if (this.negative !== 0) {
-        return this.abs().inotn(width).iaddn(1);
-      }
-      return this.clone();
-    };
-    BN2.prototype.fromTwos = function fromTwos(width) {
-      if (this.testn(width - 1)) {
-        return this.notn(width).iaddn(1).ineg();
-      }
-      return this.clone();
-    };
-    BN2.prototype.isNeg = function isNeg() {
-      return this.negative !== 0;
-    };
-    BN2.prototype.neg = function neg3() {
-      return this.clone().ineg();
-    };
-    BN2.prototype.ineg = function ineg() {
-      if (!this.isZero()) {
-        this.negative ^= 1;
-      }
-      return this;
-    };
-    BN2.prototype.iuor = function iuor(num) {
-      while (this.length < num.length) {
-        this.words[this.length++] = 0;
-      }
-      for (var i = 0; i < num.length; i++) {
-        this.words[i] = this.words[i] | num.words[i];
-      }
-      return this.strip();
-    };
-    BN2.prototype.ior = function ior(num) {
-      assert2((this.negative | num.negative) === 0);
-      return this.iuor(num);
-    };
-    BN2.prototype.or = function or(num) {
-      if (this.length > num.length)
-        return this.clone().ior(num);
-      return num.clone().ior(this);
-    };
-    BN2.prototype.uor = function uor(num) {
-      if (this.length > num.length)
-        return this.clone().iuor(num);
-      return num.clone().iuor(this);
-    };
-    BN2.prototype.iuand = function iuand(num) {
-      var b;
-      if (this.length > num.length) {
-        b = num;
-      } else {
-        b = this;
-      }
-      for (var i = 0; i < b.length; i++) {
-        this.words[i] = this.words[i] & num.words[i];
-      }
-      this.length = b.length;
-      return this.strip();
-    };
-    BN2.prototype.iand = function iand(num) {
-      assert2((this.negative | num.negative) === 0);
-      return this.iuand(num);
-    };
-    BN2.prototype.and = function and(num) {
-      if (this.length > num.length)
-        return this.clone().iand(num);
-      return num.clone().iand(this);
-    };
-    BN2.prototype.uand = function uand(num) {
-      if (this.length > num.length)
-        return this.clone().iuand(num);
-      return num.clone().iuand(this);
-    };
-    BN2.prototype.iuxor = function iuxor(num) {
-      var a;
-      var b;
-      if (this.length > num.length) {
-        a = this;
-        b = num;
-      } else {
-        a = num;
-        b = this;
-      }
-      for (var i = 0; i < b.length; i++) {
-        this.words[i] = a.words[i] ^ b.words[i];
-      }
-      if (this !== a) {
-        for (; i < a.length; i++) {
-          this.words[i] = a.words[i];
-        }
-      }
-      this.length = a.length;
-      return this.strip();
-    };
-    BN2.prototype.ixor = function ixor(num) {
-      assert2((this.negative | num.negative) === 0);
-      return this.iuxor(num);
-    };
-    BN2.prototype.xor = function xor(num) {
-      if (this.length > num.length)
-        return this.clone().ixor(num);
-      return num.clone().ixor(this);
-    };
-    BN2.prototype.uxor = function uxor(num) {
-      if (this.length > num.length)
-        return this.clone().iuxor(num);
-      return num.clone().iuxor(this);
-    };
-    BN2.prototype.inotn = function inotn(width) {
-      assert2(typeof width === "number" && width >= 0);
-      var bytesNeeded = Math.ceil(width / 26) | 0;
-      var bitsLeft = width % 26;
-      this._expand(bytesNeeded);
-      if (bitsLeft > 0) {
-        bytesNeeded--;
-      }
-      for (var i = 0; i < bytesNeeded; i++) {
-        this.words[i] = ~this.words[i] & 67108863;
-      }
-      if (bitsLeft > 0) {
-        this.words[i] = ~this.words[i] & 67108863 >> 26 - bitsLeft;
-      }
-      return this.strip();
-    };
-    BN2.prototype.notn = function notn(width) {
-      return this.clone().inotn(width);
-    };
-    BN2.prototype.setn = function setn(bit, val) {
-      assert2(typeof bit === "number" && bit >= 0);
-      var off = bit / 26 | 0;
-      var wbit = bit % 26;
-      this._expand(off + 1);
-      if (val) {
-        this.words[off] = this.words[off] | 1 << wbit;
-      } else {
-        this.words[off] = this.words[off] & ~(1 << wbit);
-      }
-      return this.strip();
-    };
-    BN2.prototype.iadd = function iadd(num) {
-      var r2;
-      if (this.negative !== 0 && num.negative === 0) {
-        this.negative = 0;
-        r2 = this.isub(num);
-        this.negative ^= 1;
-        return this._normSign();
-      } else if (this.negative === 0 && num.negative !== 0) {
-        num.negative = 0;
-        r2 = this.isub(num);
-        num.negative = 1;
-        return r2._normSign();
-      }
-      var a, b;
-      if (this.length > num.length) {
-        a = this;
-        b = num;
-      } else {
-        a = num;
-        b = this;
-      }
-      var carry = 0;
-      for (var i = 0; i < b.length; i++) {
-        r2 = (a.words[i] | 0) + (b.words[i] | 0) + carry;
-        this.words[i] = r2 & 67108863;
-        carry = r2 >>> 26;
-      }
-      for (; carry !== 0 && i < a.length; i++) {
-        r2 = (a.words[i] | 0) + carry;
-        this.words[i] = r2 & 67108863;
-        carry = r2 >>> 26;
-      }
-      this.length = a.length;
-      if (carry !== 0) {
-        this.words[this.length] = carry;
-        this.length++;
-      } else if (a !== this) {
-        for (; i < a.length; i++) {
-          this.words[i] = a.words[i];
-        }
-      }
-      return this;
-    };
-    BN2.prototype.add = function add3(num) {
-      var res;
-      if (num.negative !== 0 && this.negative === 0) {
-        num.negative = 0;
-        res = this.sub(num);
-        num.negative ^= 1;
-        return res;
-      } else if (num.negative === 0 && this.negative !== 0) {
-        this.negative = 0;
-        res = num.sub(this);
-        this.negative = 1;
-        return res;
-      }
-      if (this.length > num.length)
-        return this.clone().iadd(num);
-      return num.clone().iadd(this);
-    };
-    BN2.prototype.isub = function isub(num) {
-      if (num.negative !== 0) {
-        num.negative = 0;
-        var r2 = this.iadd(num);
-        num.negative = 1;
-        return r2._normSign();
-      } else if (this.negative !== 0) {
-        this.negative = 0;
-        this.iadd(num);
-        this.negative = 1;
-        return this._normSign();
-      }
-      var cmp = this.cmp(num);
-      if (cmp === 0) {
-        this.negative = 0;
-        this.length = 1;
-        this.words[0] = 0;
-        return this;
-      }
-      var a, b;
-      if (cmp > 0) {
-        a = this;
-        b = num;
-      } else {
-        a = num;
-        b = this;
-      }
-      var carry = 0;
-      for (var i = 0; i < b.length; i++) {
-        r2 = (a.words[i] | 0) - (b.words[i] | 0) + carry;
-        carry = r2 >> 26;
-        this.words[i] = r2 & 67108863;
-      }
-      for (; carry !== 0 && i < a.length; i++) {
-        r2 = (a.words[i] | 0) + carry;
-        carry = r2 >> 26;
-        this.words[i] = r2 & 67108863;
-      }
-      if (carry === 0 && i < a.length && a !== this) {
-        for (; i < a.length; i++) {
-          this.words[i] = a.words[i];
-        }
-      }
-      this.length = Math.max(this.length, i);
-      if (a !== this) {
-        this.negative = 1;
-      }
-      return this.strip();
-    };
-    BN2.prototype.sub = function sub(num) {
-      return this.clone().isub(num);
-    };
-    function smallMulTo(self2, num, out) {
-      out.negative = num.negative ^ self2.negative;
-      var len = self2.length + num.length | 0;
-      out.length = len;
-      len = len - 1 | 0;
-      var a = self2.words[0] | 0;
-      var b = num.words[0] | 0;
-      var r2 = a * b;
-      var lo = r2 & 67108863;
-      var carry = r2 / 67108864 | 0;
-      out.words[0] = lo;
-      for (var k = 1; k < len; k++) {
-        var ncarry = carry >>> 26;
-        var rword = carry & 67108863;
-        var maxJ = Math.min(k, num.length - 1);
-        for (var j = Math.max(0, k - self2.length + 1); j <= maxJ; j++) {
-          var i = k - j | 0;
-          a = self2.words[i] | 0;
-          b = num.words[j] | 0;
-          r2 = a * b + rword;
-          ncarry += r2 / 67108864 | 0;
-          rword = r2 & 67108863;
-        }
-        out.words[k] = rword | 0;
-        carry = ncarry | 0;
-      }
-      if (carry !== 0) {
-        out.words[k] = carry | 0;
-      } else {
-        out.length--;
-      }
-      return out.strip();
-    }
-    var comb10MulTo = function comb10MulTo2(self2, num, out) {
-      var a = self2.words;
-      var b = num.words;
-      var o = out.words;
-      var c = 0;
-      var lo;
-      var mid;
-      var hi;
-      var a0 = a[0] | 0;
-      var al0 = a0 & 8191;
-      var ah0 = a0 >>> 13;
-      var a1 = a[1] | 0;
-      var al1 = a1 & 8191;
-      var ah1 = a1 >>> 13;
-      var a2 = a[2] | 0;
-      var al2 = a2 & 8191;
-      var ah2 = a2 >>> 13;
-      var a3 = a[3] | 0;
-      var al3 = a3 & 8191;
-      var ah3 = a3 >>> 13;
-      var a4 = a[4] | 0;
-      var al4 = a4 & 8191;
-      var ah4 = a4 >>> 13;
-      var a5 = a[5] | 0;
-      var al5 = a5 & 8191;
-      var ah5 = a5 >>> 13;
-      var a6 = a[6] | 0;
-      var al6 = a6 & 8191;
-      var ah6 = a6 >>> 13;
-      var a7 = a[7] | 0;
-      var al7 = a7 & 8191;
-      var ah7 = a7 >>> 13;
-      var a8 = a[8] | 0;
-      var al8 = a8 & 8191;
-      var ah8 = a8 >>> 13;
-      var a9 = a[9] | 0;
-      var al9 = a9 & 8191;
-      var ah9 = a9 >>> 13;
-      var b0 = b[0] | 0;
-      var bl0 = b0 & 8191;
-      var bh0 = b0 >>> 13;
-      var b1 = b[1] | 0;
-      var bl1 = b1 & 8191;
-      var bh1 = b1 >>> 13;
-      var b2 = b[2] | 0;
-      var bl2 = b2 & 8191;
-      var bh2 = b2 >>> 13;
-      var b3 = b[3] | 0;
-      var bl3 = b3 & 8191;
-      var bh3 = b3 >>> 13;
-      var b4 = b[4] | 0;
-      var bl4 = b4 & 8191;
-      var bh4 = b4 >>> 13;
-      var b5 = b[5] | 0;
-      var bl5 = b5 & 8191;
-      var bh5 = b5 >>> 13;
-      var b6 = b[6] | 0;
-      var bl6 = b6 & 8191;
-      var bh6 = b6 >>> 13;
-      var b7 = b[7] | 0;
-      var bl7 = b7 & 8191;
-      var bh7 = b7 >>> 13;
-      var b8 = b[8] | 0;
-      var bl8 = b8 & 8191;
-      var bh8 = b8 >>> 13;
-      var b9 = b[9] | 0;
-      var bl9 = b9 & 8191;
-      var bh9 = b9 >>> 13;
-      out.negative = self2.negative ^ num.negative;
-      out.length = 19;
-      lo = Math.imul(al0, bl0);
-      mid = Math.imul(al0, bh0);
-      mid = mid + Math.imul(ah0, bl0) | 0;
-      hi = Math.imul(ah0, bh0);
-      var w0 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w0 >>> 26) | 0;
-      w0 &= 67108863;
-      lo = Math.imul(al1, bl0);
-      mid = Math.imul(al1, bh0);
-      mid = mid + Math.imul(ah1, bl0) | 0;
-      hi = Math.imul(ah1, bh0);
-      lo = lo + Math.imul(al0, bl1) | 0;
-      mid = mid + Math.imul(al0, bh1) | 0;
-      mid = mid + Math.imul(ah0, bl1) | 0;
-      hi = hi + Math.imul(ah0, bh1) | 0;
-      var w1 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w1 >>> 26) | 0;
-      w1 &= 67108863;
-      lo = Math.imul(al2, bl0);
-      mid = Math.imul(al2, bh0);
-      mid = mid + Math.imul(ah2, bl0) | 0;
-      hi = Math.imul(ah2, bh0);
-      lo = lo + Math.imul(al1, bl1) | 0;
-      mid = mid + Math.imul(al1, bh1) | 0;
-      mid = mid + Math.imul(ah1, bl1) | 0;
-      hi = hi + Math.imul(ah1, bh1) | 0;
-      lo = lo + Math.imul(al0, bl2) | 0;
-      mid = mid + Math.imul(al0, bh2) | 0;
-      mid = mid + Math.imul(ah0, bl2) | 0;
-      hi = hi + Math.imul(ah0, bh2) | 0;
-      var w2 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w2 >>> 26) | 0;
-      w2 &= 67108863;
-      lo = Math.imul(al3, bl0);
-      mid = Math.imul(al3, bh0);
-      mid = mid + Math.imul(ah3, bl0) | 0;
-      hi = Math.imul(ah3, bh0);
-      lo = lo + Math.imul(al2, bl1) | 0;
-      mid = mid + Math.imul(al2, bh1) | 0;
-      mid = mid + Math.imul(ah2, bl1) | 0;
-      hi = hi + Math.imul(ah2, bh1) | 0;
-      lo = lo + Math.imul(al1, bl2) | 0;
-      mid = mid + Math.imul(al1, bh2) | 0;
-      mid = mid + Math.imul(ah1, bl2) | 0;
-      hi = hi + Math.imul(ah1, bh2) | 0;
-      lo = lo + Math.imul(al0, bl3) | 0;
-      mid = mid + Math.imul(al0, bh3) | 0;
-      mid = mid + Math.imul(ah0, bl3) | 0;
-      hi = hi + Math.imul(ah0, bh3) | 0;
-      var w3 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w3 >>> 26) | 0;
-      w3 &= 67108863;
-      lo = Math.imul(al4, bl0);
-      mid = Math.imul(al4, bh0);
-      mid = mid + Math.imul(ah4, bl0) | 0;
-      hi = Math.imul(ah4, bh0);
-      lo = lo + Math.imul(al3, bl1) | 0;
-      mid = mid + Math.imul(al3, bh1) | 0;
-      mid = mid + Math.imul(ah3, bl1) | 0;
-      hi = hi + Math.imul(ah3, bh1) | 0;
-      lo = lo + Math.imul(al2, bl2) | 0;
-      mid = mid + Math.imul(al2, bh2) | 0;
-      mid = mid + Math.imul(ah2, bl2) | 0;
-      hi = hi + Math.imul(ah2, bh2) | 0;
-      lo = lo + Math.imul(al1, bl3) | 0;
-      mid = mid + Math.imul(al1, bh3) | 0;
-      mid = mid + Math.imul(ah1, bl3) | 0;
-      hi = hi + Math.imul(ah1, bh3) | 0;
-      lo = lo + Math.imul(al0, bl4) | 0;
-      mid = mid + Math.imul(al0, bh4) | 0;
-      mid = mid + Math.imul(ah0, bl4) | 0;
-      hi = hi + Math.imul(ah0, bh4) | 0;
-      var w4 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w4 >>> 26) | 0;
-      w4 &= 67108863;
-      lo = Math.imul(al5, bl0);
-      mid = Math.imul(al5, bh0);
-      mid = mid + Math.imul(ah5, bl0) | 0;
-      hi = Math.imul(ah5, bh0);
-      lo = lo + Math.imul(al4, bl1) | 0;
-      mid = mid + Math.imul(al4, bh1) | 0;
-      mid = mid + Math.imul(ah4, bl1) | 0;
-      hi = hi + Math.imul(ah4, bh1) | 0;
-      lo = lo + Math.imul(al3, bl2) | 0;
-      mid = mid + Math.imul(al3, bh2) | 0;
-      mid = mid + Math.imul(ah3, bl2) | 0;
-      hi = hi + Math.imul(ah3, bh2) | 0;
-      lo = lo + Math.imul(al2, bl3) | 0;
-      mid = mid + Math.imul(al2, bh3) | 0;
-      mid = mid + Math.imul(ah2, bl3) | 0;
-      hi = hi + Math.imul(ah2, bh3) | 0;
-      lo = lo + Math.imul(al1, bl4) | 0;
-      mid = mid + Math.imul(al1, bh4) | 0;
-      mid = mid + Math.imul(ah1, bl4) | 0;
-      hi = hi + Math.imul(ah1, bh4) | 0;
-      lo = lo + Math.imul(al0, bl5) | 0;
-      mid = mid + Math.imul(al0, bh5) | 0;
-      mid = mid + Math.imul(ah0, bl5) | 0;
-      hi = hi + Math.imul(ah0, bh5) | 0;
-      var w5 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w5 >>> 26) | 0;
-      w5 &= 67108863;
-      lo = Math.imul(al6, bl0);
-      mid = Math.imul(al6, bh0);
-      mid = mid + Math.imul(ah6, bl0) | 0;
-      hi = Math.imul(ah6, bh0);
-      lo = lo + Math.imul(al5, bl1) | 0;
-      mid = mid + Math.imul(al5, bh1) | 0;
-      mid = mid + Math.imul(ah5, bl1) | 0;
-      hi = hi + Math.imul(ah5, bh1) | 0;
-      lo = lo + Math.imul(al4, bl2) | 0;
-      mid = mid + Math.imul(al4, bh2) | 0;
-      mid = mid + Math.imul(ah4, bl2) | 0;
-      hi = hi + Math.imul(ah4, bh2) | 0;
-      lo = lo + Math.imul(al3, bl3) | 0;
-      mid = mid + Math.imul(al3, bh3) | 0;
-      mid = mid + Math.imul(ah3, bl3) | 0;
-      hi = hi + Math.imul(ah3, bh3) | 0;
-      lo = lo + Math.imul(al2, bl4) | 0;
-      mid = mid + Math.imul(al2, bh4) | 0;
-      mid = mid + Math.imul(ah2, bl4) | 0;
-      hi = hi + Math.imul(ah2, bh4) | 0;
-      lo = lo + Math.imul(al1, bl5) | 0;
-      mid = mid + Math.imul(al1, bh5) | 0;
-      mid = mid + Math.imul(ah1, bl5) | 0;
-      hi = hi + Math.imul(ah1, bh5) | 0;
-      lo = lo + Math.imul(al0, bl6) | 0;
-      mid = mid + Math.imul(al0, bh6) | 0;
-      mid = mid + Math.imul(ah0, bl6) | 0;
-      hi = hi + Math.imul(ah0, bh6) | 0;
-      var w6 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w6 >>> 26) | 0;
-      w6 &= 67108863;
-      lo = Math.imul(al7, bl0);
-      mid = Math.imul(al7, bh0);
-      mid = mid + Math.imul(ah7, bl0) | 0;
-      hi = Math.imul(ah7, bh0);
-      lo = lo + Math.imul(al6, bl1) | 0;
-      mid = mid + Math.imul(al6, bh1) | 0;
-      mid = mid + Math.imul(ah6, bl1) | 0;
-      hi = hi + Math.imul(ah6, bh1) | 0;
-      lo = lo + Math.imul(al5, bl2) | 0;
-      mid = mid + Math.imul(al5, bh2) | 0;
-      mid = mid + Math.imul(ah5, bl2) | 0;
-      hi = hi + Math.imul(ah5, bh2) | 0;
-      lo = lo + Math.imul(al4, bl3) | 0;
-      mid = mid + Math.imul(al4, bh3) | 0;
-      mid = mid + Math.imul(ah4, bl3) | 0;
-      hi = hi + Math.imul(ah4, bh3) | 0;
-      lo = lo + Math.imul(al3, bl4) | 0;
-      mid = mid + Math.imul(al3, bh4) | 0;
-      mid = mid + Math.imul(ah3, bl4) | 0;
-      hi = hi + Math.imul(ah3, bh4) | 0;
-      lo = lo + Math.imul(al2, bl5) | 0;
-      mid = mid + Math.imul(al2, bh5) | 0;
-      mid = mid + Math.imul(ah2, bl5) | 0;
-      hi = hi + Math.imul(ah2, bh5) | 0;
-      lo = lo + Math.imul(al1, bl6) | 0;
-      mid = mid + Math.imul(al1, bh6) | 0;
-      mid = mid + Math.imul(ah1, bl6) | 0;
-      hi = hi + Math.imul(ah1, bh6) | 0;
-      lo = lo + Math.imul(al0, bl7) | 0;
-      mid = mid + Math.imul(al0, bh7) | 0;
-      mid = mid + Math.imul(ah0, bl7) | 0;
-      hi = hi + Math.imul(ah0, bh7) | 0;
-      var w7 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w7 >>> 26) | 0;
-      w7 &= 67108863;
-      lo = Math.imul(al8, bl0);
-      mid = Math.imul(al8, bh0);
-      mid = mid + Math.imul(ah8, bl0) | 0;
-      hi = Math.imul(ah8, bh0);
-      lo = lo + Math.imul(al7, bl1) | 0;
-      mid = mid + Math.imul(al7, bh1) | 0;
-      mid = mid + Math.imul(ah7, bl1) | 0;
-      hi = hi + Math.imul(ah7, bh1) | 0;
-      lo = lo + Math.imul(al6, bl2) | 0;
-      mid = mid + Math.imul(al6, bh2) | 0;
-      mid = mid + Math.imul(ah6, bl2) | 0;
-      hi = hi + Math.imul(ah6, bh2) | 0;
-      lo = lo + Math.imul(al5, bl3) | 0;
-      mid = mid + Math.imul(al5, bh3) | 0;
-      mid = mid + Math.imul(ah5, bl3) | 0;
-      hi = hi + Math.imul(ah5, bh3) | 0;
-      lo = lo + Math.imul(al4, bl4) | 0;
-      mid = mid + Math.imul(al4, bh4) | 0;
-      mid = mid + Math.imul(ah4, bl4) | 0;
-      hi = hi + Math.imul(ah4, bh4) | 0;
-      lo = lo + Math.imul(al3, bl5) | 0;
-      mid = mid + Math.imul(al3, bh5) | 0;
-      mid = mid + Math.imul(ah3, bl5) | 0;
-      hi = hi + Math.imul(ah3, bh5) | 0;
-      lo = lo + Math.imul(al2, bl6) | 0;
-      mid = mid + Math.imul(al2, bh6) | 0;
-      mid = mid + Math.imul(ah2, bl6) | 0;
-      hi = hi + Math.imul(ah2, bh6) | 0;
-      lo = lo + Math.imul(al1, bl7) | 0;
-      mid = mid + Math.imul(al1, bh7) | 0;
-      mid = mid + Math.imul(ah1, bl7) | 0;
-      hi = hi + Math.imul(ah1, bh7) | 0;
-      lo = lo + Math.imul(al0, bl8) | 0;
-      mid = mid + Math.imul(al0, bh8) | 0;
-      mid = mid + Math.imul(ah0, bl8) | 0;
-      hi = hi + Math.imul(ah0, bh8) | 0;
-      var w8 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w8 >>> 26) | 0;
-      w8 &= 67108863;
-      lo = Math.imul(al9, bl0);
-      mid = Math.imul(al9, bh0);
-      mid = mid + Math.imul(ah9, bl0) | 0;
-      hi = Math.imul(ah9, bh0);
-      lo = lo + Math.imul(al8, bl1) | 0;
-      mid = mid + Math.imul(al8, bh1) | 0;
-      mid = mid + Math.imul(ah8, bl1) | 0;
-      hi = hi + Math.imul(ah8, bh1) | 0;
-      lo = lo + Math.imul(al7, bl2) | 0;
-      mid = mid + Math.imul(al7, bh2) | 0;
-      mid = mid + Math.imul(ah7, bl2) | 0;
-      hi = hi + Math.imul(ah7, bh2) | 0;
-      lo = lo + Math.imul(al6, bl3) | 0;
-      mid = mid + Math.imul(al6, bh3) | 0;
-      mid = mid + Math.imul(ah6, bl3) | 0;
-      hi = hi + Math.imul(ah6, bh3) | 0;
-      lo = lo + Math.imul(al5, bl4) | 0;
-      mid = mid + Math.imul(al5, bh4) | 0;
-      mid = mid + Math.imul(ah5, bl4) | 0;
-      hi = hi + Math.imul(ah5, bh4) | 0;
-      lo = lo + Math.imul(al4, bl5) | 0;
-      mid = mid + Math.imul(al4, bh5) | 0;
-      mid = mid + Math.imul(ah4, bl5) | 0;
-      hi = hi + Math.imul(ah4, bh5) | 0;
-      lo = lo + Math.imul(al3, bl6) | 0;
-      mid = mid + Math.imul(al3, bh6) | 0;
-      mid = mid + Math.imul(ah3, bl6) | 0;
-      hi = hi + Math.imul(ah3, bh6) | 0;
-      lo = lo + Math.imul(al2, bl7) | 0;
-      mid = mid + Math.imul(al2, bh7) | 0;
-      mid = mid + Math.imul(ah2, bl7) | 0;
-      hi = hi + Math.imul(ah2, bh7) | 0;
-      lo = lo + Math.imul(al1, bl8) | 0;
-      mid = mid + Math.imul(al1, bh8) | 0;
-      mid = mid + Math.imul(ah1, bl8) | 0;
-      hi = hi + Math.imul(ah1, bh8) | 0;
-      lo = lo + Math.imul(al0, bl9) | 0;
-      mid = mid + Math.imul(al0, bh9) | 0;
-      mid = mid + Math.imul(ah0, bl9) | 0;
-      hi = hi + Math.imul(ah0, bh9) | 0;
-      var w9 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w9 >>> 26) | 0;
-      w9 &= 67108863;
-      lo = Math.imul(al9, bl1);
-      mid = Math.imul(al9, bh1);
-      mid = mid + Math.imul(ah9, bl1) | 0;
-      hi = Math.imul(ah9, bh1);
-      lo = lo + Math.imul(al8, bl2) | 0;
-      mid = mid + Math.imul(al8, bh2) | 0;
-      mid = mid + Math.imul(ah8, bl2) | 0;
-      hi = hi + Math.imul(ah8, bh2) | 0;
-      lo = lo + Math.imul(al7, bl3) | 0;
-      mid = mid + Math.imul(al7, bh3) | 0;
-      mid = mid + Math.imul(ah7, bl3) | 0;
-      hi = hi + Math.imul(ah7, bh3) | 0;
-      lo = lo + Math.imul(al6, bl4) | 0;
-      mid = mid + Math.imul(al6, bh4) | 0;
-      mid = mid + Math.imul(ah6, bl4) | 0;
-      hi = hi + Math.imul(ah6, bh4) | 0;
-      lo = lo + Math.imul(al5, bl5) | 0;
-      mid = mid + Math.imul(al5, bh5) | 0;
-      mid = mid + Math.imul(ah5, bl5) | 0;
-      hi = hi + Math.imul(ah5, bh5) | 0;
-      lo = lo + Math.imul(al4, bl6) | 0;
-      mid = mid + Math.imul(al4, bh6) | 0;
-      mid = mid + Math.imul(ah4, bl6) | 0;
-      hi = hi + Math.imul(ah4, bh6) | 0;
-      lo = lo + Math.imul(al3, bl7) | 0;
-      mid = mid + Math.imul(al3, bh7) | 0;
-      mid = mid + Math.imul(ah3, bl7) | 0;
-      hi = hi + Math.imul(ah3, bh7) | 0;
-      lo = lo + Math.imul(al2, bl8) | 0;
-      mid = mid + Math.imul(al2, bh8) | 0;
-      mid = mid + Math.imul(ah2, bl8) | 0;
-      hi = hi + Math.imul(ah2, bh8) | 0;
-      lo = lo + Math.imul(al1, bl9) | 0;
-      mid = mid + Math.imul(al1, bh9) | 0;
-      mid = mid + Math.imul(ah1, bl9) | 0;
-      hi = hi + Math.imul(ah1, bh9) | 0;
-      var w10 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w10 >>> 26) | 0;
-      w10 &= 67108863;
-      lo = Math.imul(al9, bl2);
-      mid = Math.imul(al9, bh2);
-      mid = mid + Math.imul(ah9, bl2) | 0;
-      hi = Math.imul(ah9, bh2);
-      lo = lo + Math.imul(al8, bl3) | 0;
-      mid = mid + Math.imul(al8, bh3) | 0;
-      mid = mid + Math.imul(ah8, bl3) | 0;
-      hi = hi + Math.imul(ah8, bh3) | 0;
-      lo = lo + Math.imul(al7, bl4) | 0;
-      mid = mid + Math.imul(al7, bh4) | 0;
-      mid = mid + Math.imul(ah7, bl4) | 0;
-      hi = hi + Math.imul(ah7, bh4) | 0;
-      lo = lo + Math.imul(al6, bl5) | 0;
-      mid = mid + Math.imul(al6, bh5) | 0;
-      mid = mid + Math.imul(ah6, bl5) | 0;
-      hi = hi + Math.imul(ah6, bh5) | 0;
-      lo = lo + Math.imul(al5, bl6) | 0;
-      mid = mid + Math.imul(al5, bh6) | 0;
-      mid = mid + Math.imul(ah5, bl6) | 0;
-      hi = hi + Math.imul(ah5, bh6) | 0;
-      lo = lo + Math.imul(al4, bl7) | 0;
-      mid = mid + Math.imul(al4, bh7) | 0;
-      mid = mid + Math.imul(ah4, bl7) | 0;
-      hi = hi + Math.imul(ah4, bh7) | 0;
-      lo = lo + Math.imul(al3, bl8) | 0;
-      mid = mid + Math.imul(al3, bh8) | 0;
-      mid = mid + Math.imul(ah3, bl8) | 0;
-      hi = hi + Math.imul(ah3, bh8) | 0;
-      lo = lo + Math.imul(al2, bl9) | 0;
-      mid = mid + Math.imul(al2, bh9) | 0;
-      mid = mid + Math.imul(ah2, bl9) | 0;
-      hi = hi + Math.imul(ah2, bh9) | 0;
-      var w11 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w11 >>> 26) | 0;
-      w11 &= 67108863;
-      lo = Math.imul(al9, bl3);
-      mid = Math.imul(al9, bh3);
-      mid = mid + Math.imul(ah9, bl3) | 0;
-      hi = Math.imul(ah9, bh3);
-      lo = lo + Math.imul(al8, bl4) | 0;
-      mid = mid + Math.imul(al8, bh4) | 0;
-      mid = mid + Math.imul(ah8, bl4) | 0;
-      hi = hi + Math.imul(ah8, bh4) | 0;
-      lo = lo + Math.imul(al7, bl5) | 0;
-      mid = mid + Math.imul(al7, bh5) | 0;
-      mid = mid + Math.imul(ah7, bl5) | 0;
-      hi = hi + Math.imul(ah7, bh5) | 0;
-      lo = lo + Math.imul(al6, bl6) | 0;
-      mid = mid + Math.imul(al6, bh6) | 0;
-      mid = mid + Math.imul(ah6, bl6) | 0;
-      hi = hi + Math.imul(ah6, bh6) | 0;
-      lo = lo + Math.imul(al5, bl7) | 0;
-      mid = mid + Math.imul(al5, bh7) | 0;
-      mid = mid + Math.imul(ah5, bl7) | 0;
-      hi = hi + Math.imul(ah5, bh7) | 0;
-      lo = lo + Math.imul(al4, bl8) | 0;
-      mid = mid + Math.imul(al4, bh8) | 0;
-      mid = mid + Math.imul(ah4, bl8) | 0;
-      hi = hi + Math.imul(ah4, bh8) | 0;
-      lo = lo + Math.imul(al3, bl9) | 0;
-      mid = mid + Math.imul(al3, bh9) | 0;
-      mid = mid + Math.imul(ah3, bl9) | 0;
-      hi = hi + Math.imul(ah3, bh9) | 0;
-      var w12 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w12 >>> 26) | 0;
-      w12 &= 67108863;
-      lo = Math.imul(al9, bl4);
-      mid = Math.imul(al9, bh4);
-      mid = mid + Math.imul(ah9, bl4) | 0;
-      hi = Math.imul(ah9, bh4);
-      lo = lo + Math.imul(al8, bl5) | 0;
-      mid = mid + Math.imul(al8, bh5) | 0;
-      mid = mid + Math.imul(ah8, bl5) | 0;
-      hi = hi + Math.imul(ah8, bh5) | 0;
-      lo = lo + Math.imul(al7, bl6) | 0;
-      mid = mid + Math.imul(al7, bh6) | 0;
-      mid = mid + Math.imul(ah7, bl6) | 0;
-      hi = hi + Math.imul(ah7, bh6) | 0;
-      lo = lo + Math.imul(al6, bl7) | 0;
-      mid = mid + Math.imul(al6, bh7) | 0;
-      mid = mid + Math.imul(ah6, bl7) | 0;
-      hi = hi + Math.imul(ah6, bh7) | 0;
-      lo = lo + Math.imul(al5, bl8) | 0;
-      mid = mid + Math.imul(al5, bh8) | 0;
-      mid = mid + Math.imul(ah5, bl8) | 0;
-      hi = hi + Math.imul(ah5, bh8) | 0;
-      lo = lo + Math.imul(al4, bl9) | 0;
-      mid = mid + Math.imul(al4, bh9) | 0;
-      mid = mid + Math.imul(ah4, bl9) | 0;
-      hi = hi + Math.imul(ah4, bh9) | 0;
-      var w13 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w13 >>> 26) | 0;
-      w13 &= 67108863;
-      lo = Math.imul(al9, bl5);
-      mid = Math.imul(al9, bh5);
-      mid = mid + Math.imul(ah9, bl5) | 0;
-      hi = Math.imul(ah9, bh5);
-      lo = lo + Math.imul(al8, bl6) | 0;
-      mid = mid + Math.imul(al8, bh6) | 0;
-      mid = mid + Math.imul(ah8, bl6) | 0;
-      hi = hi + Math.imul(ah8, bh6) | 0;
-      lo = lo + Math.imul(al7, bl7) | 0;
-      mid = mid + Math.imul(al7, bh7) | 0;
-      mid = mid + Math.imul(ah7, bl7) | 0;
-      hi = hi + Math.imul(ah7, bh7) | 0;
-      lo = lo + Math.imul(al6, bl8) | 0;
-      mid = mid + Math.imul(al6, bh8) | 0;
-      mid = mid + Math.imul(ah6, bl8) | 0;
-      hi = hi + Math.imul(ah6, bh8) | 0;
-      lo = lo + Math.imul(al5, bl9) | 0;
-      mid = mid + Math.imul(al5, bh9) | 0;
-      mid = mid + Math.imul(ah5, bl9) | 0;
-      hi = hi + Math.imul(ah5, bh9) | 0;
-      var w14 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w14 >>> 26) | 0;
-      w14 &= 67108863;
-      lo = Math.imul(al9, bl6);
-      mid = Math.imul(al9, bh6);
-      mid = mid + Math.imul(ah9, bl6) | 0;
-      hi = Math.imul(ah9, bh6);
-      lo = lo + Math.imul(al8, bl7) | 0;
-      mid = mid + Math.imul(al8, bh7) | 0;
-      mid = mid + Math.imul(ah8, bl7) | 0;
-      hi = hi + Math.imul(ah8, bh7) | 0;
-      lo = lo + Math.imul(al7, bl8) | 0;
-      mid = mid + Math.imul(al7, bh8) | 0;
-      mid = mid + Math.imul(ah7, bl8) | 0;
-      hi = hi + Math.imul(ah7, bh8) | 0;
-      lo = lo + Math.imul(al6, bl9) | 0;
-      mid = mid + Math.imul(al6, bh9) | 0;
-      mid = mid + Math.imul(ah6, bl9) | 0;
-      hi = hi + Math.imul(ah6, bh9) | 0;
-      var w15 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w15 >>> 26) | 0;
-      w15 &= 67108863;
-      lo = Math.imul(al9, bl7);
-      mid = Math.imul(al9, bh7);
-      mid = mid + Math.imul(ah9, bl7) | 0;
-      hi = Math.imul(ah9, bh7);
-      lo = lo + Math.imul(al8, bl8) | 0;
-      mid = mid + Math.imul(al8, bh8) | 0;
-      mid = mid + Math.imul(ah8, bl8) | 0;
-      hi = hi + Math.imul(ah8, bh8) | 0;
-      lo = lo + Math.imul(al7, bl9) | 0;
-      mid = mid + Math.imul(al7, bh9) | 0;
-      mid = mid + Math.imul(ah7, bl9) | 0;
-      hi = hi + Math.imul(ah7, bh9) | 0;
-      var w16 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w16 >>> 26) | 0;
-      w16 &= 67108863;
-      lo = Math.imul(al9, bl8);
-      mid = Math.imul(al9, bh8);
-      mid = mid + Math.imul(ah9, bl8) | 0;
-      hi = Math.imul(ah9, bh8);
-      lo = lo + Math.imul(al8, bl9) | 0;
-      mid = mid + Math.imul(al8, bh9) | 0;
-      mid = mid + Math.imul(ah8, bl9) | 0;
-      hi = hi + Math.imul(ah8, bh9) | 0;
-      var w17 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w17 >>> 26) | 0;
-      w17 &= 67108863;
-      lo = Math.imul(al9, bl9);
-      mid = Math.imul(al9, bh9);
-      mid = mid + Math.imul(ah9, bl9) | 0;
-      hi = Math.imul(ah9, bh9);
-      var w18 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
-      c = (hi + (mid >>> 13) | 0) + (w18 >>> 26) | 0;
-      w18 &= 67108863;
-      o[0] = w0;
-      o[1] = w1;
-      o[2] = w2;
-      o[3] = w3;
-      o[4] = w4;
-      o[5] = w5;
-      o[6] = w6;
-      o[7] = w7;
-      o[8] = w8;
-      o[9] = w9;
-      o[10] = w10;
-      o[11] = w11;
-      o[12] = w12;
-      o[13] = w13;
-      o[14] = w14;
-      o[15] = w15;
-      o[16] = w16;
-      o[17] = w17;
-      o[18] = w18;
-      if (c !== 0) {
-        o[19] = c;
-        out.length++;
-      }
-      return out;
-    };
-    if (!Math.imul) {
-      comb10MulTo = smallMulTo;
-    }
-    function bigMulTo(self2, num, out) {
-      out.negative = num.negative ^ self2.negative;
-      out.length = self2.length + num.length;
-      var carry = 0;
-      var hncarry = 0;
-      for (var k = 0; k < out.length - 1; k++) {
-        var ncarry = hncarry;
-        hncarry = 0;
-        var rword = carry & 67108863;
-        var maxJ = Math.min(k, num.length - 1);
-        for (var j = Math.max(0, k - self2.length + 1); j <= maxJ; j++) {
-          var i = k - j;
-          var a = self2.words[i] | 0;
-          var b = num.words[j] | 0;
-          var r2 = a * b;
-          var lo = r2 & 67108863;
-          ncarry = ncarry + (r2 / 67108864 | 0) | 0;
-          lo = lo + rword | 0;
-          rword = lo & 67108863;
-          ncarry = ncarry + (lo >>> 26) | 0;
-          hncarry += ncarry >>> 26;
-          ncarry &= 67108863;
-        }
-        out.words[k] = rword;
-        carry = ncarry;
-        ncarry = hncarry;
-      }
-      if (carry !== 0) {
-        out.words[k] = carry;
-      } else {
-        out.length--;
-      }
-      return out.strip();
-    }
-    function jumboMulTo(self2, num, out) {
-      var fftm = new FFTM();
-      return fftm.mulp(self2, num, out);
-    }
-    BN2.prototype.mulTo = function mulTo(num, out) {
-      var res;
-      var len = this.length + num.length;
-      if (this.length === 10 && num.length === 10) {
-        res = comb10MulTo(this, num, out);
-      } else if (len < 63) {
-        res = smallMulTo(this, num, out);
-      } else if (len < 1024) {
-        res = bigMulTo(this, num, out);
-      } else {
-        res = jumboMulTo(this, num, out);
-      }
-      return res;
-    };
-    function FFTM(x, y) {
-      this.x = x;
-      this.y = y;
-    }
-    FFTM.prototype.makeRBT = function makeRBT(N2) {
-      var t = new Array(N2);
-      var l = BN2.prototype._countBits(N2) - 1;
-      for (var i = 0; i < N2; i++) {
-        t[i] = this.revBin(i, l, N2);
-      }
-      return t;
-    };
-    FFTM.prototype.revBin = function revBin(x, l, N2) {
-      if (x === 0 || x === N2 - 1)
-        return x;
-      var rb = 0;
-      for (var i = 0; i < l; i++) {
-        rb |= (x & 1) << l - i - 1;
-        x >>= 1;
-      }
-      return rb;
-    };
-    FFTM.prototype.permute = function permute(rbt, rws, iws, rtws, itws, N2) {
-      for (var i = 0; i < N2; i++) {
-        rtws[i] = rws[rbt[i]];
-        itws[i] = iws[rbt[i]];
-      }
-    };
-    FFTM.prototype.transform = function transform(rws, iws, rtws, itws, N2, rbt) {
-      this.permute(rbt, rws, iws, rtws, itws, N2);
-      for (var s22 = 1; s22 < N2; s22 <<= 1) {
-        var l = s22 << 1;
-        var rtwdf = Math.cos(2 * Math.PI / l);
-        var itwdf = Math.sin(2 * Math.PI / l);
-        for (var p = 0; p < N2; p += l) {
-          var rtwdf_ = rtwdf;
-          var itwdf_ = itwdf;
-          for (var j = 0; j < s22; j++) {
-            var re = rtws[p + j];
-            var ie = itws[p + j];
-            var ro = rtws[p + j + s22];
-            var io = itws[p + j + s22];
-            var rx = rtwdf_ * ro - itwdf_ * io;
-            io = rtwdf_ * io + itwdf_ * ro;
-            ro = rx;
-            rtws[p + j] = re + ro;
-            itws[p + j] = ie + io;
-            rtws[p + j + s22] = re - ro;
-            itws[p + j + s22] = ie - io;
-            if (j !== l) {
-              rx = rtwdf * rtwdf_ - itwdf * itwdf_;
-              itwdf_ = rtwdf * itwdf_ + itwdf * rtwdf_;
-              rtwdf_ = rx;
-            }
-          }
-        }
-      }
-    };
-    FFTM.prototype.guessLen13b = function guessLen13b(n, m) {
-      var N2 = Math.max(m, n) | 1;
-      var odd = N2 & 1;
-      var i = 0;
-      for (N2 = N2 / 2 | 0; N2; N2 = N2 >>> 1) {
-        i++;
-      }
-      return 1 << i + 1 + odd;
-    };
-    FFTM.prototype.conjugate = function conjugate(rws, iws, N2) {
-      if (N2 <= 1)
-        return;
-      for (var i = 0; i < N2 / 2; i++) {
-        var t = rws[i];
-        rws[i] = rws[N2 - i - 1];
-        rws[N2 - i - 1] = t;
-        t = iws[i];
-        iws[i] = -iws[N2 - i - 1];
-        iws[N2 - i - 1] = -t;
-      }
-    };
-    FFTM.prototype.normalize13b = function normalize13b(ws, N2) {
-      var carry = 0;
-      for (var i = 0; i < N2 / 2; i++) {
-        var w = Math.round(ws[2 * i + 1] / N2) * 8192 + Math.round(ws[2 * i] / N2) + carry;
-        ws[i] = w & 67108863;
-        if (w < 67108864) {
-          carry = 0;
-        } else {
-          carry = w / 67108864 | 0;
-        }
-      }
-      return ws;
-    };
-    FFTM.prototype.convert13b = function convert13b(ws, len, rws, N2) {
-      var carry = 0;
-      for (var i = 0; i < len; i++) {
-        carry = carry + (ws[i] | 0);
-        rws[2 * i] = carry & 8191;
-        carry = carry >>> 13;
-        rws[2 * i + 1] = carry & 8191;
-        carry = carry >>> 13;
-      }
-      for (i = 2 * len; i < N2; ++i) {
-        rws[i] = 0;
-      }
-      assert2(carry === 0);
-      assert2((carry & ~8191) === 0);
-    };
-    FFTM.prototype.stub = function stub(N2) {
-      var ph = new Array(N2);
-      for (var i = 0; i < N2; i++) {
-        ph[i] = 0;
-      }
-      return ph;
-    };
-    FFTM.prototype.mulp = function mulp(x, y, out) {
-      var N2 = 2 * this.guessLen13b(x.length, y.length);
-      var rbt = this.makeRBT(N2);
-      var _ = this.stub(N2);
-      var rws = new Array(N2);
-      var rwst = new Array(N2);
-      var iwst = new Array(N2);
-      var nrws = new Array(N2);
-      var nrwst = new Array(N2);
-      var niwst = new Array(N2);
-      var rmws = out.words;
-      rmws.length = N2;
-      this.convert13b(x.words, x.length, rws, N2);
-      this.convert13b(y.words, y.length, nrws, N2);
-      this.transform(rws, _, rwst, iwst, N2, rbt);
-      this.transform(nrws, _, nrwst, niwst, N2, rbt);
-      for (var i = 0; i < N2; i++) {
-        var rx = rwst[i] * nrwst[i] - iwst[i] * niwst[i];
-        iwst[i] = rwst[i] * niwst[i] + iwst[i] * nrwst[i];
-        rwst[i] = rx;
-      }
-      this.conjugate(rwst, iwst, N2);
-      this.transform(rwst, iwst, rmws, _, N2, rbt);
-      this.conjugate(rmws, _, N2);
-      this.normalize13b(rmws, N2);
-      out.negative = x.negative ^ y.negative;
-      out.length = x.length + y.length;
-      return out.strip();
-    };
-    BN2.prototype.mul = function mul3(num) {
-      var out = new BN2(null);
-      out.words = new Array(this.length + num.length);
-      return this.mulTo(num, out);
-    };
-    BN2.prototype.mulf = function mulf(num) {
-      var out = new BN2(null);
-      out.words = new Array(this.length + num.length);
-      return jumboMulTo(this, num, out);
-    };
-    BN2.prototype.imul = function imul(num) {
-      return this.clone().mulTo(num, this);
-    };
-    BN2.prototype.imuln = function imuln(num) {
-      assert2(typeof num === "number");
-      assert2(num < 67108864);
-      var carry = 0;
-      for (var i = 0; i < this.length; i++) {
-        var w = (this.words[i] | 0) * num;
-        var lo = (w & 67108863) + (carry & 67108863);
-        carry >>= 26;
-        carry += w / 67108864 | 0;
-        carry += lo >>> 26;
-        this.words[i] = lo & 67108863;
-      }
-      if (carry !== 0) {
-        this.words[i] = carry;
-        this.length++;
-      }
-      return this;
-    };
-    BN2.prototype.muln = function muln(num) {
-      return this.clone().imuln(num);
-    };
-    BN2.prototype.sqr = function sqr() {
-      return this.mul(this);
-    };
-    BN2.prototype.isqr = function isqr() {
-      return this.imul(this.clone());
-    };
-    BN2.prototype.pow = function pow(num) {
-      var w = toBitArray(num);
-      if (w.length === 0)
-        return new BN2(1);
-      var res = this;
-      for (var i = 0; i < w.length; i++, res = res.sqr()) {
-        if (w[i] !== 0)
-          break;
-      }
-      if (++i < w.length) {
-        for (var q = res.sqr(); i < w.length; i++, q = q.sqr()) {
-          if (w[i] === 0)
-            continue;
-          res = res.mul(q);
-        }
-      }
-      return res;
-    };
-    BN2.prototype.iushln = function iushln(bits) {
-      assert2(typeof bits === "number" && bits >= 0);
-      var r2 = bits % 26;
-      var s22 = (bits - r2) / 26;
-      var carryMask = 67108863 >>> 26 - r2 << 26 - r2;
-      var i;
-      if (r2 !== 0) {
-        var carry = 0;
-        for (i = 0; i < this.length; i++) {
-          var newCarry = this.words[i] & carryMask;
-          var c = (this.words[i] | 0) - newCarry << r2;
-          this.words[i] = c | carry;
-          carry = newCarry >>> 26 - r2;
-        }
-        if (carry) {
-          this.words[i] = carry;
-          this.length++;
-        }
-      }
-      if (s22 !== 0) {
-        for (i = this.length - 1; i >= 0; i--) {
-          this.words[i + s22] = this.words[i];
-        }
-        for (i = 0; i < s22; i++) {
-          this.words[i] = 0;
-        }
-        this.length += s22;
-      }
-      return this.strip();
-    };
-    BN2.prototype.ishln = function ishln(bits) {
-      assert2(this.negative === 0);
-      return this.iushln(bits);
-    };
-    BN2.prototype.iushrn = function iushrn(bits, hint, extended) {
-      assert2(typeof bits === "number" && bits >= 0);
-      var h;
-      if (hint) {
-        h = (hint - hint % 26) / 26;
-      } else {
-        h = 0;
-      }
-      var r2 = bits % 26;
-      var s22 = Math.min((bits - r2) / 26, this.length);
-      var mask = 67108863 ^ 67108863 >>> r2 << r2;
-      var maskedWords = extended;
-      h -= s22;
-      h = Math.max(0, h);
-      if (maskedWords) {
-        for (var i = 0; i < s22; i++) {
-          maskedWords.words[i] = this.words[i];
-        }
-        maskedWords.length = s22;
-      }
-      if (s22 === 0)
-        ;
-      else if (this.length > s22) {
-        this.length -= s22;
-        for (i = 0; i < this.length; i++) {
-          this.words[i] = this.words[i + s22];
-        }
-      } else {
-        this.words[0] = 0;
-        this.length = 1;
-      }
-      var carry = 0;
-      for (i = this.length - 1; i >= 0 && (carry !== 0 || i >= h); i--) {
-        var word = this.words[i] | 0;
-        this.words[i] = carry << 26 - r2 | word >>> r2;
-        carry = word & mask;
-      }
-      if (maskedWords && carry !== 0) {
-        maskedWords.words[maskedWords.length++] = carry;
-      }
-      if (this.length === 0) {
-        this.words[0] = 0;
-        this.length = 1;
-      }
-      return this.strip();
-    };
-    BN2.prototype.ishrn = function ishrn(bits, hint, extended) {
-      assert2(this.negative === 0);
-      return this.iushrn(bits, hint, extended);
-    };
-    BN2.prototype.shln = function shln(bits) {
-      return this.clone().ishln(bits);
-    };
-    BN2.prototype.ushln = function ushln(bits) {
-      return this.clone().iushln(bits);
-    };
-    BN2.prototype.shrn = function shrn(bits) {
-      return this.clone().ishrn(bits);
-    };
-    BN2.prototype.ushrn = function ushrn(bits) {
-      return this.clone().iushrn(bits);
-    };
-    BN2.prototype.testn = function testn(bit) {
-      assert2(typeof bit === "number" && bit >= 0);
-      var r2 = bit % 26;
-      var s22 = (bit - r2) / 26;
-      var q = 1 << r2;
-      if (this.length <= s22)
-        return false;
-      var w = this.words[s22];
-      return !!(w & q);
-    };
-    BN2.prototype.imaskn = function imaskn(bits) {
-      assert2(typeof bits === "number" && bits >= 0);
-      var r2 = bits % 26;
-      var s22 = (bits - r2) / 26;
-      assert2(this.negative === 0, "imaskn works only with positive numbers");
-      if (this.length <= s22) {
-        return this;
-      }
-      if (r2 !== 0) {
-        s22++;
-      }
-      this.length = Math.min(s22, this.length);
-      if (r2 !== 0) {
-        var mask = 67108863 ^ 67108863 >>> r2 << r2;
-        this.words[this.length - 1] &= mask;
-      }
-      return this.strip();
-    };
-    BN2.prototype.maskn = function maskn(bits) {
-      return this.clone().imaskn(bits);
-    };
-    BN2.prototype.iaddn = function iaddn(num) {
-      assert2(typeof num === "number");
-      assert2(num < 67108864);
-      if (num < 0)
-        return this.isubn(-num);
-      if (this.negative !== 0) {
-        if (this.length === 1 && (this.words[0] | 0) < num) {
-          this.words[0] = num - (this.words[0] | 0);
-          this.negative = 0;
-          return this;
-        }
-        this.negative = 0;
-        this.isubn(num);
-        this.negative = 1;
-        return this;
-      }
-      return this._iaddn(num);
-    };
-    BN2.prototype._iaddn = function _iaddn(num) {
-      this.words[0] += num;
-      for (var i = 0; i < this.length && this.words[i] >= 67108864; i++) {
-        this.words[i] -= 67108864;
-        if (i === this.length - 1) {
-          this.words[i + 1] = 1;
-        } else {
-          this.words[i + 1]++;
-        }
-      }
-      this.length = Math.max(this.length, i + 1);
-      return this;
-    };
-    BN2.prototype.isubn = function isubn(num) {
-      assert2(typeof num === "number");
-      assert2(num < 67108864);
-      if (num < 0)
-        return this.iaddn(-num);
-      if (this.negative !== 0) {
-        this.negative = 0;
-        this.iaddn(num);
-        this.negative = 1;
-        return this;
-      }
-      this.words[0] -= num;
-      if (this.length === 1 && this.words[0] < 0) {
-        this.words[0] = -this.words[0];
-        this.negative = 1;
-      } else {
-        for (var i = 0; i < this.length && this.words[i] < 0; i++) {
-          this.words[i] += 67108864;
-          this.words[i + 1] -= 1;
-        }
-      }
-      return this.strip();
-    };
-    BN2.prototype.addn = function addn(num) {
-      return this.clone().iaddn(num);
-    };
-    BN2.prototype.subn = function subn(num) {
-      return this.clone().isubn(num);
-    };
-    BN2.prototype.iabs = function iabs() {
-      this.negative = 0;
-      return this;
-    };
-    BN2.prototype.abs = function abs() {
-      return this.clone().iabs();
-    };
-    BN2.prototype._ishlnsubmul = function _ishlnsubmul(num, mul3, shift) {
-      var len = num.length + shift;
-      var i;
-      this._expand(len);
-      var w;
-      var carry = 0;
-      for (i = 0; i < num.length; i++) {
-        w = (this.words[i + shift] | 0) + carry;
-        var right = (num.words[i] | 0) * mul3;
-        w -= right & 67108863;
-        carry = (w >> 26) - (right / 67108864 | 0);
-        this.words[i + shift] = w & 67108863;
-      }
-      for (; i < this.length - shift; i++) {
-        w = (this.words[i + shift] | 0) + carry;
-        carry = w >> 26;
-        this.words[i + shift] = w & 67108863;
-      }
-      if (carry === 0)
-        return this.strip();
-      assert2(carry === -1);
-      carry = 0;
-      for (i = 0; i < this.length; i++) {
-        w = -(this.words[i] | 0) + carry;
-        carry = w >> 26;
-        this.words[i] = w & 67108863;
-      }
-      this.negative = 1;
-      return this.strip();
-    };
-    BN2.prototype._wordDiv = function _wordDiv(num, mode) {
-      var shift = this.length - num.length;
-      var a = this.clone();
-      var b = num;
-      var bhi = b.words[b.length - 1] | 0;
-      var bhiBits = this._countBits(bhi);
-      shift = 26 - bhiBits;
-      if (shift !== 0) {
-        b = b.ushln(shift);
-        a.iushln(shift);
-        bhi = b.words[b.length - 1] | 0;
-      }
-      var m = a.length - b.length;
-      var q;
-      if (mode !== "mod") {
-        q = new BN2(null);
-        q.length = m + 1;
-        q.words = new Array(q.length);
-        for (var i = 0; i < q.length; i++) {
-          q.words[i] = 0;
-        }
-      }
-      var diff = a.clone()._ishlnsubmul(b, 1, m);
-      if (diff.negative === 0) {
-        a = diff;
-        if (q) {
-          q.words[m] = 1;
-        }
-      }
-      for (var j = m - 1; j >= 0; j--) {
-        var qj = (a.words[b.length + j] | 0) * 67108864 + (a.words[b.length + j - 1] | 0);
-        qj = Math.min(qj / bhi | 0, 67108863);
-        a._ishlnsubmul(b, qj, j);
-        while (a.negative !== 0) {
-          qj--;
-          a.negative = 0;
-          a._ishlnsubmul(b, 1, j);
-          if (!a.isZero()) {
-            a.negative ^= 1;
-          }
-        }
-        if (q) {
-          q.words[j] = qj;
-        }
-      }
-      if (q) {
-        q.strip();
-      }
-      a.strip();
-      if (mode !== "div" && shift !== 0) {
-        a.iushrn(shift);
-      }
-      return {
-        div: q || null,
-        mod: a
-      };
-    };
-    BN2.prototype.divmod = function divmod(num, mode, positive) {
-      assert2(!num.isZero());
-      if (this.isZero()) {
-        return {
-          div: new BN2(0),
-          mod: new BN2(0)
-        };
-      }
-      var div, mod, res;
-      if (this.negative !== 0 && num.negative === 0) {
-        res = this.neg().divmod(num, mode);
-        if (mode !== "mod") {
-          div = res.div.neg();
-        }
-        if (mode !== "div") {
-          mod = res.mod.neg();
-          if (positive && mod.negative !== 0) {
-            mod.iadd(num);
-          }
-        }
-        return {
-          div,
-          mod
-        };
-      }
-      if (this.negative === 0 && num.negative !== 0) {
-        res = this.divmod(num.neg(), mode);
-        if (mode !== "mod") {
-          div = res.div.neg();
-        }
-        return {
-          div,
-          mod: res.mod
-        };
-      }
-      if ((this.negative & num.negative) !== 0) {
-        res = this.neg().divmod(num.neg(), mode);
-        if (mode !== "div") {
-          mod = res.mod.neg();
-          if (positive && mod.negative !== 0) {
-            mod.isub(num);
-          }
-        }
-        return {
-          div: res.div,
-          mod
-        };
-      }
-      if (num.length > this.length || this.cmp(num) < 0) {
-        return {
-          div: new BN2(0),
-          mod: this
-        };
-      }
-      if (num.length === 1) {
-        if (mode === "div") {
-          return {
-            div: this.divn(num.words[0]),
-            mod: null
-          };
-        }
-        if (mode === "mod") {
-          return {
-            div: null,
-            mod: new BN2(this.modn(num.words[0]))
-          };
-        }
-        return {
-          div: this.divn(num.words[0]),
-          mod: new BN2(this.modn(num.words[0]))
-        };
-      }
-      return this._wordDiv(num, mode);
-    };
-    BN2.prototype.div = function div(num) {
-      return this.divmod(num, "div", false).div;
-    };
-    BN2.prototype.mod = function mod(num) {
-      return this.divmod(num, "mod", false).mod;
-    };
-    BN2.prototype.umod = function umod(num) {
-      return this.divmod(num, "mod", true).mod;
-    };
-    BN2.prototype.divRound = function divRound(num) {
-      var dm = this.divmod(num);
-      if (dm.mod.isZero())
-        return dm.div;
-      var mod = dm.div.negative !== 0 ? dm.mod.isub(num) : dm.mod;
-      var half = num.ushrn(1);
-      var r2 = num.andln(1);
-      var cmp = mod.cmp(half);
-      if (cmp < 0 || r2 === 1 && cmp === 0)
-        return dm.div;
-      return dm.div.negative !== 0 ? dm.div.isubn(1) : dm.div.iaddn(1);
-    };
-    BN2.prototype.modn = function modn(num) {
-      assert2(num <= 67108863);
-      var p = (1 << 26) % num;
-      var acc = 0;
-      for (var i = this.length - 1; i >= 0; i--) {
-        acc = (p * acc + (this.words[i] | 0)) % num;
-      }
-      return acc;
-    };
-    BN2.prototype.idivn = function idivn(num) {
-      assert2(num <= 67108863);
-      var carry = 0;
-      for (var i = this.length - 1; i >= 0; i--) {
-        var w = (this.words[i] | 0) + carry * 67108864;
-        this.words[i] = w / num | 0;
-        carry = w % num;
-      }
-      return this.strip();
-    };
-    BN2.prototype.divn = function divn(num) {
-      return this.clone().idivn(num);
-    };
-    BN2.prototype.egcd = function egcd(p) {
-      assert2(p.negative === 0);
-      assert2(!p.isZero());
-      var x = this;
-      var y = p.clone();
-      if (x.negative !== 0) {
-        x = x.umod(p);
-      } else {
-        x = x.clone();
-      }
-      var A = new BN2(1);
-      var B = new BN2(0);
-      var C = new BN2(0);
-      var D = new BN2(1);
-      var g = 0;
-      while (x.isEven() && y.isEven()) {
-        x.iushrn(1);
-        y.iushrn(1);
-        ++g;
-      }
-      var yp = y.clone();
-      var xp = x.clone();
-      while (!x.isZero()) {
-        for (var i = 0, im = 1; (x.words[0] & im) === 0 && i < 26; ++i, im <<= 1)
-          ;
-        if (i > 0) {
-          x.iushrn(i);
-          while (i-- > 0) {
-            if (A.isOdd() || B.isOdd()) {
-              A.iadd(yp);
-              B.isub(xp);
-            }
-            A.iushrn(1);
-            B.iushrn(1);
-          }
-        }
-        for (var j = 0, jm = 1; (y.words[0] & jm) === 0 && j < 26; ++j, jm <<= 1)
-          ;
-        if (j > 0) {
-          y.iushrn(j);
-          while (j-- > 0) {
-            if (C.isOdd() || D.isOdd()) {
-              C.iadd(yp);
-              D.isub(xp);
-            }
-            C.iushrn(1);
-            D.iushrn(1);
-          }
-        }
-        if (x.cmp(y) >= 0) {
-          x.isub(y);
-          A.isub(C);
-          B.isub(D);
-        } else {
-          y.isub(x);
-          C.isub(A);
-          D.isub(B);
-        }
-      }
-      return {
-        a: C,
-        b: D,
-        gcd: y.iushln(g)
-      };
-    };
-    BN2.prototype._invmp = function _invmp(p) {
-      assert2(p.negative === 0);
-      assert2(!p.isZero());
-      var a = this;
-      var b = p.clone();
-      if (a.negative !== 0) {
-        a = a.umod(p);
-      } else {
-        a = a.clone();
-      }
-      var x1 = new BN2(1);
-      var x2 = new BN2(0);
-      var delta = b.clone();
-      while (a.cmpn(1) > 0 && b.cmpn(1) > 0) {
-        for (var i = 0, im = 1; (a.words[0] & im) === 0 && i < 26; ++i, im <<= 1)
-          ;
-        if (i > 0) {
-          a.iushrn(i);
-          while (i-- > 0) {
-            if (x1.isOdd()) {
-              x1.iadd(delta);
-            }
-            x1.iushrn(1);
-          }
-        }
-        for (var j = 0, jm = 1; (b.words[0] & jm) === 0 && j < 26; ++j, jm <<= 1)
-          ;
-        if (j > 0) {
-          b.iushrn(j);
-          while (j-- > 0) {
-            if (x2.isOdd()) {
-              x2.iadd(delta);
-            }
-            x2.iushrn(1);
-          }
-        }
-        if (a.cmp(b) >= 0) {
-          a.isub(b);
-          x1.isub(x2);
-        } else {
-          b.isub(a);
-          x2.isub(x1);
-        }
-      }
-      var res;
-      if (a.cmpn(1) === 0) {
-        res = x1;
-      } else {
-        res = x2;
-      }
-      if (res.cmpn(0) < 0) {
-        res.iadd(p);
-      }
-      return res;
-    };
-    BN2.prototype.gcd = function gcd(num) {
-      if (this.isZero())
-        return num.abs();
-      if (num.isZero())
-        return this.abs();
-      var a = this.clone();
-      var b = num.clone();
-      a.negative = 0;
-      b.negative = 0;
-      for (var shift = 0; a.isEven() && b.isEven(); shift++) {
-        a.iushrn(1);
-        b.iushrn(1);
-      }
-      do {
-        while (a.isEven()) {
-          a.iushrn(1);
-        }
-        while (b.isEven()) {
-          b.iushrn(1);
-        }
-        var r2 = a.cmp(b);
-        if (r2 < 0) {
-          var t = a;
-          a = b;
-          b = t;
-        } else if (r2 === 0 || b.cmpn(1) === 0) {
-          break;
-        }
-        a.isub(b);
-      } while (true);
-      return b.iushln(shift);
-    };
-    BN2.prototype.invm = function invm(num) {
-      return this.egcd(num).a.umod(num);
-    };
-    BN2.prototype.isEven = function isEven() {
-      return (this.words[0] & 1) === 0;
-    };
-    BN2.prototype.isOdd = function isOdd() {
-      return (this.words[0] & 1) === 1;
-    };
-    BN2.prototype.andln = function andln(num) {
-      return this.words[0] & num;
-    };
-    BN2.prototype.bincn = function bincn(bit) {
-      assert2(typeof bit === "number");
-      var r2 = bit % 26;
-      var s22 = (bit - r2) / 26;
-      var q = 1 << r2;
-      if (this.length <= s22) {
-        this._expand(s22 + 1);
-        this.words[s22] |= q;
-        return this;
-      }
-      var carry = q;
-      for (var i = s22; carry !== 0 && i < this.length; i++) {
-        var w = this.words[i] | 0;
-        w += carry;
-        carry = w >>> 26;
-        w &= 67108863;
-        this.words[i] = w;
-      }
-      if (carry !== 0) {
-        this.words[i] = carry;
-        this.length++;
-      }
-      return this;
-    };
-    BN2.prototype.isZero = function isZero() {
-      return this.length === 1 && this.words[0] === 0;
-    };
-    BN2.prototype.cmpn = function cmpn(num) {
-      var negative = num < 0;
-      if (this.negative !== 0 && !negative)
-        return -1;
-      if (this.negative === 0 && negative)
-        return 1;
-      this.strip();
-      var res;
-      if (this.length > 1) {
-        res = 1;
-      } else {
-        if (negative) {
-          num = -num;
-        }
-        assert2(num <= 67108863, "Number is too big");
-        var w = this.words[0] | 0;
-        res = w === num ? 0 : w < num ? -1 : 1;
-      }
-      if (this.negative !== 0)
-        return -res | 0;
-      return res;
-    };
-    BN2.prototype.cmp = function cmp(num) {
-      if (this.negative !== 0 && num.negative === 0)
-        return -1;
-      if (this.negative === 0 && num.negative !== 0)
-        return 1;
-      var res = this.ucmp(num);
-      if (this.negative !== 0)
-        return -res | 0;
-      return res;
-    };
-    BN2.prototype.ucmp = function ucmp(num) {
-      if (this.length > num.length)
-        return 1;
-      if (this.length < num.length)
-        return -1;
-      var res = 0;
-      for (var i = this.length - 1; i >= 0; i--) {
-        var a = this.words[i] | 0;
-        var b = num.words[i] | 0;
-        if (a === b)
-          continue;
-        if (a < b) {
-          res = -1;
-        } else if (a > b) {
-          res = 1;
-        }
-        break;
-      }
-      return res;
-    };
-    BN2.prototype.gtn = function gtn(num) {
-      return this.cmpn(num) === 1;
-    };
-    BN2.prototype.gt = function gt(num) {
-      return this.cmp(num) === 1;
-    };
-    BN2.prototype.gten = function gten(num) {
-      return this.cmpn(num) >= 0;
-    };
-    BN2.prototype.gte = function gte(num) {
-      return this.cmp(num) >= 0;
-    };
-    BN2.prototype.ltn = function ltn(num) {
-      return this.cmpn(num) === -1;
-    };
-    BN2.prototype.lt = function lt(num) {
-      return this.cmp(num) === -1;
-    };
-    BN2.prototype.lten = function lten(num) {
-      return this.cmpn(num) <= 0;
-    };
-    BN2.prototype.lte = function lte(num) {
-      return this.cmp(num) <= 0;
-    };
-    BN2.prototype.eqn = function eqn(num) {
-      return this.cmpn(num) === 0;
-    };
-    BN2.prototype.eq = function eq4(num) {
-      return this.cmp(num) === 0;
-    };
-    BN2.red = function red(num) {
-      return new Red(num);
-    };
-    BN2.prototype.toRed = function toRed(ctx) {
-      assert2(!this.red, "Already a number in reduction context");
-      assert2(this.negative === 0, "red works only with positives");
-      return ctx.convertTo(this)._forceRed(ctx);
-    };
-    BN2.prototype.fromRed = function fromRed() {
-      assert2(this.red, "fromRed works only with numbers in reduction context");
-      return this.red.convertFrom(this);
-    };
-    BN2.prototype._forceRed = function _forceRed(ctx) {
-      this.red = ctx;
-      return this;
-    };
-    BN2.prototype.forceRed = function forceRed(ctx) {
-      assert2(!this.red, "Already a number in reduction context");
-      return this._forceRed(ctx);
-    };
-    BN2.prototype.redAdd = function redAdd(num) {
-      assert2(this.red, "redAdd works only with red numbers");
-      return this.red.add(this, num);
-    };
-    BN2.prototype.redIAdd = function redIAdd(num) {
-      assert2(this.red, "redIAdd works only with red numbers");
-      return this.red.iadd(this, num);
-    };
-    BN2.prototype.redSub = function redSub(num) {
-      assert2(this.red, "redSub works only with red numbers");
-      return this.red.sub(this, num);
-    };
-    BN2.prototype.redISub = function redISub(num) {
-      assert2(this.red, "redISub works only with red numbers");
-      return this.red.isub(this, num);
-    };
-    BN2.prototype.redShl = function redShl(num) {
-      assert2(this.red, "redShl works only with red numbers");
-      return this.red.shl(this, num);
-    };
-    BN2.prototype.redMul = function redMul(num) {
-      assert2(this.red, "redMul works only with red numbers");
-      this.red._verify2(this, num);
-      return this.red.mul(this, num);
-    };
-    BN2.prototype.redIMul = function redIMul(num) {
-      assert2(this.red, "redMul works only with red numbers");
-      this.red._verify2(this, num);
-      return this.red.imul(this, num);
-    };
-    BN2.prototype.redSqr = function redSqr() {
-      assert2(this.red, "redSqr works only with red numbers");
-      this.red._verify1(this);
-      return this.red.sqr(this);
-    };
-    BN2.prototype.redISqr = function redISqr() {
-      assert2(this.red, "redISqr works only with red numbers");
-      this.red._verify1(this);
-      return this.red.isqr(this);
-    };
-    BN2.prototype.redSqrt = function redSqrt() {
-      assert2(this.red, "redSqrt works only with red numbers");
-      this.red._verify1(this);
-      return this.red.sqrt(this);
-    };
-    BN2.prototype.redInvm = function redInvm() {
-      assert2(this.red, "redInvm works only with red numbers");
-      this.red._verify1(this);
-      return this.red.invm(this);
-    };
-    BN2.prototype.redNeg = function redNeg() {
-      assert2(this.red, "redNeg works only with red numbers");
-      this.red._verify1(this);
-      return this.red.neg(this);
-    };
-    BN2.prototype.redPow = function redPow(num) {
-      assert2(this.red && !num.red, "redPow(normalNum)");
-      this.red._verify1(this);
-      return this.red.pow(this, num);
-    };
-    var primes = {
-      k256: null,
-      p224: null,
-      p192: null,
-      p25519: null
-    };
-    function MPrime(name2, p) {
-      this.name = name2;
-      this.p = new BN2(p, 16);
-      this.n = this.p.bitLength();
-      this.k = new BN2(1).iushln(this.n).isub(this.p);
-      this.tmp = this._tmp();
-    }
-    MPrime.prototype._tmp = function _tmp() {
-      var tmp = new BN2(null);
-      tmp.words = new Array(Math.ceil(this.n / 13));
-      return tmp;
-    };
-    MPrime.prototype.ireduce = function ireduce(num) {
-      var r2 = num;
-      var rlen;
-      do {
-        this.split(r2, this.tmp);
-        r2 = this.imulK(r2);
-        r2 = r2.iadd(this.tmp);
-        rlen = r2.bitLength();
-      } while (rlen > this.n);
-      var cmp = rlen < this.n ? -1 : r2.ucmp(this.p);
-      if (cmp === 0) {
-        r2.words[0] = 0;
-        r2.length = 1;
-      } else if (cmp > 0) {
-        r2.isub(this.p);
-      } else {
-        if (r2.strip !== void 0) {
-          r2.strip();
-        } else {
-          r2._strip();
-        }
-      }
-      return r2;
-    };
-    MPrime.prototype.split = function split(input, out) {
-      input.iushrn(this.n, 0, out);
-    };
-    MPrime.prototype.imulK = function imulK(num) {
-      return num.imul(this.k);
-    };
-    function K256() {
-      MPrime.call(this, "k256", "ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff fffffffe fffffc2f");
-    }
-    inherits(K256, MPrime);
-    K256.prototype.split = function split(input, output) {
-      var mask = 4194303;
-      var outLen = Math.min(input.length, 9);
-      for (var i = 0; i < outLen; i++) {
-        output.words[i] = input.words[i];
-      }
-      output.length = outLen;
-      if (input.length <= 9) {
-        input.words[0] = 0;
-        input.length = 1;
-        return;
-      }
-      var prev = input.words[9];
-      output.words[output.length++] = prev & mask;
-      for (i = 10; i < input.length; i++) {
-        var next = input.words[i] | 0;
-        input.words[i - 10] = (next & mask) << 4 | prev >>> 22;
-        prev = next;
-      }
-      prev >>>= 22;
-      input.words[i - 10] = prev;
-      if (prev === 0 && input.length > 10) {
-        input.length -= 10;
-      } else {
-        input.length -= 9;
-      }
-    };
-    K256.prototype.imulK = function imulK(num) {
-      num.words[num.length] = 0;
-      num.words[num.length + 1] = 0;
-      num.length += 2;
-      var lo = 0;
-      for (var i = 0; i < num.length; i++) {
-        var w = num.words[i] | 0;
-        lo += w * 977;
-        num.words[i] = lo & 67108863;
-        lo = w * 64 + (lo / 67108864 | 0);
-      }
-      if (num.words[num.length - 1] === 0) {
-        num.length--;
-        if (num.words[num.length - 1] === 0) {
-          num.length--;
-        }
-      }
-      return num;
-    };
-    function P224() {
-      MPrime.call(this, "p224", "ffffffff ffffffff ffffffff ffffffff 00000000 00000000 00000001");
-    }
-    inherits(P224, MPrime);
-    function P192() {
-      MPrime.call(this, "p192", "ffffffff ffffffff ffffffff fffffffe ffffffff ffffffff");
-    }
-    inherits(P192, MPrime);
-    function P25519() {
-      MPrime.call(this, "25519", "7fffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffed");
-    }
-    inherits(P25519, MPrime);
-    P25519.prototype.imulK = function imulK(num) {
-      var carry = 0;
-      for (var i = 0; i < num.length; i++) {
-        var hi = (num.words[i] | 0) * 19 + carry;
-        var lo = hi & 67108863;
-        hi >>>= 26;
-        num.words[i] = lo;
-        carry = hi;
-      }
-      if (carry !== 0) {
-        num.words[num.length++] = carry;
-      }
-      return num;
-    };
-    BN2._prime = function prime(name2) {
-      if (primes[name2])
-        return primes[name2];
-      var prime2;
-      if (name2 === "k256") {
-        prime2 = new K256();
-      } else if (name2 === "p224") {
-        prime2 = new P224();
-      } else if (name2 === "p192") {
-        prime2 = new P192();
-      } else if (name2 === "p25519") {
-        prime2 = new P25519();
-      } else {
-        throw new Error("Unknown prime " + name2);
-      }
-      primes[name2] = prime2;
-      return prime2;
-    };
-    function Red(m) {
-      if (typeof m === "string") {
-        var prime = BN2._prime(m);
-        this.m = prime.p;
-        this.prime = prime;
-      } else {
-        assert2(m.gtn(1), "modulus must be greater than 1");
-        this.m = m;
-        this.prime = null;
-      }
-    }
-    Red.prototype._verify1 = function _verify1(a) {
-      assert2(a.negative === 0, "red works only with positives");
-      assert2(a.red, "red works only with red numbers");
-    };
-    Red.prototype._verify2 = function _verify2(a, b) {
-      assert2((a.negative | b.negative) === 0, "red works only with positives");
-      assert2(a.red && a.red === b.red, "red works only with red numbers");
-    };
-    Red.prototype.imod = function imod(a) {
-      if (this.prime)
-        return this.prime.ireduce(a)._forceRed(this);
-      return a.umod(this.m)._forceRed(this);
-    };
-    Red.prototype.neg = function neg3(a) {
-      if (a.isZero()) {
-        return a.clone();
-      }
-      return this.m.sub(a)._forceRed(this);
-    };
-    Red.prototype.add = function add3(a, b) {
-      this._verify2(a, b);
-      var res = a.add(b);
-      if (res.cmp(this.m) >= 0) {
-        res.isub(this.m);
-      }
-      return res._forceRed(this);
-    };
-    Red.prototype.iadd = function iadd(a, b) {
-      this._verify2(a, b);
-      var res = a.iadd(b);
-      if (res.cmp(this.m) >= 0) {
-        res.isub(this.m);
-      }
-      return res;
-    };
-    Red.prototype.sub = function sub(a, b) {
-      this._verify2(a, b);
-      var res = a.sub(b);
-      if (res.cmpn(0) < 0) {
-        res.iadd(this.m);
-      }
-      return res._forceRed(this);
-    };
-    Red.prototype.isub = function isub(a, b) {
-      this._verify2(a, b);
-      var res = a.isub(b);
-      if (res.cmpn(0) < 0) {
-        res.iadd(this.m);
-      }
-      return res;
-    };
-    Red.prototype.shl = function shl(a, num) {
-      this._verify1(a);
-      return this.imod(a.ushln(num));
-    };
-    Red.prototype.imul = function imul(a, b) {
-      this._verify2(a, b);
-      return this.imod(a.imul(b));
-    };
-    Red.prototype.mul = function mul3(a, b) {
-      this._verify2(a, b);
-      return this.imod(a.mul(b));
-    };
-    Red.prototype.isqr = function isqr(a) {
-      return this.imul(a, a.clone());
-    };
-    Red.prototype.sqr = function sqr(a) {
-      return this.mul(a, a);
-    };
-    Red.prototype.sqrt = function sqrt(a) {
-      if (a.isZero())
-        return a.clone();
-      var mod3 = this.m.andln(3);
-      assert2(mod3 % 2 === 1);
-      if (mod3 === 3) {
-        var pow = this.m.add(new BN2(1)).iushrn(2);
-        return this.pow(a, pow);
-      }
-      var q = this.m.subn(1);
-      var s22 = 0;
-      while (!q.isZero() && q.andln(1) === 0) {
-        s22++;
-        q.iushrn(1);
-      }
-      assert2(!q.isZero());
-      var one = new BN2(1).toRed(this);
-      var nOne = one.redNeg();
-      var lpow = this.m.subn(1).iushrn(1);
-      var z = this.m.bitLength();
-      z = new BN2(2 * z * z).toRed(this);
-      while (this.pow(z, lpow).cmp(nOne) !== 0) {
-        z.redIAdd(nOne);
-      }
-      var c = this.pow(z, q);
-      var r2 = this.pow(a, q.addn(1).iushrn(1));
-      var t = this.pow(a, q);
-      var m = s22;
-      while (t.cmp(one) !== 0) {
-        var tmp = t;
-        for (var i = 0; tmp.cmp(one) !== 0; i++) {
-          tmp = tmp.redSqr();
-        }
-        assert2(i < m);
-        var b = this.pow(c, new BN2(1).iushln(m - i - 1));
-        r2 = r2.redMul(b);
-        c = b.redSqr();
-        t = t.redMul(c);
-        m = i;
-      }
-      return r2;
-    };
-    Red.prototype.invm = function invm(a) {
-      var inv = a._invmp(this.m);
-      if (inv.negative !== 0) {
-        inv.negative = 0;
-        return this.imod(inv).redNeg();
-      } else {
-        return this.imod(inv);
-      }
-    };
-    Red.prototype.pow = function pow(a, num) {
-      if (num.isZero())
-        return new BN2(1).toRed(this);
-      if (num.cmpn(1) === 0)
-        return a.clone();
-      var windowSize = 4;
-      var wnd = new Array(1 << windowSize);
-      wnd[0] = new BN2(1).toRed(this);
-      wnd[1] = a;
-      for (var i = 2; i < wnd.length; i++) {
-        wnd[i] = this.mul(wnd[i - 1], a);
-      }
-      var res = wnd[0];
-      var current = 0;
-      var currentLen = 0;
-      var start = num.bitLength() % 26;
-      if (start === 0) {
-        start = 26;
-      }
-      for (i = num.length - 1; i >= 0; i--) {
-        var word = num.words[i];
-        for (var j = start - 1; j >= 0; j--) {
-          var bit = word >> j & 1;
-          if (res !== wnd[0]) {
-            res = this.sqr(res);
-          }
-          if (bit === 0 && current === 0) {
-            currentLen = 0;
-            continue;
-          }
-          current <<= 1;
-          current |= bit;
-          currentLen++;
-          if (currentLen !== windowSize && (i !== 0 || j !== 0))
-            continue;
-          res = this.mul(res, wnd[current]);
-          currentLen = 0;
-          current = 0;
-        }
-        start = 26;
-      }
-      return res;
-    };
-    Red.prototype.convertTo = function convertTo(num) {
-      var r2 = num.umod(this.m);
-      return r2 === num ? r2.clone() : r2;
-    };
-    Red.prototype.convertFrom = function convertFrom(num) {
-      var res = num.clone();
-      res.red = null;
-      return res;
-    };
-    BN2.mont = function mont(num) {
-      return new Mont(num);
-    };
-    function Mont(m) {
-      Red.call(this, m);
-      this.shift = this.m.bitLength();
-      if (this.shift % 26 !== 0) {
-        this.shift += 26 - this.shift % 26;
-      }
-      this.r = new BN2(1).iushln(this.shift);
-      this.r2 = this.imod(this.r.sqr());
-      this.rinv = this.r._invmp(this.m);
-      this.minv = this.rinv.mul(this.r).isubn(1).div(this.m);
-      this.minv = this.minv.umod(this.r);
-      this.minv = this.r.sub(this.minv);
-    }
-    inherits(Mont, Red);
-    Mont.prototype.convertTo = function convertTo(num) {
-      return this.imod(num.ushln(this.shift));
-    };
-    Mont.prototype.convertFrom = function convertFrom(num) {
-      var r2 = this.imod(num.mul(this.rinv));
-      r2.red = null;
-      return r2;
-    };
-    Mont.prototype.imul = function imul(a, b) {
-      if (a.isZero() || b.isZero()) {
-        a.words[0] = 0;
-        a.length = 1;
-        return a;
-      }
-      var t = a.imul(b);
-      var c = t.maskn(this.shift).mul(this.minv).imaskn(this.shift).mul(this.m);
-      var u = t.isub(c).iushrn(this.shift);
-      var res = u;
-      if (u.cmp(this.m) >= 0) {
-        res = u.isub(this.m);
-      } else if (u.cmpn(0) < 0) {
-        res = u.iadd(this.m);
-      }
-      return res._forceRed(this);
-    };
-    Mont.prototype.mul = function mul3(a, b) {
-      if (a.isZero() || b.isZero())
-        return new BN2(0)._forceRed(this);
-      var t = a.mul(b);
-      var c = t.maskn(this.shift).mul(this.minv).imaskn(this.shift).mul(this.m);
-      var u = t.isub(c).iushrn(this.shift);
-      var res = u;
-      if (u.cmp(this.m) >= 0) {
-        res = u.isub(this.m);
-      } else if (u.cmpn(0) < 0) {
-        res = u.iadd(this.m);
-      }
-      return res._forceRed(this);
-    };
-    Mont.prototype.invm = function invm(a) {
-      var res = this.imod(a._invmp(this.m).mul(this.r2));
-      return res._forceRed(this);
-    };
-  })(module2, commonjsGlobal);
-});
-var version$m = "logger/5.1.0";
+var version$l = "logger/5.1.0";
 var _permanentCensorErrors = false;
 var _censorErrors = false;
 var LogLevels = {debug: 1, default: 2, info: 2, warning: 3, error: 4, off: 5};
@@ -22050,7 +23434,7 @@ var Logger = class {
   }
   static globalLogger() {
     if (!_globalLogger) {
-      _globalLogger = new Logger(version$m);
+      _globalLogger = new Logger(version$l);
     }
     return _globalLogger;
   }
@@ -22085,934 +23469,7 @@ var Logger = class {
 };
 Logger.errors = ErrorCode;
 Logger.levels = LogLevel;
-var version$l = "bytes/5.1.0";
-var logger$w = new Logger(version$l);
-function isHexable(value) {
-  return !!value.toHexString;
-}
-function addSlice(array) {
-  if (array.slice) {
-    return array;
-  }
-  array.slice = function() {
-    const args = Array.prototype.slice.call(arguments);
-    return addSlice(new Uint8Array(Array.prototype.slice.apply(array, args)));
-  };
-  return array;
-}
-function isBytesLike(value) {
-  return isHexString(value) && !(value.length % 2) || isBytes(value);
-}
-function isBytes(value) {
-  if (value == null) {
-    return false;
-  }
-  if (value.constructor === Uint8Array) {
-    return true;
-  }
-  if (typeof value === "string") {
-    return false;
-  }
-  if (value.length == null) {
-    return false;
-  }
-  for (let i = 0; i < value.length; i++) {
-    const v = value[i];
-    if (typeof v !== "number" || v < 0 || v >= 256 || v % 1) {
-      return false;
-    }
-  }
-  return true;
-}
-function arrayify(value, options2) {
-  if (!options2) {
-    options2 = {};
-  }
-  if (typeof value === "number") {
-    logger$w.checkSafeUint53(value, "invalid arrayify value");
-    const result = [];
-    while (value) {
-      result.unshift(value & 255);
-      value = parseInt(String(value / 256));
-    }
-    if (result.length === 0) {
-      result.push(0);
-    }
-    return addSlice(new Uint8Array(result));
-  }
-  if (options2.allowMissingPrefix && typeof value === "string" && value.substring(0, 2) !== "0x") {
-    value = "0x" + value;
-  }
-  if (isHexable(value)) {
-    value = value.toHexString();
-  }
-  if (isHexString(value)) {
-    let hex2 = value.substring(2);
-    if (hex2.length % 2) {
-      if (options2.hexPad === "left") {
-        hex2 = "0x0" + hex2.substring(2);
-      } else if (options2.hexPad === "right") {
-        hex2 += "0";
-      } else {
-        logger$w.throwArgumentError("hex data is odd-length", "value", value);
-      }
-    }
-    const result = [];
-    for (let i = 0; i < hex2.length; i += 2) {
-      result.push(parseInt(hex2.substring(i, i + 2), 16));
-    }
-    return addSlice(new Uint8Array(result));
-  }
-  if (isBytes(value)) {
-    return addSlice(new Uint8Array(value));
-  }
-  return logger$w.throwArgumentError("invalid arrayify value", "value", value);
-}
-function concat(items) {
-  const objects = items.map((item) => arrayify(item));
-  const length = objects.reduce((accum, item) => accum + item.length, 0);
-  const result = new Uint8Array(length);
-  objects.reduce((offset, object) => {
-    result.set(object, offset);
-    return offset + object.length;
-  }, 0);
-  return addSlice(result);
-}
-function stripZeros(value) {
-  let result = arrayify(value);
-  if (result.length === 0) {
-    return result;
-  }
-  let start = 0;
-  while (start < result.length && result[start] === 0) {
-    start++;
-  }
-  if (start) {
-    result = result.slice(start);
-  }
-  return result;
-}
-function zeroPad(value, length) {
-  value = arrayify(value);
-  if (value.length > length) {
-    logger$w.throwArgumentError("value out of range", "value", arguments[0]);
-  }
-  const result = new Uint8Array(length);
-  result.set(value, length - value.length);
-  return addSlice(result);
-}
-function isHexString(value, length) {
-  if (typeof value !== "string" || !value.match(/^0x[0-9A-Fa-f]*$/)) {
-    return false;
-  }
-  if (length && value.length !== 2 + 2 * length) {
-    return false;
-  }
-  return true;
-}
-var HexCharacters = "0123456789abcdef";
-function hexlify(value, options2) {
-  if (!options2) {
-    options2 = {};
-  }
-  if (typeof value === "number") {
-    logger$w.checkSafeUint53(value, "invalid hexlify value");
-    let hex2 = "";
-    while (value) {
-      hex2 = HexCharacters[value & 15] + hex2;
-      value = Math.floor(value / 16);
-    }
-    if (hex2.length) {
-      if (hex2.length % 2) {
-        hex2 = "0" + hex2;
-      }
-      return "0x" + hex2;
-    }
-    return "0x00";
-  }
-  if (options2.allowMissingPrefix && typeof value === "string" && value.substring(0, 2) !== "0x") {
-    value = "0x" + value;
-  }
-  if (isHexable(value)) {
-    return value.toHexString();
-  }
-  if (isHexString(value)) {
-    if (value.length % 2) {
-      if (options2.hexPad === "left") {
-        value = "0x0" + value.substring(2);
-      } else if (options2.hexPad === "right") {
-        value += "0";
-      } else {
-        logger$w.throwArgumentError("hex data is odd-length", "value", value);
-      }
-    }
-    return value.toLowerCase();
-  }
-  if (isBytes(value)) {
-    let result = "0x";
-    for (let i = 0; i < value.length; i++) {
-      let v = value[i];
-      result += HexCharacters[(v & 240) >> 4] + HexCharacters[v & 15];
-    }
-    return result;
-  }
-  return logger$w.throwArgumentError("invalid hexlify value", "value", value);
-}
-function hexDataLength(data2) {
-  if (typeof data2 !== "string") {
-    data2 = hexlify(data2);
-  } else if (!isHexString(data2) || data2.length % 2) {
-    return null;
-  }
-  return (data2.length - 2) / 2;
-}
-function hexDataSlice(data2, offset, endOffset) {
-  if (typeof data2 !== "string") {
-    data2 = hexlify(data2);
-  } else if (!isHexString(data2) || data2.length % 2) {
-    logger$w.throwArgumentError("invalid hexData", "value", data2);
-  }
-  offset = 2 + 2 * offset;
-  if (endOffset != null) {
-    return "0x" + data2.substring(offset, 2 + 2 * endOffset);
-  }
-  return "0x" + data2.substring(offset);
-}
-function hexConcat(items) {
-  let result = "0x";
-  items.forEach((item) => {
-    result += hexlify(item).substring(2);
-  });
-  return result;
-}
-function hexValue(value) {
-  const trimmed = hexStripZeros(hexlify(value, {hexPad: "left"}));
-  if (trimmed === "0x") {
-    return "0x0";
-  }
-  return trimmed;
-}
-function hexStripZeros(value) {
-  if (typeof value !== "string") {
-    value = hexlify(value);
-  }
-  if (!isHexString(value)) {
-    logger$w.throwArgumentError("invalid hex string", "value", value);
-  }
-  value = value.substring(2);
-  let offset = 0;
-  while (offset < value.length && value[offset] === "0") {
-    offset++;
-  }
-  return "0x" + value.substring(offset);
-}
-function hexZeroPad(value, length) {
-  if (typeof value !== "string") {
-    value = hexlify(value);
-  } else if (!isHexString(value)) {
-    logger$w.throwArgumentError("invalid hex string", "value", value);
-  }
-  if (value.length > 2 * length + 2) {
-    logger$w.throwArgumentError("value out of range", "value", arguments[1]);
-  }
-  while (value.length < 2 * length + 2) {
-    value = "0x0" + value.substring(2);
-  }
-  return value;
-}
-function splitSignature(signature2) {
-  const result = {
-    r: "0x",
-    s: "0x",
-    _vs: "0x",
-    recoveryParam: 0,
-    v: 0
-  };
-  if (isBytesLike(signature2)) {
-    const bytes = arrayify(signature2);
-    if (bytes.length !== 65) {
-      logger$w.throwArgumentError("invalid signature string; must be 65 bytes", "signature", signature2);
-    }
-    result.r = hexlify(bytes.slice(0, 32));
-    result.s = hexlify(bytes.slice(32, 64));
-    result.v = bytes[64];
-    if (result.v < 27) {
-      if (result.v === 0 || result.v === 1) {
-        result.v += 27;
-      } else {
-        logger$w.throwArgumentError("signature invalid v byte", "signature", signature2);
-      }
-    }
-    result.recoveryParam = 1 - result.v % 2;
-    if (result.recoveryParam) {
-      bytes[32] |= 128;
-    }
-    result._vs = hexlify(bytes.slice(32, 64));
-  } else {
-    result.r = signature2.r;
-    result.s = signature2.s;
-    result.v = signature2.v;
-    result.recoveryParam = signature2.recoveryParam;
-    result._vs = signature2._vs;
-    if (result._vs != null) {
-      const vs2 = zeroPad(arrayify(result._vs), 32);
-      result._vs = hexlify(vs2);
-      const recoveryParam = vs2[0] >= 128 ? 1 : 0;
-      if (result.recoveryParam == null) {
-        result.recoveryParam = recoveryParam;
-      } else if (result.recoveryParam !== recoveryParam) {
-        logger$w.throwArgumentError("signature recoveryParam mismatch _vs", "signature", signature2);
-      }
-      vs2[0] &= 127;
-      const s22 = hexlify(vs2);
-      if (result.s == null) {
-        result.s = s22;
-      } else if (result.s !== s22) {
-        logger$w.throwArgumentError("signature v mismatch _vs", "signature", signature2);
-      }
-    }
-    if (result.recoveryParam == null) {
-      if (result.v == null) {
-        logger$w.throwArgumentError("signature missing v and recoveryParam", "signature", signature2);
-      } else if (result.v === 0 || result.v === 1) {
-        result.recoveryParam = result.v;
-      } else {
-        result.recoveryParam = 1 - result.v % 2;
-      }
-    } else {
-      if (result.v == null) {
-        result.v = 27 + result.recoveryParam;
-      } else if (result.recoveryParam !== 1 - result.v % 2) {
-        logger$w.throwArgumentError("signature recoveryParam mismatch v", "signature", signature2);
-      }
-    }
-    if (result.r == null || !isHexString(result.r)) {
-      logger$w.throwArgumentError("signature missing or invalid r", "signature", signature2);
-    } else {
-      result.r = hexZeroPad(result.r, 32);
-    }
-    if (result.s == null || !isHexString(result.s)) {
-      logger$w.throwArgumentError("signature missing or invalid s", "signature", signature2);
-    } else {
-      result.s = hexZeroPad(result.s, 32);
-    }
-    const vs = arrayify(result.s);
-    if (vs[0] >= 128) {
-      logger$w.throwArgumentError("signature s out of range", "signature", signature2);
-    }
-    if (result.recoveryParam) {
-      vs[0] |= 128;
-    }
-    const _vs = hexlify(vs);
-    if (result._vs) {
-      if (!isHexString(result._vs)) {
-        logger$w.throwArgumentError("signature invalid _vs", "signature", signature2);
-      }
-      result._vs = hexZeroPad(result._vs, 32);
-    }
-    if (result._vs == null) {
-      result._vs = _vs;
-    } else if (result._vs !== _vs) {
-      logger$w.throwArgumentError("signature _vs mismatch v and s", "signature", signature2);
-    }
-  }
-  return result;
-}
-function joinSignature(signature2) {
-  signature2 = splitSignature(signature2);
-  return hexlify(concat([
-    signature2.r,
-    signature2.s,
-    signature2.recoveryParam ? "0x1c" : "0x1b"
-  ]));
-}
-var version$k = "bignumber/5.1.1";
-var BN = bn.BN;
-var logger$v = new Logger(version$k);
-var _constructorGuard$4 = {};
-var MAX_SAFE = 9007199254740991;
-function isBigNumberish(value) {
-  return value != null && (BigNumber.isBigNumber(value) || typeof value === "number" && value % 1 === 0 || typeof value === "string" && !!value.match(/^-?[0-9]+$/) || isHexString(value) || typeof value === "bigint" || isBytes(value));
-}
-var _warnedToStringRadix = false;
-var BigNumber = class {
-  constructor(constructorGuard, hex2) {
-    logger$v.checkNew(new.target, BigNumber);
-    if (constructorGuard !== _constructorGuard$4) {
-      logger$v.throwError("cannot call constructor directly; use BigNumber.from", Logger.errors.UNSUPPORTED_OPERATION, {
-        operation: "new (BigNumber)"
-      });
-    }
-    this._hex = hex2;
-    this._isBigNumber = true;
-    Object.freeze(this);
-  }
-  fromTwos(value) {
-    return toBigNumber(toBN(this).fromTwos(value));
-  }
-  toTwos(value) {
-    return toBigNumber(toBN(this).toTwos(value));
-  }
-  abs() {
-    if (this._hex[0] === "-") {
-      return BigNumber.from(this._hex.substring(1));
-    }
-    return this;
-  }
-  add(other) {
-    return toBigNumber(toBN(this).add(toBN(other)));
-  }
-  sub(other) {
-    return toBigNumber(toBN(this).sub(toBN(other)));
-  }
-  div(other) {
-    const o = BigNumber.from(other);
-    if (o.isZero()) {
-      throwFault$1("division by zero", "div");
-    }
-    return toBigNumber(toBN(this).div(toBN(other)));
-  }
-  mul(other) {
-    return toBigNumber(toBN(this).mul(toBN(other)));
-  }
-  mod(other) {
-    const value = toBN(other);
-    if (value.isNeg()) {
-      throwFault$1("cannot modulo negative values", "mod");
-    }
-    return toBigNumber(toBN(this).umod(value));
-  }
-  pow(other) {
-    const value = toBN(other);
-    if (value.isNeg()) {
-      throwFault$1("cannot raise to negative values", "pow");
-    }
-    return toBigNumber(toBN(this).pow(value));
-  }
-  and(other) {
-    const value = toBN(other);
-    if (this.isNegative() || value.isNeg()) {
-      throwFault$1("cannot 'and' negative values", "and");
-    }
-    return toBigNumber(toBN(this).and(value));
-  }
-  or(other) {
-    const value = toBN(other);
-    if (this.isNegative() || value.isNeg()) {
-      throwFault$1("cannot 'or' negative values", "or");
-    }
-    return toBigNumber(toBN(this).or(value));
-  }
-  xor(other) {
-    const value = toBN(other);
-    if (this.isNegative() || value.isNeg()) {
-      throwFault$1("cannot 'xor' negative values", "xor");
-    }
-    return toBigNumber(toBN(this).xor(value));
-  }
-  mask(value) {
-    if (this.isNegative() || value < 0) {
-      throwFault$1("cannot mask negative values", "mask");
-    }
-    return toBigNumber(toBN(this).maskn(value));
-  }
-  shl(value) {
-    if (this.isNegative() || value < 0) {
-      throwFault$1("cannot shift negative values", "shl");
-    }
-    return toBigNumber(toBN(this).shln(value));
-  }
-  shr(value) {
-    if (this.isNegative() || value < 0) {
-      throwFault$1("cannot shift negative values", "shr");
-    }
-    return toBigNumber(toBN(this).shrn(value));
-  }
-  eq(other) {
-    return toBN(this).eq(toBN(other));
-  }
-  lt(other) {
-    return toBN(this).lt(toBN(other));
-  }
-  lte(other) {
-    return toBN(this).lte(toBN(other));
-  }
-  gt(other) {
-    return toBN(this).gt(toBN(other));
-  }
-  gte(other) {
-    return toBN(this).gte(toBN(other));
-  }
-  isNegative() {
-    return this._hex[0] === "-";
-  }
-  isZero() {
-    return toBN(this).isZero();
-  }
-  toNumber() {
-    try {
-      return toBN(this).toNumber();
-    } catch (error2) {
-      throwFault$1("overflow", "toNumber", this.toString());
-    }
-    return null;
-  }
-  toBigInt() {
-    try {
-      return BigInt(this.toString());
-    } catch (e) {
-    }
-    return logger$v.throwError("this platform does not support BigInt", Logger.errors.UNSUPPORTED_OPERATION, {
-      value: this.toString()
-    });
-  }
-  toString() {
-    if (arguments.length > 0) {
-      if (arguments[0] === 10) {
-        if (!_warnedToStringRadix) {
-          _warnedToStringRadix = true;
-          logger$v.warn("BigNumber.toString does not accept any parameters; base-10 is assumed");
-        }
-      } else if (arguments[0] === 16) {
-        logger$v.throwError("BigNumber.toString does not accept any parameters; use bigNumber.toHexString()", Logger.errors.UNEXPECTED_ARGUMENT, {});
-      } else {
-        logger$v.throwError("BigNumber.toString does not accept parameters", Logger.errors.UNEXPECTED_ARGUMENT, {});
-      }
-    }
-    return toBN(this).toString(10);
-  }
-  toHexString() {
-    return this._hex;
-  }
-  toJSON(key2) {
-    return {type: "BigNumber", hex: this.toHexString()};
-  }
-  static from(value) {
-    if (value instanceof BigNumber) {
-      return value;
-    }
-    if (typeof value === "string") {
-      if (value.match(/^-?0x[0-9a-f]+$/i)) {
-        return new BigNumber(_constructorGuard$4, toHex$2(value));
-      }
-      if (value.match(/^-?[0-9]+$/)) {
-        return new BigNumber(_constructorGuard$4, toHex$2(new BN(value)));
-      }
-      return logger$v.throwArgumentError("invalid BigNumber string", "value", value);
-    }
-    if (typeof value === "number") {
-      if (value % 1) {
-        throwFault$1("underflow", "BigNumber.from", value);
-      }
-      if (value >= MAX_SAFE || value <= -MAX_SAFE) {
-        throwFault$1("overflow", "BigNumber.from", value);
-      }
-      return BigNumber.from(String(value));
-    }
-    const anyValue = value;
-    if (typeof anyValue === "bigint") {
-      return BigNumber.from(anyValue.toString());
-    }
-    if (isBytes(anyValue)) {
-      return BigNumber.from(hexlify(anyValue));
-    }
-    if (anyValue) {
-      if (anyValue.toHexString) {
-        const hex2 = anyValue.toHexString();
-        if (typeof hex2 === "string") {
-          return BigNumber.from(hex2);
-        }
-      } else {
-        let hex2 = anyValue._hex;
-        if (hex2 == null && anyValue.type === "BigNumber") {
-          hex2 = anyValue.hex;
-        }
-        if (typeof hex2 === "string") {
-          if (isHexString(hex2) || hex2[0] === "-" && isHexString(hex2.substring(1))) {
-            return BigNumber.from(hex2);
-          }
-        }
-      }
-    }
-    return logger$v.throwArgumentError("invalid BigNumber value", "value", value);
-  }
-  static isBigNumber(value) {
-    return !!(value && value._isBigNumber);
-  }
-};
-function toHex$2(value) {
-  if (typeof value !== "string") {
-    return toHex$2(value.toString(16));
-  }
-  if (value[0] === "-") {
-    value = value.substring(1);
-    if (value[0] === "-") {
-      logger$v.throwArgumentError("invalid hex", "value", value);
-    }
-    value = toHex$2(value);
-    if (value === "0x00") {
-      return value;
-    }
-    return "-" + value;
-  }
-  if (value.substring(0, 2) !== "0x") {
-    value = "0x" + value;
-  }
-  if (value === "0x") {
-    return "0x00";
-  }
-  if (value.length % 2) {
-    value = "0x0" + value.substring(2);
-  }
-  while (value.length > 4 && value.substring(0, 4) === "0x00") {
-    value = "0x" + value.substring(4);
-  }
-  return value;
-}
-function toBigNumber(value) {
-  return BigNumber.from(toHex$2(value));
-}
-function toBN(value) {
-  const hex2 = BigNumber.from(value).toHexString();
-  if (hex2[0] === "-") {
-    return new BN("-" + hex2.substring(3), 16);
-  }
-  return new BN(hex2.substring(2), 16);
-}
-function throwFault$1(fault, operation, value) {
-  const params = {fault, operation};
-  if (value != null) {
-    params.value = value;
-  }
-  return logger$v.throwError(fault, Logger.errors.NUMERIC_FAULT, params);
-}
-function _base36To16(value) {
-  return new BN(value, 36).toString(16);
-}
-function _base16To36(value) {
-  return new BN(value, 16).toString(36);
-}
-var logger$u = new Logger(version$k);
-var _constructorGuard$3 = {};
-var Zero$2 = BigNumber.from(0);
-var NegativeOne$2 = BigNumber.from(-1);
-function throwFault(message, fault, operation, value) {
-  const params = {fault, operation};
-  if (value !== void 0) {
-    params.value = value;
-  }
-  return logger$u.throwError(message, Logger.errors.NUMERIC_FAULT, params);
-}
-var zeros = "0";
-while (zeros.length < 256) {
-  zeros += zeros;
-}
-function getMultiplier(decimals) {
-  if (typeof decimals !== "number") {
-    try {
-      decimals = BigNumber.from(decimals).toNumber();
-    } catch (e) {
-    }
-  }
-  if (typeof decimals === "number" && decimals >= 0 && decimals <= 256 && !(decimals % 1)) {
-    return "1" + zeros.substring(0, decimals);
-  }
-  return logger$u.throwArgumentError("invalid decimal size", "decimals", decimals);
-}
-function formatFixed(value, decimals) {
-  if (decimals == null) {
-    decimals = 0;
-  }
-  const multiplier = getMultiplier(decimals);
-  value = BigNumber.from(value);
-  const negative = value.lt(Zero$2);
-  if (negative) {
-    value = value.mul(NegativeOne$2);
-  }
-  let fraction = value.mod(multiplier).toString();
-  while (fraction.length < multiplier.length - 1) {
-    fraction = "0" + fraction;
-  }
-  fraction = fraction.match(/^([0-9]*[1-9]|0)(0*)/)[1];
-  const whole = value.div(multiplier).toString();
-  value = whole + "." + fraction;
-  if (negative) {
-    value = "-" + value;
-  }
-  return value;
-}
-function parseFixed(value, decimals) {
-  if (decimals == null) {
-    decimals = 0;
-  }
-  const multiplier = getMultiplier(decimals);
-  if (typeof value !== "string" || !value.match(/^-?[0-9.,]+$/)) {
-    logger$u.throwArgumentError("invalid decimal value", "value", value);
-  }
-  if (multiplier.length - 1 === 0) {
-    return BigNumber.from(value);
-  }
-  const negative = value.substring(0, 1) === "-";
-  if (negative) {
-    value = value.substring(1);
-  }
-  if (value === ".") {
-    logger$u.throwArgumentError("missing value", "value", value);
-  }
-  const comps = value.split(".");
-  if (comps.length > 2) {
-    logger$u.throwArgumentError("too many decimal points", "value", value);
-  }
-  let whole = comps[0], fraction = comps[1];
-  if (!whole) {
-    whole = "0";
-  }
-  if (!fraction) {
-    fraction = "0";
-  }
-  if (fraction.length > multiplier.length - 1) {
-    throwFault("fractional component exceeds decimals", "underflow", "parseFixed");
-  }
-  while (fraction.length < multiplier.length - 1) {
-    fraction += "0";
-  }
-  const wholeValue = BigNumber.from(whole);
-  const fractionValue = BigNumber.from(fraction);
-  let wei = wholeValue.mul(multiplier).add(fractionValue);
-  if (negative) {
-    wei = wei.mul(NegativeOne$2);
-  }
-  return wei;
-}
-var FixedFormat = class {
-  constructor(constructorGuard, signed, width, decimals) {
-    if (constructorGuard !== _constructorGuard$3) {
-      logger$u.throwError("cannot use FixedFormat constructor; use FixedFormat.from", Logger.errors.UNSUPPORTED_OPERATION, {
-        operation: "new FixedFormat"
-      });
-    }
-    this.signed = signed;
-    this.width = width;
-    this.decimals = decimals;
-    this.name = (signed ? "" : "u") + "fixed" + String(width) + "x" + String(decimals);
-    this._multiplier = getMultiplier(decimals);
-    Object.freeze(this);
-  }
-  static from(value) {
-    if (value instanceof FixedFormat) {
-      return value;
-    }
-    let signed = true;
-    let width = 128;
-    let decimals = 18;
-    if (typeof value === "string") {
-      if (value === "fixed")
-        ;
-      else if (value === "ufixed") {
-        signed = false;
-      } else if (value != null) {
-        const match = value.match(/^(u?)fixed([0-9]+)x([0-9]+)$/);
-        if (!match) {
-          logger$u.throwArgumentError("invalid fixed format", "format", value);
-        }
-        signed = match[1] !== "u";
-        width = parseInt(match[2]);
-        decimals = parseInt(match[3]);
-      }
-    } else if (value) {
-      const check = (key2, type, defaultValue) => {
-        if (value[key2] == null) {
-          return defaultValue;
-        }
-        if (typeof value[key2] !== type) {
-          logger$u.throwArgumentError("invalid fixed format (" + key2 + " not " + type + ")", "format." + key2, value[key2]);
-        }
-        return value[key2];
-      };
-      signed = check("signed", "boolean", signed);
-      width = check("width", "number", width);
-      decimals = check("decimals", "number", decimals);
-    }
-    if (width % 8) {
-      logger$u.throwArgumentError("invalid fixed format width (not byte aligned)", "format.width", width);
-    }
-    if (decimals > 80) {
-      logger$u.throwArgumentError("invalid fixed format (decimals too large)", "format.decimals", decimals);
-    }
-    return new FixedFormat(_constructorGuard$3, signed, width, decimals);
-  }
-};
-var FixedNumber = class {
-  constructor(constructorGuard, hex2, value, format2) {
-    logger$u.checkNew(new.target, FixedNumber);
-    if (constructorGuard !== _constructorGuard$3) {
-      logger$u.throwError("cannot use FixedNumber constructor; use FixedNumber.from", Logger.errors.UNSUPPORTED_OPERATION, {
-        operation: "new FixedFormat"
-      });
-    }
-    this.format = format2;
-    this._hex = hex2;
-    this._value = value;
-    this._isFixedNumber = true;
-    Object.freeze(this);
-  }
-  _checkFormat(other) {
-    if (this.format.name !== other.format.name) {
-      logger$u.throwArgumentError("incompatible format; use fixedNumber.toFormat", "other", other);
-    }
-  }
-  addUnsafe(other) {
-    this._checkFormat(other);
-    const a = parseFixed(this._value, this.format.decimals);
-    const b = parseFixed(other._value, other.format.decimals);
-    return FixedNumber.fromValue(a.add(b), this.format.decimals, this.format);
-  }
-  subUnsafe(other) {
-    this._checkFormat(other);
-    const a = parseFixed(this._value, this.format.decimals);
-    const b = parseFixed(other._value, other.format.decimals);
-    return FixedNumber.fromValue(a.sub(b), this.format.decimals, this.format);
-  }
-  mulUnsafe(other) {
-    this._checkFormat(other);
-    const a = parseFixed(this._value, this.format.decimals);
-    const b = parseFixed(other._value, other.format.decimals);
-    return FixedNumber.fromValue(a.mul(b).div(this.format._multiplier), this.format.decimals, this.format);
-  }
-  divUnsafe(other) {
-    this._checkFormat(other);
-    const a = parseFixed(this._value, this.format.decimals);
-    const b = parseFixed(other._value, other.format.decimals);
-    return FixedNumber.fromValue(a.mul(this.format._multiplier).div(b), this.format.decimals, this.format);
-  }
-  floor() {
-    let comps = this.toString().split(".");
-    let result = FixedNumber.from(comps[0], this.format);
-    const hasFraction = !comps[1].match(/^(0*)$/);
-    if (this.isNegative() && hasFraction) {
-      result = result.subUnsafe(ONE);
-    }
-    return result;
-  }
-  ceiling() {
-    let comps = this.toString().split(".");
-    let result = FixedNumber.from(comps[0], this.format);
-    const hasFraction = !comps[1].match(/^(0*)$/);
-    if (!this.isNegative() && hasFraction) {
-      result = result.addUnsafe(ONE);
-    }
-    return result;
-  }
-  round(decimals) {
-    if (decimals == null) {
-      decimals = 0;
-    }
-    let comps = this.toString().split(".");
-    if (decimals < 0 || decimals > 80 || decimals % 1) {
-      logger$u.throwArgumentError("invalid decimal count", "decimals", decimals);
-    }
-    if (comps[1].length <= decimals) {
-      return this;
-    }
-    const factor = FixedNumber.from("1" + zeros.substring(0, decimals));
-    return this.mulUnsafe(factor).addUnsafe(BUMP).floor().divUnsafe(factor);
-  }
-  isZero() {
-    return this._value === "0.0";
-  }
-  isNegative() {
-    return this._value[0] === "-";
-  }
-  toString() {
-    return this._value;
-  }
-  toHexString(width) {
-    if (width == null) {
-      return this._hex;
-    }
-    if (width % 8) {
-      logger$u.throwArgumentError("invalid byte width", "width", width);
-    }
-    const hex2 = BigNumber.from(this._hex).fromTwos(this.format.width).toTwos(width).toHexString();
-    return hexZeroPad(hex2, width / 8);
-  }
-  toUnsafeFloat() {
-    return parseFloat(this.toString());
-  }
-  toFormat(format2) {
-    return FixedNumber.fromString(this._value, format2);
-  }
-  static fromValue(value, decimals, format2) {
-    if (format2 == null && decimals != null && !isBigNumberish(decimals)) {
-      format2 = decimals;
-      decimals = null;
-    }
-    if (decimals == null) {
-      decimals = 0;
-    }
-    if (format2 == null) {
-      format2 = "fixed";
-    }
-    return FixedNumber.fromString(formatFixed(value, decimals), FixedFormat.from(format2));
-  }
-  static fromString(value, format2) {
-    if (format2 == null) {
-      format2 = "fixed";
-    }
-    const fixedFormat = FixedFormat.from(format2);
-    const numeric = parseFixed(value, fixedFormat.decimals);
-    if (!fixedFormat.signed && numeric.lt(Zero$2)) {
-      throwFault("unsigned value cannot be negative", "overflow", "value", value);
-    }
-    let hex2 = null;
-    if (fixedFormat.signed) {
-      hex2 = numeric.toTwos(fixedFormat.width).toHexString();
-    } else {
-      hex2 = numeric.toHexString();
-      hex2 = hexZeroPad(hex2, fixedFormat.width / 8);
-    }
-    const decimal = formatFixed(numeric, fixedFormat.decimals);
-    return new FixedNumber(_constructorGuard$3, hex2, decimal, fixedFormat);
-  }
-  static fromBytes(value, format2) {
-    if (format2 == null) {
-      format2 = "fixed";
-    }
-    const fixedFormat = FixedFormat.from(format2);
-    if (arrayify(value).length > fixedFormat.width / 8) {
-      throw new Error("overflow");
-    }
-    let numeric = BigNumber.from(value);
-    if (fixedFormat.signed) {
-      numeric = numeric.fromTwos(fixedFormat.width);
-    }
-    const hex2 = numeric.toTwos((fixedFormat.signed ? 0 : 1) + fixedFormat.width).toHexString();
-    const decimal = formatFixed(numeric, fixedFormat.decimals);
-    return new FixedNumber(_constructorGuard$3, hex2, decimal, fixedFormat);
-  }
-  static from(value, format2) {
-    if (typeof value === "string") {
-      return FixedNumber.fromString(value, format2);
-    }
-    if (isBytes(value)) {
-      return FixedNumber.fromBytes(value, format2);
-    }
-    try {
-      return FixedNumber.fromValue(value, 0, format2);
-    } catch (error2) {
-      if (error2.code !== Logger.errors.INVALID_ARGUMENT) {
-        throw error2;
-      }
-    }
-    return logger$u.throwArgumentError("invalid FixedNumber value", "value", value);
-  }
-  static isFixedNumber(value) {
-    return !!(value && value._isFixedNumber);
-  }
-};
-var ONE = FixedNumber.from(1);
-var BUMP = FixedNumber.from("0.5");
-var version$j = "properties/5.1.0";
+var version$k = "properties/5.1.0";
 var __awaiter$9 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
@@ -23040,7 +23497,7 @@ var __awaiter$9 = function(thisArg, _arguments, P, generator) {
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 };
-var logger$t = new Logger(version$j);
+var logger$u = new Logger(version$k);
 function defineReadOnly(object, name2, value) {
   Object.defineProperty(object, name2, {
     enumerable: true,
@@ -23075,11 +23532,11 @@ function resolveProperties(object) {
 }
 function checkProperties(object, properties) {
   if (!object || typeof object !== "object") {
-    logger$t.throwArgumentError("invalid object", "object", object);
+    logger$u.throwArgumentError("invalid object", "object", object);
   }
   Object.keys(object).forEach((key2) => {
     if (!properties[key2]) {
-      logger$t.throwArgumentError("invalid object key - " + key2, "transaction:" + key2, object);
+      logger$u.throwArgumentError("invalid object key - " + key2, "transaction:" + key2, object);
     }
   });
 }
@@ -23107,7 +23564,7 @@ function _isFrozen(object) {
     }
     return true;
   }
-  return logger$t.throwArgumentError(`Cannot deepCopy ${typeof object}`, "object", object);
+  return logger$u.throwArgumentError(`Cannot deepCopy ${typeof object}`, "object", object);
 }
 function _deepCopy(object) {
   if (_isFrozen(object)) {
@@ -23127,7 +23584,7 @@ function _deepCopy(object) {
     }
     return result;
   }
-  return logger$t.throwArgumentError(`Cannot deepCopy ${typeof object}`, "object", object);
+  return logger$u.throwArgumentError(`Cannot deepCopy ${typeof object}`, "object", object);
 }
 function deepCopy(object) {
   return _deepCopy(object);
@@ -23139,8 +23596,8 @@ var Description = class {
     }
   }
 };
-var version$i = "abi/5.1.1";
-var logger$s = new Logger(version$i);
+var version$j = "abi/5.1.1";
+var logger$t = new Logger(version$j);
 var _constructorGuard$2 = {};
 var ModifiersBytes = {calldata: true, memory: true, storage: true};
 var ModifiersNest = {calldata: true, memory: true};
@@ -23159,14 +23616,14 @@ function checkModifier(type, name2) {
     }
   }
   if (ModifiersBytes[name2] || name2 === "payable") {
-    logger$s.throwArgumentError("invalid modifier", "name", name2);
+    logger$t.throwArgumentError("invalid modifier", "name", name2);
   }
   return false;
 }
 function parseParamType(param, allowIndexed) {
   let originalParam = param;
   function throwError(i) {
-    logger$s.throwArgumentError(`unexpected character at position ${i}`, "param", param);
+    logger$t.throwArgumentError(`unexpected character at position ${i}`, "param", param);
   }
   param = param.replace(/\s/g, " ");
   function newNode(parent2) {
@@ -23295,7 +23752,7 @@ function parseParamType(param, allowIndexed) {
     }
   }
   if (node.parent) {
-    logger$s.throwArgumentError("unexpected eof", "param", param);
+    logger$t.throwArgumentError("unexpected eof", "param", param);
   }
   delete parent.state;
   if (node.name === "indexed") {
@@ -23328,7 +23785,7 @@ var paramTypeArray = new RegExp(/^(.*)\[([0-9]*)\]$/);
 var ParamType = class {
   constructor(constructorGuard, params) {
     if (constructorGuard !== _constructorGuard$2) {
-      logger$s.throwError("use fromString", Logger.errors.UNSUPPORTED_OPERATION, {
+      logger$t.throwError("use fromString", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "new ParamType()"
       });
     }
@@ -23358,7 +23815,7 @@ var ParamType = class {
       format2 = FormatTypes.sighash;
     }
     if (!FormatTypes[format2]) {
-      logger$s.throwArgumentError("invalid format type", "format", format2);
+      logger$t.throwArgumentError("invalid format type", "format", format2);
     }
     if (format2 === FormatTypes.json) {
       let result2 = {
@@ -23435,7 +23892,7 @@ function parseParams(value, allowIndex) {
 var Fragment = class {
   constructor(constructorGuard, params) {
     if (constructorGuard !== _constructorGuard$2) {
-      logger$s.throwError("use a static from method", Logger.errors.UNSUPPORTED_OPERATION, {
+      logger$t.throwError("use a static from method", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "new Fragment()"
       });
     }
@@ -23467,7 +23924,7 @@ var Fragment = class {
       case "receive":
         return null;
     }
-    return logger$s.throwArgumentError("invalid fragment object", "value", value);
+    return logger$t.throwArgumentError("invalid fragment object", "value", value);
   }
   static fromString(value) {
     value = value.replace(/\s/g, " ");
@@ -23480,7 +23937,7 @@ var Fragment = class {
     } else if (value.split("(")[0].trim() === "constructor") {
       return ConstructorFragment.fromString(value.trim());
     }
-    return logger$s.throwArgumentError("unsupported fragment", "value", value);
+    return logger$t.throwArgumentError("unsupported fragment", "value", value);
   }
   static isFragment(value) {
     return !!(value && value._isFragment);
@@ -23492,7 +23949,7 @@ var EventFragment = class extends Fragment {
       format2 = FormatTypes.sighash;
     }
     if (!FormatTypes[format2]) {
-      logger$s.throwArgumentError("invalid format type", "format", format2);
+      logger$t.throwArgumentError("invalid format type", "format", format2);
     }
     if (format2 === FormatTypes.json) {
       return JSON.stringify({
@@ -23525,7 +23982,7 @@ var EventFragment = class extends Fragment {
       return value;
     }
     if (value.type !== "event") {
-      logger$s.throwArgumentError("invalid event object", "value", value);
+      logger$t.throwArgumentError("invalid event object", "value", value);
     }
     const params = {
       name: verifyIdentifier(value.name),
@@ -23538,7 +23995,7 @@ var EventFragment = class extends Fragment {
   static fromString(value) {
     let match = value.match(regexParen);
     if (!match) {
-      logger$s.throwArgumentError("invalid event string", "value", value);
+      logger$t.throwArgumentError("invalid event string", "value", value);
     }
     let anonymous = false;
     match[3].split(" ").forEach((modifier) => {
@@ -23549,7 +24006,7 @@ var EventFragment = class extends Fragment {
         case "":
           break;
         default:
-          logger$s.warn("unknown modifier: " + modifier);
+          logger$t.warn("unknown modifier: " + modifier);
       }
     });
     return EventFragment.fromObject({
@@ -23568,12 +24025,12 @@ function parseGas(value, params) {
   let comps = value.split("@");
   if (comps.length !== 1) {
     if (comps.length > 2) {
-      logger$s.throwArgumentError("invalid human-readable ABI signature", "value", value);
+      logger$t.throwArgumentError("invalid human-readable ABI signature", "value", value);
     }
     if (!comps[1].match(/^[0-9]+$/)) {
-      logger$s.throwArgumentError("invalid human-readable ABI signature gas", "value", value);
+      logger$t.throwArgumentError("invalid human-readable ABI signature gas", "value", value);
     }
-    params.gas = BigNumber.from(comps[1]);
+    params.gas = import_bignumber.BigNumber.from(comps[1]);
     return comps[0];
   }
   return value;
@@ -23623,19 +24080,19 @@ function verifyState(value) {
     result.constant = result.stateMutability === "view" || result.stateMutability === "pure";
     if (value.constant != null) {
       if (!!value.constant !== result.constant) {
-        logger$s.throwArgumentError("cannot have constant function with mutability " + result.stateMutability, "value", value);
+        logger$t.throwArgumentError("cannot have constant function with mutability " + result.stateMutability, "value", value);
       }
     }
     result.payable = result.stateMutability === "payable";
     if (value.payable != null) {
       if (!!value.payable !== result.payable) {
-        logger$s.throwArgumentError("cannot have payable function with mutability " + result.stateMutability, "value", value);
+        logger$t.throwArgumentError("cannot have payable function with mutability " + result.stateMutability, "value", value);
       }
     }
   } else if (value.payable != null) {
     result.payable = !!value.payable;
     if (value.constant == null && !result.payable && value.type !== "constructor") {
-      logger$s.throwArgumentError("unable to determine stateMutability", "value", value);
+      logger$t.throwArgumentError("unable to determine stateMutability", "value", value);
     }
     result.constant = !!value.constant;
     if (result.constant) {
@@ -23644,14 +24101,14 @@ function verifyState(value) {
       result.stateMutability = result.payable ? "payable" : "nonpayable";
     }
     if (result.payable && result.constant) {
-      logger$s.throwArgumentError("cannot have constant payable function", "value", value);
+      logger$t.throwArgumentError("cannot have constant payable function", "value", value);
     }
   } else if (value.constant != null) {
     result.constant = !!value.constant;
     result.payable = !result.constant;
     result.stateMutability = result.constant ? "view" : "payable";
   } else if (value.type !== "constructor") {
-    logger$s.throwArgumentError("unable to determine stateMutability", "value", value);
+    logger$t.throwArgumentError("unable to determine stateMutability", "value", value);
   }
   return result;
 }
@@ -23661,7 +24118,7 @@ var ConstructorFragment = class extends Fragment {
       format2 = FormatTypes.sighash;
     }
     if (!FormatTypes[format2]) {
-      logger$s.throwArgumentError("invalid format type", "format", format2);
+      logger$t.throwArgumentError("invalid format type", "format", format2);
     }
     if (format2 === FormatTypes.json) {
       return JSON.stringify({
@@ -23673,7 +24130,7 @@ var ConstructorFragment = class extends Fragment {
       });
     }
     if (format2 === FormatTypes.sighash) {
-      logger$s.throwError("cannot format a constructor for sighash", Logger.errors.UNSUPPORTED_OPERATION, {
+      logger$t.throwError("cannot format a constructor for sighash", Logger.errors.UNSUPPORTED_OPERATION, {
         operation: "format(sighash)"
       });
     }
@@ -23694,11 +24151,11 @@ var ConstructorFragment = class extends Fragment {
       return value;
     }
     if (value.type !== "constructor") {
-      logger$s.throwArgumentError("invalid constructor object", "value", value);
+      logger$t.throwArgumentError("invalid constructor object", "value", value);
     }
     let state = verifyState(value);
     if (state.constant) {
-      logger$s.throwArgumentError("constructor cannot be constant", "value", value);
+      logger$t.throwArgumentError("constructor cannot be constant", "value", value);
     }
     const params = {
       name: null,
@@ -23706,7 +24163,7 @@ var ConstructorFragment = class extends Fragment {
       inputs: value.inputs ? value.inputs.map(ParamType.fromObject) : [],
       payable: state.payable,
       stateMutability: state.stateMutability,
-      gas: value.gas ? BigNumber.from(value.gas) : null
+      gas: value.gas ? import_bignumber.BigNumber.from(value.gas) : null
     };
     return new ConstructorFragment(_constructorGuard$2, params);
   }
@@ -23715,7 +24172,7 @@ var ConstructorFragment = class extends Fragment {
     value = parseGas(value, params);
     let parens = value.match(regexParen);
     if (!parens || parens[1].trim() !== "constructor") {
-      logger$s.throwArgumentError("invalid constructor string", "value", value);
+      logger$t.throwArgumentError("invalid constructor string", "value", value);
     }
     params.inputs = parseParams(parens[2].trim(), false);
     parseModifiers(parens[3].trim(), params);
@@ -23731,7 +24188,7 @@ var FunctionFragment = class extends ConstructorFragment {
       format2 = FormatTypes.sighash;
     }
     if (!FormatTypes[format2]) {
-      logger$s.throwArgumentError("invalid format type", "format", format2);
+      logger$t.throwArgumentError("invalid format type", "format", format2);
     }
     if (format2 === FormatTypes.json) {
       return JSON.stringify({
@@ -23778,7 +24235,7 @@ var FunctionFragment = class extends ConstructorFragment {
       return value;
     }
     if (value.type !== "function") {
-      logger$s.throwArgumentError("invalid function object", "value", value);
+      logger$t.throwArgumentError("invalid function object", "value", value);
     }
     let state = verifyState(value);
     const params = {
@@ -23789,7 +24246,7 @@ var FunctionFragment = class extends ConstructorFragment {
       outputs: value.outputs ? value.outputs.map(ParamType.fromObject) : [],
       payable: state.payable,
       stateMutability: state.stateMutability,
-      gas: value.gas ? BigNumber.from(value.gas) : null
+      gas: value.gas ? import_bignumber.BigNumber.from(value.gas) : null
     };
     return new FunctionFragment(_constructorGuard$2, params);
   }
@@ -23798,11 +24255,11 @@ var FunctionFragment = class extends ConstructorFragment {
     value = parseGas(value, params);
     let comps = value.split(" returns ");
     if (comps.length > 2) {
-      logger$s.throwArgumentError("invalid function string", "value", value);
+      logger$t.throwArgumentError("invalid function string", "value", value);
     }
     let parens = comps[0].match(regexParen);
     if (!parens) {
-      logger$s.throwArgumentError("invalid function signature", "value", value);
+      logger$t.throwArgumentError("invalid function signature", "value", value);
     }
     params.name = parens[1].trim();
     if (params.name) {
@@ -23813,7 +24270,7 @@ var FunctionFragment = class extends ConstructorFragment {
     if (comps.length > 1) {
       let returns = comps[1].match(regexParen);
       if (returns[1].trim() != "" || returns[3].trim() != "") {
-        logger$s.throwArgumentError("unexpected tokens", "value", value);
+        logger$t.throwArgumentError("unexpected tokens", "value", value);
       }
       params.outputs = parseParams(returns[2], false);
     } else {
@@ -23836,7 +24293,7 @@ function verifyType(type) {
 var regexIdentifier = new RegExp("^[A-Za-z_][A-Za-z0-9_]*$");
 function verifyIdentifier(value) {
   if (!value || !value.match(regexIdentifier)) {
-    logger$s.throwArgumentError(`invalid identifier "${value}"`, "value", value);
+    logger$t.throwArgumentError(`invalid identifier "${value}"`, "value", value);
   }
   return value;
 }
@@ -23858,7 +24315,7 @@ function splitNesting(value) {
       } else if (c === ")") {
         depth--;
         if (depth === -1) {
-          logger$s.throwArgumentError("unbalanced parenthesis", "value", value);
+          logger$t.throwArgumentError("unbalanced parenthesis", "value", value);
         }
       }
     }
@@ -23868,7 +24325,348 @@ function splitNesting(value) {
   }
   return result;
 }
-var logger$r = new Logger(version$i);
+var version$i = "bytes/5.1.0";
+var logger$s = new Logger(version$i);
+function isHexable(value) {
+  return !!value.toHexString;
+}
+function addSlice(array) {
+  if (array.slice) {
+    return array;
+  }
+  array.slice = function() {
+    const args = Array.prototype.slice.call(arguments);
+    return addSlice(new Uint8Array(Array.prototype.slice.apply(array, args)));
+  };
+  return array;
+}
+function isBytesLike(value) {
+  return isHexString(value) && !(value.length % 2) || isBytes(value);
+}
+function isBytes(value) {
+  if (value == null) {
+    return false;
+  }
+  if (value.constructor === Uint8Array) {
+    return true;
+  }
+  if (typeof value === "string") {
+    return false;
+  }
+  if (value.length == null) {
+    return false;
+  }
+  for (let i = 0; i < value.length; i++) {
+    const v = value[i];
+    if (typeof v !== "number" || v < 0 || v >= 256 || v % 1) {
+      return false;
+    }
+  }
+  return true;
+}
+function arrayify(value, options2) {
+  if (!options2) {
+    options2 = {};
+  }
+  if (typeof value === "number") {
+    logger$s.checkSafeUint53(value, "invalid arrayify value");
+    const result = [];
+    while (value) {
+      result.unshift(value & 255);
+      value = parseInt(String(value / 256));
+    }
+    if (result.length === 0) {
+      result.push(0);
+    }
+    return addSlice(new Uint8Array(result));
+  }
+  if (options2.allowMissingPrefix && typeof value === "string" && value.substring(0, 2) !== "0x") {
+    value = "0x" + value;
+  }
+  if (isHexable(value)) {
+    value = value.toHexString();
+  }
+  if (isHexString(value)) {
+    let hex2 = value.substring(2);
+    if (hex2.length % 2) {
+      if (options2.hexPad === "left") {
+        hex2 = "0x0" + hex2.substring(2);
+      } else if (options2.hexPad === "right") {
+        hex2 += "0";
+      } else {
+        logger$s.throwArgumentError("hex data is odd-length", "value", value);
+      }
+    }
+    const result = [];
+    for (let i = 0; i < hex2.length; i += 2) {
+      result.push(parseInt(hex2.substring(i, i + 2), 16));
+    }
+    return addSlice(new Uint8Array(result));
+  }
+  if (isBytes(value)) {
+    return addSlice(new Uint8Array(value));
+  }
+  return logger$s.throwArgumentError("invalid arrayify value", "value", value);
+}
+function concat(items) {
+  const objects = items.map((item) => arrayify(item));
+  const length = objects.reduce((accum, item) => accum + item.length, 0);
+  const result = new Uint8Array(length);
+  objects.reduce((offset, object) => {
+    result.set(object, offset);
+    return offset + object.length;
+  }, 0);
+  return addSlice(result);
+}
+function stripZeros(value) {
+  let result = arrayify(value);
+  if (result.length === 0) {
+    return result;
+  }
+  let start = 0;
+  while (start < result.length && result[start] === 0) {
+    start++;
+  }
+  if (start) {
+    result = result.slice(start);
+  }
+  return result;
+}
+function zeroPad(value, length) {
+  value = arrayify(value);
+  if (value.length > length) {
+    logger$s.throwArgumentError("value out of range", "value", arguments[0]);
+  }
+  const result = new Uint8Array(length);
+  result.set(value, length - value.length);
+  return addSlice(result);
+}
+function isHexString(value, length) {
+  if (typeof value !== "string" || !value.match(/^0x[0-9A-Fa-f]*$/)) {
+    return false;
+  }
+  if (length && value.length !== 2 + 2 * length) {
+    return false;
+  }
+  return true;
+}
+var HexCharacters = "0123456789abcdef";
+function hexlify(value, options2) {
+  if (!options2) {
+    options2 = {};
+  }
+  if (typeof value === "number") {
+    logger$s.checkSafeUint53(value, "invalid hexlify value");
+    let hex2 = "";
+    while (value) {
+      hex2 = HexCharacters[value & 15] + hex2;
+      value = Math.floor(value / 16);
+    }
+    if (hex2.length) {
+      if (hex2.length % 2) {
+        hex2 = "0" + hex2;
+      }
+      return "0x" + hex2;
+    }
+    return "0x00";
+  }
+  if (options2.allowMissingPrefix && typeof value === "string" && value.substring(0, 2) !== "0x") {
+    value = "0x" + value;
+  }
+  if (isHexable(value)) {
+    return value.toHexString();
+  }
+  if (isHexString(value)) {
+    if (value.length % 2) {
+      if (options2.hexPad === "left") {
+        value = "0x0" + value.substring(2);
+      } else if (options2.hexPad === "right") {
+        value += "0";
+      } else {
+        logger$s.throwArgumentError("hex data is odd-length", "value", value);
+      }
+    }
+    return value.toLowerCase();
+  }
+  if (isBytes(value)) {
+    let result = "0x";
+    for (let i = 0; i < value.length; i++) {
+      let v = value[i];
+      result += HexCharacters[(v & 240) >> 4] + HexCharacters[v & 15];
+    }
+    return result;
+  }
+  return logger$s.throwArgumentError("invalid hexlify value", "value", value);
+}
+function hexDataLength(data2) {
+  if (typeof data2 !== "string") {
+    data2 = hexlify(data2);
+  } else if (!isHexString(data2) || data2.length % 2) {
+    return null;
+  }
+  return (data2.length - 2) / 2;
+}
+function hexDataSlice(data2, offset, endOffset) {
+  if (typeof data2 !== "string") {
+    data2 = hexlify(data2);
+  } else if (!isHexString(data2) || data2.length % 2) {
+    logger$s.throwArgumentError("invalid hexData", "value", data2);
+  }
+  offset = 2 + 2 * offset;
+  if (endOffset != null) {
+    return "0x" + data2.substring(offset, 2 + 2 * endOffset);
+  }
+  return "0x" + data2.substring(offset);
+}
+function hexConcat(items) {
+  let result = "0x";
+  items.forEach((item) => {
+    result += hexlify(item).substring(2);
+  });
+  return result;
+}
+function hexValue(value) {
+  const trimmed = hexStripZeros(hexlify(value, {hexPad: "left"}));
+  if (trimmed === "0x") {
+    return "0x0";
+  }
+  return trimmed;
+}
+function hexStripZeros(value) {
+  if (typeof value !== "string") {
+    value = hexlify(value);
+  }
+  if (!isHexString(value)) {
+    logger$s.throwArgumentError("invalid hex string", "value", value);
+  }
+  value = value.substring(2);
+  let offset = 0;
+  while (offset < value.length && value[offset] === "0") {
+    offset++;
+  }
+  return "0x" + value.substring(offset);
+}
+function hexZeroPad(value, length) {
+  if (typeof value !== "string") {
+    value = hexlify(value);
+  } else if (!isHexString(value)) {
+    logger$s.throwArgumentError("invalid hex string", "value", value);
+  }
+  if (value.length > 2 * length + 2) {
+    logger$s.throwArgumentError("value out of range", "value", arguments[1]);
+  }
+  while (value.length < 2 * length + 2) {
+    value = "0x0" + value.substring(2);
+  }
+  return value;
+}
+function splitSignature(signature2) {
+  const result = {
+    r: "0x",
+    s: "0x",
+    _vs: "0x",
+    recoveryParam: 0,
+    v: 0
+  };
+  if (isBytesLike(signature2)) {
+    const bytes = arrayify(signature2);
+    if (bytes.length !== 65) {
+      logger$s.throwArgumentError("invalid signature string; must be 65 bytes", "signature", signature2);
+    }
+    result.r = hexlify(bytes.slice(0, 32));
+    result.s = hexlify(bytes.slice(32, 64));
+    result.v = bytes[64];
+    if (result.v < 27) {
+      if (result.v === 0 || result.v === 1) {
+        result.v += 27;
+      } else {
+        logger$s.throwArgumentError("signature invalid v byte", "signature", signature2);
+      }
+    }
+    result.recoveryParam = 1 - result.v % 2;
+    if (result.recoveryParam) {
+      bytes[32] |= 128;
+    }
+    result._vs = hexlify(bytes.slice(32, 64));
+  } else {
+    result.r = signature2.r;
+    result.s = signature2.s;
+    result.v = signature2.v;
+    result.recoveryParam = signature2.recoveryParam;
+    result._vs = signature2._vs;
+    if (result._vs != null) {
+      const vs2 = zeroPad(arrayify(result._vs), 32);
+      result._vs = hexlify(vs2);
+      const recoveryParam = vs2[0] >= 128 ? 1 : 0;
+      if (result.recoveryParam == null) {
+        result.recoveryParam = recoveryParam;
+      } else if (result.recoveryParam !== recoveryParam) {
+        logger$s.throwArgumentError("signature recoveryParam mismatch _vs", "signature", signature2);
+      }
+      vs2[0] &= 127;
+      const s22 = hexlify(vs2);
+      if (result.s == null) {
+        result.s = s22;
+      } else if (result.s !== s22) {
+        logger$s.throwArgumentError("signature v mismatch _vs", "signature", signature2);
+      }
+    }
+    if (result.recoveryParam == null) {
+      if (result.v == null) {
+        logger$s.throwArgumentError("signature missing v and recoveryParam", "signature", signature2);
+      } else if (result.v === 0 || result.v === 1) {
+        result.recoveryParam = result.v;
+      } else {
+        result.recoveryParam = 1 - result.v % 2;
+      }
+    } else {
+      if (result.v == null) {
+        result.v = 27 + result.recoveryParam;
+      } else if (result.recoveryParam !== 1 - result.v % 2) {
+        logger$s.throwArgumentError("signature recoveryParam mismatch v", "signature", signature2);
+      }
+    }
+    if (result.r == null || !isHexString(result.r)) {
+      logger$s.throwArgumentError("signature missing or invalid r", "signature", signature2);
+    } else {
+      result.r = hexZeroPad(result.r, 32);
+    }
+    if (result.s == null || !isHexString(result.s)) {
+      logger$s.throwArgumentError("signature missing or invalid s", "signature", signature2);
+    } else {
+      result.s = hexZeroPad(result.s, 32);
+    }
+    const vs = arrayify(result.s);
+    if (vs[0] >= 128) {
+      logger$s.throwArgumentError("signature s out of range", "signature", signature2);
+    }
+    if (result.recoveryParam) {
+      vs[0] |= 128;
+    }
+    const _vs = hexlify(vs);
+    if (result._vs) {
+      if (!isHexString(result._vs)) {
+        logger$s.throwArgumentError("signature invalid _vs", "signature", signature2);
+      }
+      result._vs = hexZeroPad(result._vs, 32);
+    }
+    if (result._vs == null) {
+      result._vs = _vs;
+    } else if (result._vs !== _vs) {
+      logger$s.throwArgumentError("signature _vs mismatch v and s", "signature", signature2);
+    }
+  }
+  return result;
+}
+function joinSignature(signature2) {
+  signature2 = splitSignature(signature2);
+  return hexlify(concat([
+    signature2.r,
+    signature2.s,
+    signature2.recoveryParam ? "0x1c" : "0x1b"
+  ]));
+}
+var logger$r = new Logger(version$j);
 function checkResultErrors(result) {
   const errors = [];
   const checkErrors = function(path, object) {
@@ -23929,7 +24727,7 @@ var Writer = class {
     return this._writeData(bytes);
   }
   _getValue(value) {
-    let bytes = arrayify(BigNumber.from(value));
+    let bytes = arrayify(import_bignumber.BigNumber.from(value));
     if (bytes.length > this.wordSize) {
       logger$r.throwError("value out-of-bounds", Logger.errors.BUFFER_OVERRUN, {
         length: this.wordSize,
@@ -24003,9 +24801,29 @@ var Reader = class {
     return bytes.slice(0, length);
   }
   readValue() {
-    return BigNumber.from(this.readBytes(this.wordSize));
+    return import_bignumber.BigNumber.from(this.readBytes(this.wordSize));
   }
 };
+var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
+function getAugmentedNamespace(n) {
+  if (n.__esModule)
+    return n;
+  var a = Object.defineProperty({}, "__esModule", {value: true});
+  Object.keys(n).forEach(function(k) {
+    var d = Object.getOwnPropertyDescriptor(n, k);
+    Object.defineProperty(a, k, d.get ? d : {
+      enumerable: true,
+      get: function() {
+        return n[k];
+      }
+    });
+  });
+  return a;
+}
+function createCommonjsModule$1(fn) {
+  var module2 = {exports: {}};
+  return fn(module2, module2.exports), module2.exports;
+}
 /**
  * [js-sha3]{@link https://github.com/emn178/js-sha3}
  *
@@ -24679,7 +25497,7 @@ function getAddress(address) {
     if (address.substring(2, 4) !== ibanChecksum(address)) {
       logger$p.throwArgumentError("bad icap checksum", "address", address);
     }
-    result = _base36To16(address.substring(4));
+    result = (0, import_bignumber._base36To16)(address.substring(4));
     while (result.length < 40) {
       result = "0" + result;
     }
@@ -24698,7 +25516,7 @@ function isAddress(address) {
   return false;
 }
 function getIcapAddress(address) {
-  let base36 = _base16To36(getAddress(address).substring(2)).toUpperCase();
+  let base36 = (0, import_bignumber._base16To36)(getAddress(address).substring(2)).toUpperCase();
   while (base36.length < 30) {
     base36 = "0" + base36;
   }
@@ -24711,7 +25529,7 @@ function getContractAddress(transaction) {
   } catch (error2) {
     logger$p.throwArgumentError("missing from address", "transaction", transaction);
   }
-  const nonce = stripZeros(arrayify(BigNumber.from(transaction.nonce).toHexString()));
+  const nonce = stripZeros(arrayify(import_bignumber.BigNumber.from(transaction.nonce).toHexString()));
   return getAddress(hexDataSlice(keccak256$1(encode$2([from, nonce])), 12));
 }
 function getCreate2Address(from, salt, initCodeHash) {
@@ -24757,7 +25575,7 @@ var AnonymousCoder = class extends Coder {
     return this.coder.decode(reader);
   }
 };
-var logger$o = new Logger(version$i);
+var logger$o = new Logger(version$j);
 function pack$1(writer, coders, values) {
   let arrayValues = null;
   if (Array.isArray(values)) {
@@ -25020,10 +25838,10 @@ var NullCoder = class extends Coder {
   }
 };
 var AddressZero = "0x0000000000000000000000000000000000000000";
-var NegativeOne$1 = /* @__PURE__ */ BigNumber.from(-1);
-var Zero$1 = /* @__PURE__ */ BigNumber.from(0);
-var One$1 = /* @__PURE__ */ BigNumber.from(1);
-var MaxUint256$1 = /* @__PURE__ */ BigNumber.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+var NegativeOne$1 = /* @__PURE__ */ import_bignumber.BigNumber.from(-1);
+var Zero$1 = /* @__PURE__ */ import_bignumber.BigNumber.from(0);
+var One$1 = /* @__PURE__ */ import_bignumber.BigNumber.from(1);
+var MaxUint256$1 = /* @__PURE__ */ import_bignumber.BigNumber.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 var HashZero = "0x0000000000000000000000000000000000000000000000000000000000000000";
 var NumberCoder = class extends Coder {
   constructor(size, signed, localName) {
@@ -25036,7 +25854,7 @@ var NumberCoder = class extends Coder {
     return 0;
   }
   encode(writer, value) {
-    let v = BigNumber.from(value);
+    let v = import_bignumber.BigNumber.from(value);
     let maxUintValue = MaxUint256$1.mask(writer.wordSize * 8);
     if (this.signed) {
       let bounds = maxUintValue.mask(this.size * 8 - 1);
@@ -25517,7 +26335,7 @@ var TupleCoder = class extends Coder {
     return reader.coerce(this.name, unpack(reader, this.coders));
   }
 };
-var logger$m = new Logger(version$i);
+var logger$m = new Logger(version$j);
 var paramTypeBytes = new RegExp(/^bytes([0-9]*)$/);
 var paramTypeNumber = new RegExp(/^(u?int)([0-9]*)$/);
 var AbiCoder = class {
@@ -25671,10 +26489,10 @@ var __awaiter$8 = function(thisArg, _arguments, P, generator) {
 var logger$k = new Logger(version$e);
 var padding = new Uint8Array(32);
 padding.fill(0);
-var NegativeOne = BigNumber.from(-1);
-var Zero = BigNumber.from(0);
-var One = BigNumber.from(1);
-var MaxUint256 = BigNumber.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+var NegativeOne = import_bignumber.BigNumber.from(-1);
+var Zero = import_bignumber.BigNumber.from(0);
+var One = import_bignumber.BigNumber.from(1);
+var MaxUint256 = import_bignumber.BigNumber.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 function hexPadRight(value) {
   const bytes = arrayify(value);
   const padOffset = bytes.length % 32;
@@ -25712,7 +26530,7 @@ var domainChecks = {
   version: checkString("version"),
   chainId: function(value) {
     try {
-      return BigNumber.from(value).toString();
+      return import_bignumber.BigNumber.from(value).toString();
     } catch (error2) {
     }
     return logger$k.throwArgumentError(`invalid domain value for "chainId"`, "domain.chainId", value);
@@ -25748,7 +26566,7 @@ function getBaseEncoder(type) {
       const boundsUpper = MaxUint256.mask(signed ? width - 1 : width);
       const boundsLower = signed ? boundsUpper.add(One).mul(NegativeOne) : Zero;
       return function(value) {
-        const v = BigNumber.from(value);
+        const v = import_bignumber.BigNumber.from(value);
         if (v.lt(boundsLower) || v.gt(boundsUpper)) {
           logger$k.throwArgumentError(`value out-of-bounds for ${type}`, "value", value);
         }
@@ -26045,7 +26863,7 @@ var TypedDataEncoder = class {
           return hexlify(arrayify(value2));
         }
         if (type.match(/^u?int/)) {
-          return BigNumber.from(value2).toString();
+          return import_bignumber.BigNumber.from(value2).toString();
         }
         switch (type) {
           case "address":
@@ -26063,7 +26881,7 @@ var TypedDataEncoder = class {
     };
   }
 };
-var logger$j = new Logger(version$i);
+var logger$j = new Logger(version$j);
 var LogDescription = class extends Description {
 };
 var TransactionDescription = class extends Description {
@@ -26450,7 +27268,7 @@ var Interface = class {
       name: fragment.name,
       signature: fragment.format(),
       sighash: this.getSighash(fragment),
-      value: BigNumber.from(tx.value || "0")
+      value: import_bignumber.BigNumber.from(tx.value || "0")
     });
   }
   parseLog(log) {
@@ -26705,6 +27523,2843 @@ var VoidSigner = class extends Signer {
     return new VoidSigner(this.address, provider2);
   }
 };
+var __viteBrowserExternal = {};
+var __viteBrowserExternal$1 = /* @__PURE__ */ Object.freeze({
+  __proto__: null,
+  [Symbol.toStringTag]: "Module",
+  default: __viteBrowserExternal
+});
+var require$$0 = /* @__PURE__ */ getAugmentedNamespace(__viteBrowserExternal$1);
+var bn = createCommonjsModule$1(function(module2) {
+  (function(module22, exports) {
+    function assert2(val, msg) {
+      if (!val)
+        throw new Error(msg || "Assertion failed");
+    }
+    function inherits(ctor, superCtor) {
+      ctor.super_ = superCtor;
+      var TempCtor = function() {
+      };
+      TempCtor.prototype = superCtor.prototype;
+      ctor.prototype = new TempCtor();
+      ctor.prototype.constructor = ctor;
+    }
+    function BN(number, base2, endian) {
+      if (BN.isBN(number)) {
+        return number;
+      }
+      this.negative = 0;
+      this.words = null;
+      this.length = 0;
+      this.red = null;
+      if (number !== null) {
+        if (base2 === "le" || base2 === "be") {
+          endian = base2;
+          base2 = 10;
+        }
+        this._init(number || 0, base2 || 10, endian || "be");
+      }
+    }
+    if (typeof module22 === "object") {
+      module22.exports = BN;
+    } else {
+      exports.BN = BN;
+    }
+    BN.BN = BN;
+    BN.wordSize = 26;
+    var Buffer2;
+    try {
+      if (typeof window !== "undefined" && typeof window.Buffer !== "undefined") {
+        Buffer2 = window.Buffer;
+      } else {
+        Buffer2 = require$$0.Buffer;
+      }
+    } catch (e) {
+    }
+    BN.isBN = function isBN(num) {
+      if (num instanceof BN) {
+        return true;
+      }
+      return num !== null && typeof num === "object" && num.constructor.wordSize === BN.wordSize && Array.isArray(num.words);
+    };
+    BN.max = function max(left, right) {
+      if (left.cmp(right) > 0)
+        return left;
+      return right;
+    };
+    BN.min = function min(left, right) {
+      if (left.cmp(right) < 0)
+        return left;
+      return right;
+    };
+    BN.prototype._init = function init5(number, base2, endian) {
+      if (typeof number === "number") {
+        return this._initNumber(number, base2, endian);
+      }
+      if (typeof number === "object") {
+        return this._initArray(number, base2, endian);
+      }
+      if (base2 === "hex") {
+        base2 = 16;
+      }
+      assert2(base2 === (base2 | 0) && base2 >= 2 && base2 <= 36);
+      number = number.toString().replace(/\s+/g, "");
+      var start = 0;
+      if (number[0] === "-") {
+        start++;
+        this.negative = 1;
+      }
+      if (start < number.length) {
+        if (base2 === 16) {
+          this._parseHex(number, start, endian);
+        } else {
+          this._parseBase(number, base2, start);
+          if (endian === "le") {
+            this._initArray(this.toArray(), base2, endian);
+          }
+        }
+      }
+    };
+    BN.prototype._initNumber = function _initNumber(number, base2, endian) {
+      if (number < 0) {
+        this.negative = 1;
+        number = -number;
+      }
+      if (number < 67108864) {
+        this.words = [number & 67108863];
+        this.length = 1;
+      } else if (number < 4503599627370496) {
+        this.words = [
+          number & 67108863,
+          number / 67108864 & 67108863
+        ];
+        this.length = 2;
+      } else {
+        assert2(number < 9007199254740992);
+        this.words = [
+          number & 67108863,
+          number / 67108864 & 67108863,
+          1
+        ];
+        this.length = 3;
+      }
+      if (endian !== "le")
+        return;
+      this._initArray(this.toArray(), base2, endian);
+    };
+    BN.prototype._initArray = function _initArray(number, base2, endian) {
+      assert2(typeof number.length === "number");
+      if (number.length <= 0) {
+        this.words = [0];
+        this.length = 1;
+        return this;
+      }
+      this.length = Math.ceil(number.length / 3);
+      this.words = new Array(this.length);
+      for (var i = 0; i < this.length; i++) {
+        this.words[i] = 0;
+      }
+      var j, w;
+      var off = 0;
+      if (endian === "be") {
+        for (i = number.length - 1, j = 0; i >= 0; i -= 3) {
+          w = number[i] | number[i - 1] << 8 | number[i - 2] << 16;
+          this.words[j] |= w << off & 67108863;
+          this.words[j + 1] = w >>> 26 - off & 67108863;
+          off += 24;
+          if (off >= 26) {
+            off -= 26;
+            j++;
+          }
+        }
+      } else if (endian === "le") {
+        for (i = 0, j = 0; i < number.length; i += 3) {
+          w = number[i] | number[i + 1] << 8 | number[i + 2] << 16;
+          this.words[j] |= w << off & 67108863;
+          this.words[j + 1] = w >>> 26 - off & 67108863;
+          off += 24;
+          if (off >= 26) {
+            off -= 26;
+            j++;
+          }
+        }
+      }
+      return this.strip();
+    };
+    function parseHex4Bits(string, index2) {
+      var c = string.charCodeAt(index2);
+      if (c >= 65 && c <= 70) {
+        return c - 55;
+      } else if (c >= 97 && c <= 102) {
+        return c - 87;
+      } else {
+        return c - 48 & 15;
+      }
+    }
+    function parseHexByte(string, lowerBound, index2) {
+      var r2 = parseHex4Bits(string, index2);
+      if (index2 - 1 >= lowerBound) {
+        r2 |= parseHex4Bits(string, index2 - 1) << 4;
+      }
+      return r2;
+    }
+    BN.prototype._parseHex = function _parseHex(number, start, endian) {
+      this.length = Math.ceil((number.length - start) / 6);
+      this.words = new Array(this.length);
+      for (var i = 0; i < this.length; i++) {
+        this.words[i] = 0;
+      }
+      var off = 0;
+      var j = 0;
+      var w;
+      if (endian === "be") {
+        for (i = number.length - 1; i >= start; i -= 2) {
+          w = parseHexByte(number, start, i) << off;
+          this.words[j] |= w & 67108863;
+          if (off >= 18) {
+            off -= 18;
+            j += 1;
+            this.words[j] |= w >>> 26;
+          } else {
+            off += 8;
+          }
+        }
+      } else {
+        var parseLength = number.length - start;
+        for (i = parseLength % 2 === 0 ? start + 1 : start; i < number.length; i += 2) {
+          w = parseHexByte(number, start, i) << off;
+          this.words[j] |= w & 67108863;
+          if (off >= 18) {
+            off -= 18;
+            j += 1;
+            this.words[j] |= w >>> 26;
+          } else {
+            off += 8;
+          }
+        }
+      }
+      this.strip();
+    };
+    function parseBase(str, start, end, mul3) {
+      var r2 = 0;
+      var len = Math.min(str.length, end);
+      for (var i = start; i < len; i++) {
+        var c = str.charCodeAt(i) - 48;
+        r2 *= mul3;
+        if (c >= 49) {
+          r2 += c - 49 + 10;
+        } else if (c >= 17) {
+          r2 += c - 17 + 10;
+        } else {
+          r2 += c;
+        }
+      }
+      return r2;
+    }
+    BN.prototype._parseBase = function _parseBase(number, base2, start) {
+      this.words = [0];
+      this.length = 1;
+      for (var limbLen = 0, limbPow = 1; limbPow <= 67108863; limbPow *= base2) {
+        limbLen++;
+      }
+      limbLen--;
+      limbPow = limbPow / base2 | 0;
+      var total = number.length - start;
+      var mod = total % limbLen;
+      var end = Math.min(total, total - mod) + start;
+      var word = 0;
+      for (var i = start; i < end; i += limbLen) {
+        word = parseBase(number, i, i + limbLen, base2);
+        this.imuln(limbPow);
+        if (this.words[0] + word < 67108864) {
+          this.words[0] += word;
+        } else {
+          this._iaddn(word);
+        }
+      }
+      if (mod !== 0) {
+        var pow = 1;
+        word = parseBase(number, i, number.length, base2);
+        for (i = 0; i < mod; i++) {
+          pow *= base2;
+        }
+        this.imuln(pow);
+        if (this.words[0] + word < 67108864) {
+          this.words[0] += word;
+        } else {
+          this._iaddn(word);
+        }
+      }
+      this.strip();
+    };
+    BN.prototype.copy = function copy(dest) {
+      dest.words = new Array(this.length);
+      for (var i = 0; i < this.length; i++) {
+        dest.words[i] = this.words[i];
+      }
+      dest.length = this.length;
+      dest.negative = this.negative;
+      dest.red = this.red;
+    };
+    BN.prototype.clone = function clone2() {
+      var r2 = new BN(null);
+      this.copy(r2);
+      return r2;
+    };
+    BN.prototype._expand = function _expand(size) {
+      while (this.length < size) {
+        this.words[this.length++] = 0;
+      }
+      return this;
+    };
+    BN.prototype.strip = function strip() {
+      while (this.length > 1 && this.words[this.length - 1] === 0) {
+        this.length--;
+      }
+      return this._normSign();
+    };
+    BN.prototype._normSign = function _normSign() {
+      if (this.length === 1 && this.words[0] === 0) {
+        this.negative = 0;
+      }
+      return this;
+    };
+    BN.prototype.inspect = function inspect4() {
+      return (this.red ? "<BN-R: " : "<BN: ") + this.toString(16) + ">";
+    };
+    var zeros = [
+      "",
+      "0",
+      "00",
+      "000",
+      "0000",
+      "00000",
+      "000000",
+      "0000000",
+      "00000000",
+      "000000000",
+      "0000000000",
+      "00000000000",
+      "000000000000",
+      "0000000000000",
+      "00000000000000",
+      "000000000000000",
+      "0000000000000000",
+      "00000000000000000",
+      "000000000000000000",
+      "0000000000000000000",
+      "00000000000000000000",
+      "000000000000000000000",
+      "0000000000000000000000",
+      "00000000000000000000000",
+      "000000000000000000000000",
+      "0000000000000000000000000"
+    ];
+    var groupSizes = [
+      0,
+      0,
+      25,
+      16,
+      12,
+      11,
+      10,
+      9,
+      8,
+      8,
+      7,
+      7,
+      7,
+      7,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ];
+    var groupBases = [
+      0,
+      0,
+      33554432,
+      43046721,
+      16777216,
+      48828125,
+      60466176,
+      40353607,
+      16777216,
+      43046721,
+      1e7,
+      19487171,
+      35831808,
+      62748517,
+      7529536,
+      11390625,
+      16777216,
+      24137569,
+      34012224,
+      47045881,
+      64e6,
+      4084101,
+      5153632,
+      6436343,
+      7962624,
+      9765625,
+      11881376,
+      14348907,
+      17210368,
+      20511149,
+      243e5,
+      28629151,
+      33554432,
+      39135393,
+      45435424,
+      52521875,
+      60466176
+    ];
+    BN.prototype.toString = function toString(base2, padding2) {
+      base2 = base2 || 10;
+      padding2 = padding2 | 0 || 1;
+      var out;
+      if (base2 === 16 || base2 === "hex") {
+        out = "";
+        var off = 0;
+        var carry = 0;
+        for (var i = 0; i < this.length; i++) {
+          var w = this.words[i];
+          var word = ((w << off | carry) & 16777215).toString(16);
+          carry = w >>> 24 - off & 16777215;
+          if (carry !== 0 || i !== this.length - 1) {
+            out = zeros[6 - word.length] + word + out;
+          } else {
+            out = word + out;
+          }
+          off += 2;
+          if (off >= 26) {
+            off -= 26;
+            i--;
+          }
+        }
+        if (carry !== 0) {
+          out = carry.toString(16) + out;
+        }
+        while (out.length % padding2 !== 0) {
+          out = "0" + out;
+        }
+        if (this.negative !== 0) {
+          out = "-" + out;
+        }
+        return out;
+      }
+      if (base2 === (base2 | 0) && base2 >= 2 && base2 <= 36) {
+        var groupSize = groupSizes[base2];
+        var groupBase = groupBases[base2];
+        out = "";
+        var c = this.clone();
+        c.negative = 0;
+        while (!c.isZero()) {
+          var r2 = c.modn(groupBase).toString(base2);
+          c = c.idivn(groupBase);
+          if (!c.isZero()) {
+            out = zeros[groupSize - r2.length] + r2 + out;
+          } else {
+            out = r2 + out;
+          }
+        }
+        if (this.isZero()) {
+          out = "0" + out;
+        }
+        while (out.length % padding2 !== 0) {
+          out = "0" + out;
+        }
+        if (this.negative !== 0) {
+          out = "-" + out;
+        }
+        return out;
+      }
+      assert2(false, "Base should be between 2 and 36");
+    };
+    BN.prototype.toNumber = function toNumber() {
+      var ret = this.words[0];
+      if (this.length === 2) {
+        ret += this.words[1] * 67108864;
+      } else if (this.length === 3 && this.words[2] === 1) {
+        ret += 4503599627370496 + this.words[1] * 67108864;
+      } else if (this.length > 2) {
+        assert2(false, "Number can only safely store up to 53 bits");
+      }
+      return this.negative !== 0 ? -ret : ret;
+    };
+    BN.prototype.toJSON = function toJSON2() {
+      return this.toString(16);
+    };
+    BN.prototype.toBuffer = function toBuffer(endian, length) {
+      assert2(typeof Buffer2 !== "undefined");
+      return this.toArrayLike(Buffer2, endian, length);
+    };
+    BN.prototype.toArray = function toArray2(endian, length) {
+      return this.toArrayLike(Array, endian, length);
+    };
+    BN.prototype.toArrayLike = function toArrayLike(ArrayType, endian, length) {
+      var byteLength = this.byteLength();
+      var reqLength = length || Math.max(1, byteLength);
+      assert2(byteLength <= reqLength, "byte array longer than desired length");
+      assert2(reqLength > 0, "Requested array length <= 0");
+      this.strip();
+      var littleEndian = endian === "le";
+      var res = new ArrayType(reqLength);
+      var b, i;
+      var q = this.clone();
+      if (!littleEndian) {
+        for (i = 0; i < reqLength - byteLength; i++) {
+          res[i] = 0;
+        }
+        for (i = 0; !q.isZero(); i++) {
+          b = q.andln(255);
+          q.iushrn(8);
+          res[reqLength - i - 1] = b;
+        }
+      } else {
+        for (i = 0; !q.isZero(); i++) {
+          b = q.andln(255);
+          q.iushrn(8);
+          res[i] = b;
+        }
+        for (; i < reqLength; i++) {
+          res[i] = 0;
+        }
+      }
+      return res;
+    };
+    if (Math.clz32) {
+      BN.prototype._countBits = function _countBits(w) {
+        return 32 - Math.clz32(w);
+      };
+    } else {
+      BN.prototype._countBits = function _countBits(w) {
+        var t = w;
+        var r2 = 0;
+        if (t >= 4096) {
+          r2 += 13;
+          t >>>= 13;
+        }
+        if (t >= 64) {
+          r2 += 7;
+          t >>>= 7;
+        }
+        if (t >= 8) {
+          r2 += 4;
+          t >>>= 4;
+        }
+        if (t >= 2) {
+          r2 += 2;
+          t >>>= 2;
+        }
+        return r2 + t;
+      };
+    }
+    BN.prototype._zeroBits = function _zeroBits(w) {
+      if (w === 0)
+        return 26;
+      var t = w;
+      var r2 = 0;
+      if ((t & 8191) === 0) {
+        r2 += 13;
+        t >>>= 13;
+      }
+      if ((t & 127) === 0) {
+        r2 += 7;
+        t >>>= 7;
+      }
+      if ((t & 15) === 0) {
+        r2 += 4;
+        t >>>= 4;
+      }
+      if ((t & 3) === 0) {
+        r2 += 2;
+        t >>>= 2;
+      }
+      if ((t & 1) === 0) {
+        r2++;
+      }
+      return r2;
+    };
+    BN.prototype.bitLength = function bitLength() {
+      var w = this.words[this.length - 1];
+      var hi = this._countBits(w);
+      return (this.length - 1) * 26 + hi;
+    };
+    function toBitArray(num) {
+      var w = new Array(num.bitLength());
+      for (var bit = 0; bit < w.length; bit++) {
+        var off = bit / 26 | 0;
+        var wbit = bit % 26;
+        w[bit] = (num.words[off] & 1 << wbit) >>> wbit;
+      }
+      return w;
+    }
+    BN.prototype.zeroBits = function zeroBits() {
+      if (this.isZero())
+        return 0;
+      var r2 = 0;
+      for (var i = 0; i < this.length; i++) {
+        var b = this._zeroBits(this.words[i]);
+        r2 += b;
+        if (b !== 26)
+          break;
+      }
+      return r2;
+    };
+    BN.prototype.byteLength = function byteLength() {
+      return Math.ceil(this.bitLength() / 8);
+    };
+    BN.prototype.toTwos = function toTwos(width) {
+      if (this.negative !== 0) {
+        return this.abs().inotn(width).iaddn(1);
+      }
+      return this.clone();
+    };
+    BN.prototype.fromTwos = function fromTwos(width) {
+      if (this.testn(width - 1)) {
+        return this.notn(width).iaddn(1).ineg();
+      }
+      return this.clone();
+    };
+    BN.prototype.isNeg = function isNeg() {
+      return this.negative !== 0;
+    };
+    BN.prototype.neg = function neg3() {
+      return this.clone().ineg();
+    };
+    BN.prototype.ineg = function ineg() {
+      if (!this.isZero()) {
+        this.negative ^= 1;
+      }
+      return this;
+    };
+    BN.prototype.iuor = function iuor(num) {
+      while (this.length < num.length) {
+        this.words[this.length++] = 0;
+      }
+      for (var i = 0; i < num.length; i++) {
+        this.words[i] = this.words[i] | num.words[i];
+      }
+      return this.strip();
+    };
+    BN.prototype.ior = function ior(num) {
+      assert2((this.negative | num.negative) === 0);
+      return this.iuor(num);
+    };
+    BN.prototype.or = function or(num) {
+      if (this.length > num.length)
+        return this.clone().ior(num);
+      return num.clone().ior(this);
+    };
+    BN.prototype.uor = function uor(num) {
+      if (this.length > num.length)
+        return this.clone().iuor(num);
+      return num.clone().iuor(this);
+    };
+    BN.prototype.iuand = function iuand(num) {
+      var b;
+      if (this.length > num.length) {
+        b = num;
+      } else {
+        b = this;
+      }
+      for (var i = 0; i < b.length; i++) {
+        this.words[i] = this.words[i] & num.words[i];
+      }
+      this.length = b.length;
+      return this.strip();
+    };
+    BN.prototype.iand = function iand(num) {
+      assert2((this.negative | num.negative) === 0);
+      return this.iuand(num);
+    };
+    BN.prototype.and = function and(num) {
+      if (this.length > num.length)
+        return this.clone().iand(num);
+      return num.clone().iand(this);
+    };
+    BN.prototype.uand = function uand(num) {
+      if (this.length > num.length)
+        return this.clone().iuand(num);
+      return num.clone().iuand(this);
+    };
+    BN.prototype.iuxor = function iuxor(num) {
+      var a;
+      var b;
+      if (this.length > num.length) {
+        a = this;
+        b = num;
+      } else {
+        a = num;
+        b = this;
+      }
+      for (var i = 0; i < b.length; i++) {
+        this.words[i] = a.words[i] ^ b.words[i];
+      }
+      if (this !== a) {
+        for (; i < a.length; i++) {
+          this.words[i] = a.words[i];
+        }
+      }
+      this.length = a.length;
+      return this.strip();
+    };
+    BN.prototype.ixor = function ixor(num) {
+      assert2((this.negative | num.negative) === 0);
+      return this.iuxor(num);
+    };
+    BN.prototype.xor = function xor(num) {
+      if (this.length > num.length)
+        return this.clone().ixor(num);
+      return num.clone().ixor(this);
+    };
+    BN.prototype.uxor = function uxor(num) {
+      if (this.length > num.length)
+        return this.clone().iuxor(num);
+      return num.clone().iuxor(this);
+    };
+    BN.prototype.inotn = function inotn(width) {
+      assert2(typeof width === "number" && width >= 0);
+      var bytesNeeded = Math.ceil(width / 26) | 0;
+      var bitsLeft = width % 26;
+      this._expand(bytesNeeded);
+      if (bitsLeft > 0) {
+        bytesNeeded--;
+      }
+      for (var i = 0; i < bytesNeeded; i++) {
+        this.words[i] = ~this.words[i] & 67108863;
+      }
+      if (bitsLeft > 0) {
+        this.words[i] = ~this.words[i] & 67108863 >> 26 - bitsLeft;
+      }
+      return this.strip();
+    };
+    BN.prototype.notn = function notn(width) {
+      return this.clone().inotn(width);
+    };
+    BN.prototype.setn = function setn(bit, val) {
+      assert2(typeof bit === "number" && bit >= 0);
+      var off = bit / 26 | 0;
+      var wbit = bit % 26;
+      this._expand(off + 1);
+      if (val) {
+        this.words[off] = this.words[off] | 1 << wbit;
+      } else {
+        this.words[off] = this.words[off] & ~(1 << wbit);
+      }
+      return this.strip();
+    };
+    BN.prototype.iadd = function iadd(num) {
+      var r2;
+      if (this.negative !== 0 && num.negative === 0) {
+        this.negative = 0;
+        r2 = this.isub(num);
+        this.negative ^= 1;
+        return this._normSign();
+      } else if (this.negative === 0 && num.negative !== 0) {
+        num.negative = 0;
+        r2 = this.isub(num);
+        num.negative = 1;
+        return r2._normSign();
+      }
+      var a, b;
+      if (this.length > num.length) {
+        a = this;
+        b = num;
+      } else {
+        a = num;
+        b = this;
+      }
+      var carry = 0;
+      for (var i = 0; i < b.length; i++) {
+        r2 = (a.words[i] | 0) + (b.words[i] | 0) + carry;
+        this.words[i] = r2 & 67108863;
+        carry = r2 >>> 26;
+      }
+      for (; carry !== 0 && i < a.length; i++) {
+        r2 = (a.words[i] | 0) + carry;
+        this.words[i] = r2 & 67108863;
+        carry = r2 >>> 26;
+      }
+      this.length = a.length;
+      if (carry !== 0) {
+        this.words[this.length] = carry;
+        this.length++;
+      } else if (a !== this) {
+        for (; i < a.length; i++) {
+          this.words[i] = a.words[i];
+        }
+      }
+      return this;
+    };
+    BN.prototype.add = function add3(num) {
+      var res;
+      if (num.negative !== 0 && this.negative === 0) {
+        num.negative = 0;
+        res = this.sub(num);
+        num.negative ^= 1;
+        return res;
+      } else if (num.negative === 0 && this.negative !== 0) {
+        this.negative = 0;
+        res = num.sub(this);
+        this.negative = 1;
+        return res;
+      }
+      if (this.length > num.length)
+        return this.clone().iadd(num);
+      return num.clone().iadd(this);
+    };
+    BN.prototype.isub = function isub(num) {
+      if (num.negative !== 0) {
+        num.negative = 0;
+        var r2 = this.iadd(num);
+        num.negative = 1;
+        return r2._normSign();
+      } else if (this.negative !== 0) {
+        this.negative = 0;
+        this.iadd(num);
+        this.negative = 1;
+        return this._normSign();
+      }
+      var cmp = this.cmp(num);
+      if (cmp === 0) {
+        this.negative = 0;
+        this.length = 1;
+        this.words[0] = 0;
+        return this;
+      }
+      var a, b;
+      if (cmp > 0) {
+        a = this;
+        b = num;
+      } else {
+        a = num;
+        b = this;
+      }
+      var carry = 0;
+      for (var i = 0; i < b.length; i++) {
+        r2 = (a.words[i] | 0) - (b.words[i] | 0) + carry;
+        carry = r2 >> 26;
+        this.words[i] = r2 & 67108863;
+      }
+      for (; carry !== 0 && i < a.length; i++) {
+        r2 = (a.words[i] | 0) + carry;
+        carry = r2 >> 26;
+        this.words[i] = r2 & 67108863;
+      }
+      if (carry === 0 && i < a.length && a !== this) {
+        for (; i < a.length; i++) {
+          this.words[i] = a.words[i];
+        }
+      }
+      this.length = Math.max(this.length, i);
+      if (a !== this) {
+        this.negative = 1;
+      }
+      return this.strip();
+    };
+    BN.prototype.sub = function sub(num) {
+      return this.clone().isub(num);
+    };
+    function smallMulTo(self2, num, out) {
+      out.negative = num.negative ^ self2.negative;
+      var len = self2.length + num.length | 0;
+      out.length = len;
+      len = len - 1 | 0;
+      var a = self2.words[0] | 0;
+      var b = num.words[0] | 0;
+      var r2 = a * b;
+      var lo = r2 & 67108863;
+      var carry = r2 / 67108864 | 0;
+      out.words[0] = lo;
+      for (var k = 1; k < len; k++) {
+        var ncarry = carry >>> 26;
+        var rword = carry & 67108863;
+        var maxJ = Math.min(k, num.length - 1);
+        for (var j = Math.max(0, k - self2.length + 1); j <= maxJ; j++) {
+          var i = k - j | 0;
+          a = self2.words[i] | 0;
+          b = num.words[j] | 0;
+          r2 = a * b + rword;
+          ncarry += r2 / 67108864 | 0;
+          rword = r2 & 67108863;
+        }
+        out.words[k] = rword | 0;
+        carry = ncarry | 0;
+      }
+      if (carry !== 0) {
+        out.words[k] = carry | 0;
+      } else {
+        out.length--;
+      }
+      return out.strip();
+    }
+    var comb10MulTo = function comb10MulTo2(self2, num, out) {
+      var a = self2.words;
+      var b = num.words;
+      var o = out.words;
+      var c = 0;
+      var lo;
+      var mid;
+      var hi;
+      var a0 = a[0] | 0;
+      var al0 = a0 & 8191;
+      var ah0 = a0 >>> 13;
+      var a1 = a[1] | 0;
+      var al1 = a1 & 8191;
+      var ah1 = a1 >>> 13;
+      var a2 = a[2] | 0;
+      var al2 = a2 & 8191;
+      var ah2 = a2 >>> 13;
+      var a3 = a[3] | 0;
+      var al3 = a3 & 8191;
+      var ah3 = a3 >>> 13;
+      var a4 = a[4] | 0;
+      var al4 = a4 & 8191;
+      var ah4 = a4 >>> 13;
+      var a5 = a[5] | 0;
+      var al5 = a5 & 8191;
+      var ah5 = a5 >>> 13;
+      var a6 = a[6] | 0;
+      var al6 = a6 & 8191;
+      var ah6 = a6 >>> 13;
+      var a7 = a[7] | 0;
+      var al7 = a7 & 8191;
+      var ah7 = a7 >>> 13;
+      var a8 = a[8] | 0;
+      var al8 = a8 & 8191;
+      var ah8 = a8 >>> 13;
+      var a9 = a[9] | 0;
+      var al9 = a9 & 8191;
+      var ah9 = a9 >>> 13;
+      var b0 = b[0] | 0;
+      var bl0 = b0 & 8191;
+      var bh0 = b0 >>> 13;
+      var b1 = b[1] | 0;
+      var bl1 = b1 & 8191;
+      var bh1 = b1 >>> 13;
+      var b2 = b[2] | 0;
+      var bl2 = b2 & 8191;
+      var bh2 = b2 >>> 13;
+      var b3 = b[3] | 0;
+      var bl3 = b3 & 8191;
+      var bh3 = b3 >>> 13;
+      var b4 = b[4] | 0;
+      var bl4 = b4 & 8191;
+      var bh4 = b4 >>> 13;
+      var b5 = b[5] | 0;
+      var bl5 = b5 & 8191;
+      var bh5 = b5 >>> 13;
+      var b6 = b[6] | 0;
+      var bl6 = b6 & 8191;
+      var bh6 = b6 >>> 13;
+      var b7 = b[7] | 0;
+      var bl7 = b7 & 8191;
+      var bh7 = b7 >>> 13;
+      var b8 = b[8] | 0;
+      var bl8 = b8 & 8191;
+      var bh8 = b8 >>> 13;
+      var b9 = b[9] | 0;
+      var bl9 = b9 & 8191;
+      var bh9 = b9 >>> 13;
+      out.negative = self2.negative ^ num.negative;
+      out.length = 19;
+      lo = Math.imul(al0, bl0);
+      mid = Math.imul(al0, bh0);
+      mid = mid + Math.imul(ah0, bl0) | 0;
+      hi = Math.imul(ah0, bh0);
+      var w0 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w0 >>> 26) | 0;
+      w0 &= 67108863;
+      lo = Math.imul(al1, bl0);
+      mid = Math.imul(al1, bh0);
+      mid = mid + Math.imul(ah1, bl0) | 0;
+      hi = Math.imul(ah1, bh0);
+      lo = lo + Math.imul(al0, bl1) | 0;
+      mid = mid + Math.imul(al0, bh1) | 0;
+      mid = mid + Math.imul(ah0, bl1) | 0;
+      hi = hi + Math.imul(ah0, bh1) | 0;
+      var w1 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w1 >>> 26) | 0;
+      w1 &= 67108863;
+      lo = Math.imul(al2, bl0);
+      mid = Math.imul(al2, bh0);
+      mid = mid + Math.imul(ah2, bl0) | 0;
+      hi = Math.imul(ah2, bh0);
+      lo = lo + Math.imul(al1, bl1) | 0;
+      mid = mid + Math.imul(al1, bh1) | 0;
+      mid = mid + Math.imul(ah1, bl1) | 0;
+      hi = hi + Math.imul(ah1, bh1) | 0;
+      lo = lo + Math.imul(al0, bl2) | 0;
+      mid = mid + Math.imul(al0, bh2) | 0;
+      mid = mid + Math.imul(ah0, bl2) | 0;
+      hi = hi + Math.imul(ah0, bh2) | 0;
+      var w2 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w2 >>> 26) | 0;
+      w2 &= 67108863;
+      lo = Math.imul(al3, bl0);
+      mid = Math.imul(al3, bh0);
+      mid = mid + Math.imul(ah3, bl0) | 0;
+      hi = Math.imul(ah3, bh0);
+      lo = lo + Math.imul(al2, bl1) | 0;
+      mid = mid + Math.imul(al2, bh1) | 0;
+      mid = mid + Math.imul(ah2, bl1) | 0;
+      hi = hi + Math.imul(ah2, bh1) | 0;
+      lo = lo + Math.imul(al1, bl2) | 0;
+      mid = mid + Math.imul(al1, bh2) | 0;
+      mid = mid + Math.imul(ah1, bl2) | 0;
+      hi = hi + Math.imul(ah1, bh2) | 0;
+      lo = lo + Math.imul(al0, bl3) | 0;
+      mid = mid + Math.imul(al0, bh3) | 0;
+      mid = mid + Math.imul(ah0, bl3) | 0;
+      hi = hi + Math.imul(ah0, bh3) | 0;
+      var w3 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w3 >>> 26) | 0;
+      w3 &= 67108863;
+      lo = Math.imul(al4, bl0);
+      mid = Math.imul(al4, bh0);
+      mid = mid + Math.imul(ah4, bl0) | 0;
+      hi = Math.imul(ah4, bh0);
+      lo = lo + Math.imul(al3, bl1) | 0;
+      mid = mid + Math.imul(al3, bh1) | 0;
+      mid = mid + Math.imul(ah3, bl1) | 0;
+      hi = hi + Math.imul(ah3, bh1) | 0;
+      lo = lo + Math.imul(al2, bl2) | 0;
+      mid = mid + Math.imul(al2, bh2) | 0;
+      mid = mid + Math.imul(ah2, bl2) | 0;
+      hi = hi + Math.imul(ah2, bh2) | 0;
+      lo = lo + Math.imul(al1, bl3) | 0;
+      mid = mid + Math.imul(al1, bh3) | 0;
+      mid = mid + Math.imul(ah1, bl3) | 0;
+      hi = hi + Math.imul(ah1, bh3) | 0;
+      lo = lo + Math.imul(al0, bl4) | 0;
+      mid = mid + Math.imul(al0, bh4) | 0;
+      mid = mid + Math.imul(ah0, bl4) | 0;
+      hi = hi + Math.imul(ah0, bh4) | 0;
+      var w4 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w4 >>> 26) | 0;
+      w4 &= 67108863;
+      lo = Math.imul(al5, bl0);
+      mid = Math.imul(al5, bh0);
+      mid = mid + Math.imul(ah5, bl0) | 0;
+      hi = Math.imul(ah5, bh0);
+      lo = lo + Math.imul(al4, bl1) | 0;
+      mid = mid + Math.imul(al4, bh1) | 0;
+      mid = mid + Math.imul(ah4, bl1) | 0;
+      hi = hi + Math.imul(ah4, bh1) | 0;
+      lo = lo + Math.imul(al3, bl2) | 0;
+      mid = mid + Math.imul(al3, bh2) | 0;
+      mid = mid + Math.imul(ah3, bl2) | 0;
+      hi = hi + Math.imul(ah3, bh2) | 0;
+      lo = lo + Math.imul(al2, bl3) | 0;
+      mid = mid + Math.imul(al2, bh3) | 0;
+      mid = mid + Math.imul(ah2, bl3) | 0;
+      hi = hi + Math.imul(ah2, bh3) | 0;
+      lo = lo + Math.imul(al1, bl4) | 0;
+      mid = mid + Math.imul(al1, bh4) | 0;
+      mid = mid + Math.imul(ah1, bl4) | 0;
+      hi = hi + Math.imul(ah1, bh4) | 0;
+      lo = lo + Math.imul(al0, bl5) | 0;
+      mid = mid + Math.imul(al0, bh5) | 0;
+      mid = mid + Math.imul(ah0, bl5) | 0;
+      hi = hi + Math.imul(ah0, bh5) | 0;
+      var w5 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w5 >>> 26) | 0;
+      w5 &= 67108863;
+      lo = Math.imul(al6, bl0);
+      mid = Math.imul(al6, bh0);
+      mid = mid + Math.imul(ah6, bl0) | 0;
+      hi = Math.imul(ah6, bh0);
+      lo = lo + Math.imul(al5, bl1) | 0;
+      mid = mid + Math.imul(al5, bh1) | 0;
+      mid = mid + Math.imul(ah5, bl1) | 0;
+      hi = hi + Math.imul(ah5, bh1) | 0;
+      lo = lo + Math.imul(al4, bl2) | 0;
+      mid = mid + Math.imul(al4, bh2) | 0;
+      mid = mid + Math.imul(ah4, bl2) | 0;
+      hi = hi + Math.imul(ah4, bh2) | 0;
+      lo = lo + Math.imul(al3, bl3) | 0;
+      mid = mid + Math.imul(al3, bh3) | 0;
+      mid = mid + Math.imul(ah3, bl3) | 0;
+      hi = hi + Math.imul(ah3, bh3) | 0;
+      lo = lo + Math.imul(al2, bl4) | 0;
+      mid = mid + Math.imul(al2, bh4) | 0;
+      mid = mid + Math.imul(ah2, bl4) | 0;
+      hi = hi + Math.imul(ah2, bh4) | 0;
+      lo = lo + Math.imul(al1, bl5) | 0;
+      mid = mid + Math.imul(al1, bh5) | 0;
+      mid = mid + Math.imul(ah1, bl5) | 0;
+      hi = hi + Math.imul(ah1, bh5) | 0;
+      lo = lo + Math.imul(al0, bl6) | 0;
+      mid = mid + Math.imul(al0, bh6) | 0;
+      mid = mid + Math.imul(ah0, bl6) | 0;
+      hi = hi + Math.imul(ah0, bh6) | 0;
+      var w6 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w6 >>> 26) | 0;
+      w6 &= 67108863;
+      lo = Math.imul(al7, bl0);
+      mid = Math.imul(al7, bh0);
+      mid = mid + Math.imul(ah7, bl0) | 0;
+      hi = Math.imul(ah7, bh0);
+      lo = lo + Math.imul(al6, bl1) | 0;
+      mid = mid + Math.imul(al6, bh1) | 0;
+      mid = mid + Math.imul(ah6, bl1) | 0;
+      hi = hi + Math.imul(ah6, bh1) | 0;
+      lo = lo + Math.imul(al5, bl2) | 0;
+      mid = mid + Math.imul(al5, bh2) | 0;
+      mid = mid + Math.imul(ah5, bl2) | 0;
+      hi = hi + Math.imul(ah5, bh2) | 0;
+      lo = lo + Math.imul(al4, bl3) | 0;
+      mid = mid + Math.imul(al4, bh3) | 0;
+      mid = mid + Math.imul(ah4, bl3) | 0;
+      hi = hi + Math.imul(ah4, bh3) | 0;
+      lo = lo + Math.imul(al3, bl4) | 0;
+      mid = mid + Math.imul(al3, bh4) | 0;
+      mid = mid + Math.imul(ah3, bl4) | 0;
+      hi = hi + Math.imul(ah3, bh4) | 0;
+      lo = lo + Math.imul(al2, bl5) | 0;
+      mid = mid + Math.imul(al2, bh5) | 0;
+      mid = mid + Math.imul(ah2, bl5) | 0;
+      hi = hi + Math.imul(ah2, bh5) | 0;
+      lo = lo + Math.imul(al1, bl6) | 0;
+      mid = mid + Math.imul(al1, bh6) | 0;
+      mid = mid + Math.imul(ah1, bl6) | 0;
+      hi = hi + Math.imul(ah1, bh6) | 0;
+      lo = lo + Math.imul(al0, bl7) | 0;
+      mid = mid + Math.imul(al0, bh7) | 0;
+      mid = mid + Math.imul(ah0, bl7) | 0;
+      hi = hi + Math.imul(ah0, bh7) | 0;
+      var w7 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w7 >>> 26) | 0;
+      w7 &= 67108863;
+      lo = Math.imul(al8, bl0);
+      mid = Math.imul(al8, bh0);
+      mid = mid + Math.imul(ah8, bl0) | 0;
+      hi = Math.imul(ah8, bh0);
+      lo = lo + Math.imul(al7, bl1) | 0;
+      mid = mid + Math.imul(al7, bh1) | 0;
+      mid = mid + Math.imul(ah7, bl1) | 0;
+      hi = hi + Math.imul(ah7, bh1) | 0;
+      lo = lo + Math.imul(al6, bl2) | 0;
+      mid = mid + Math.imul(al6, bh2) | 0;
+      mid = mid + Math.imul(ah6, bl2) | 0;
+      hi = hi + Math.imul(ah6, bh2) | 0;
+      lo = lo + Math.imul(al5, bl3) | 0;
+      mid = mid + Math.imul(al5, bh3) | 0;
+      mid = mid + Math.imul(ah5, bl3) | 0;
+      hi = hi + Math.imul(ah5, bh3) | 0;
+      lo = lo + Math.imul(al4, bl4) | 0;
+      mid = mid + Math.imul(al4, bh4) | 0;
+      mid = mid + Math.imul(ah4, bl4) | 0;
+      hi = hi + Math.imul(ah4, bh4) | 0;
+      lo = lo + Math.imul(al3, bl5) | 0;
+      mid = mid + Math.imul(al3, bh5) | 0;
+      mid = mid + Math.imul(ah3, bl5) | 0;
+      hi = hi + Math.imul(ah3, bh5) | 0;
+      lo = lo + Math.imul(al2, bl6) | 0;
+      mid = mid + Math.imul(al2, bh6) | 0;
+      mid = mid + Math.imul(ah2, bl6) | 0;
+      hi = hi + Math.imul(ah2, bh6) | 0;
+      lo = lo + Math.imul(al1, bl7) | 0;
+      mid = mid + Math.imul(al1, bh7) | 0;
+      mid = mid + Math.imul(ah1, bl7) | 0;
+      hi = hi + Math.imul(ah1, bh7) | 0;
+      lo = lo + Math.imul(al0, bl8) | 0;
+      mid = mid + Math.imul(al0, bh8) | 0;
+      mid = mid + Math.imul(ah0, bl8) | 0;
+      hi = hi + Math.imul(ah0, bh8) | 0;
+      var w8 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w8 >>> 26) | 0;
+      w8 &= 67108863;
+      lo = Math.imul(al9, bl0);
+      mid = Math.imul(al9, bh0);
+      mid = mid + Math.imul(ah9, bl0) | 0;
+      hi = Math.imul(ah9, bh0);
+      lo = lo + Math.imul(al8, bl1) | 0;
+      mid = mid + Math.imul(al8, bh1) | 0;
+      mid = mid + Math.imul(ah8, bl1) | 0;
+      hi = hi + Math.imul(ah8, bh1) | 0;
+      lo = lo + Math.imul(al7, bl2) | 0;
+      mid = mid + Math.imul(al7, bh2) | 0;
+      mid = mid + Math.imul(ah7, bl2) | 0;
+      hi = hi + Math.imul(ah7, bh2) | 0;
+      lo = lo + Math.imul(al6, bl3) | 0;
+      mid = mid + Math.imul(al6, bh3) | 0;
+      mid = mid + Math.imul(ah6, bl3) | 0;
+      hi = hi + Math.imul(ah6, bh3) | 0;
+      lo = lo + Math.imul(al5, bl4) | 0;
+      mid = mid + Math.imul(al5, bh4) | 0;
+      mid = mid + Math.imul(ah5, bl4) | 0;
+      hi = hi + Math.imul(ah5, bh4) | 0;
+      lo = lo + Math.imul(al4, bl5) | 0;
+      mid = mid + Math.imul(al4, bh5) | 0;
+      mid = mid + Math.imul(ah4, bl5) | 0;
+      hi = hi + Math.imul(ah4, bh5) | 0;
+      lo = lo + Math.imul(al3, bl6) | 0;
+      mid = mid + Math.imul(al3, bh6) | 0;
+      mid = mid + Math.imul(ah3, bl6) | 0;
+      hi = hi + Math.imul(ah3, bh6) | 0;
+      lo = lo + Math.imul(al2, bl7) | 0;
+      mid = mid + Math.imul(al2, bh7) | 0;
+      mid = mid + Math.imul(ah2, bl7) | 0;
+      hi = hi + Math.imul(ah2, bh7) | 0;
+      lo = lo + Math.imul(al1, bl8) | 0;
+      mid = mid + Math.imul(al1, bh8) | 0;
+      mid = mid + Math.imul(ah1, bl8) | 0;
+      hi = hi + Math.imul(ah1, bh8) | 0;
+      lo = lo + Math.imul(al0, bl9) | 0;
+      mid = mid + Math.imul(al0, bh9) | 0;
+      mid = mid + Math.imul(ah0, bl9) | 0;
+      hi = hi + Math.imul(ah0, bh9) | 0;
+      var w9 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w9 >>> 26) | 0;
+      w9 &= 67108863;
+      lo = Math.imul(al9, bl1);
+      mid = Math.imul(al9, bh1);
+      mid = mid + Math.imul(ah9, bl1) | 0;
+      hi = Math.imul(ah9, bh1);
+      lo = lo + Math.imul(al8, bl2) | 0;
+      mid = mid + Math.imul(al8, bh2) | 0;
+      mid = mid + Math.imul(ah8, bl2) | 0;
+      hi = hi + Math.imul(ah8, bh2) | 0;
+      lo = lo + Math.imul(al7, bl3) | 0;
+      mid = mid + Math.imul(al7, bh3) | 0;
+      mid = mid + Math.imul(ah7, bl3) | 0;
+      hi = hi + Math.imul(ah7, bh3) | 0;
+      lo = lo + Math.imul(al6, bl4) | 0;
+      mid = mid + Math.imul(al6, bh4) | 0;
+      mid = mid + Math.imul(ah6, bl4) | 0;
+      hi = hi + Math.imul(ah6, bh4) | 0;
+      lo = lo + Math.imul(al5, bl5) | 0;
+      mid = mid + Math.imul(al5, bh5) | 0;
+      mid = mid + Math.imul(ah5, bl5) | 0;
+      hi = hi + Math.imul(ah5, bh5) | 0;
+      lo = lo + Math.imul(al4, bl6) | 0;
+      mid = mid + Math.imul(al4, bh6) | 0;
+      mid = mid + Math.imul(ah4, bl6) | 0;
+      hi = hi + Math.imul(ah4, bh6) | 0;
+      lo = lo + Math.imul(al3, bl7) | 0;
+      mid = mid + Math.imul(al3, bh7) | 0;
+      mid = mid + Math.imul(ah3, bl7) | 0;
+      hi = hi + Math.imul(ah3, bh7) | 0;
+      lo = lo + Math.imul(al2, bl8) | 0;
+      mid = mid + Math.imul(al2, bh8) | 0;
+      mid = mid + Math.imul(ah2, bl8) | 0;
+      hi = hi + Math.imul(ah2, bh8) | 0;
+      lo = lo + Math.imul(al1, bl9) | 0;
+      mid = mid + Math.imul(al1, bh9) | 0;
+      mid = mid + Math.imul(ah1, bl9) | 0;
+      hi = hi + Math.imul(ah1, bh9) | 0;
+      var w10 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w10 >>> 26) | 0;
+      w10 &= 67108863;
+      lo = Math.imul(al9, bl2);
+      mid = Math.imul(al9, bh2);
+      mid = mid + Math.imul(ah9, bl2) | 0;
+      hi = Math.imul(ah9, bh2);
+      lo = lo + Math.imul(al8, bl3) | 0;
+      mid = mid + Math.imul(al8, bh3) | 0;
+      mid = mid + Math.imul(ah8, bl3) | 0;
+      hi = hi + Math.imul(ah8, bh3) | 0;
+      lo = lo + Math.imul(al7, bl4) | 0;
+      mid = mid + Math.imul(al7, bh4) | 0;
+      mid = mid + Math.imul(ah7, bl4) | 0;
+      hi = hi + Math.imul(ah7, bh4) | 0;
+      lo = lo + Math.imul(al6, bl5) | 0;
+      mid = mid + Math.imul(al6, bh5) | 0;
+      mid = mid + Math.imul(ah6, bl5) | 0;
+      hi = hi + Math.imul(ah6, bh5) | 0;
+      lo = lo + Math.imul(al5, bl6) | 0;
+      mid = mid + Math.imul(al5, bh6) | 0;
+      mid = mid + Math.imul(ah5, bl6) | 0;
+      hi = hi + Math.imul(ah5, bh6) | 0;
+      lo = lo + Math.imul(al4, bl7) | 0;
+      mid = mid + Math.imul(al4, bh7) | 0;
+      mid = mid + Math.imul(ah4, bl7) | 0;
+      hi = hi + Math.imul(ah4, bh7) | 0;
+      lo = lo + Math.imul(al3, bl8) | 0;
+      mid = mid + Math.imul(al3, bh8) | 0;
+      mid = mid + Math.imul(ah3, bl8) | 0;
+      hi = hi + Math.imul(ah3, bh8) | 0;
+      lo = lo + Math.imul(al2, bl9) | 0;
+      mid = mid + Math.imul(al2, bh9) | 0;
+      mid = mid + Math.imul(ah2, bl9) | 0;
+      hi = hi + Math.imul(ah2, bh9) | 0;
+      var w11 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w11 >>> 26) | 0;
+      w11 &= 67108863;
+      lo = Math.imul(al9, bl3);
+      mid = Math.imul(al9, bh3);
+      mid = mid + Math.imul(ah9, bl3) | 0;
+      hi = Math.imul(ah9, bh3);
+      lo = lo + Math.imul(al8, bl4) | 0;
+      mid = mid + Math.imul(al8, bh4) | 0;
+      mid = mid + Math.imul(ah8, bl4) | 0;
+      hi = hi + Math.imul(ah8, bh4) | 0;
+      lo = lo + Math.imul(al7, bl5) | 0;
+      mid = mid + Math.imul(al7, bh5) | 0;
+      mid = mid + Math.imul(ah7, bl5) | 0;
+      hi = hi + Math.imul(ah7, bh5) | 0;
+      lo = lo + Math.imul(al6, bl6) | 0;
+      mid = mid + Math.imul(al6, bh6) | 0;
+      mid = mid + Math.imul(ah6, bl6) | 0;
+      hi = hi + Math.imul(ah6, bh6) | 0;
+      lo = lo + Math.imul(al5, bl7) | 0;
+      mid = mid + Math.imul(al5, bh7) | 0;
+      mid = mid + Math.imul(ah5, bl7) | 0;
+      hi = hi + Math.imul(ah5, bh7) | 0;
+      lo = lo + Math.imul(al4, bl8) | 0;
+      mid = mid + Math.imul(al4, bh8) | 0;
+      mid = mid + Math.imul(ah4, bl8) | 0;
+      hi = hi + Math.imul(ah4, bh8) | 0;
+      lo = lo + Math.imul(al3, bl9) | 0;
+      mid = mid + Math.imul(al3, bh9) | 0;
+      mid = mid + Math.imul(ah3, bl9) | 0;
+      hi = hi + Math.imul(ah3, bh9) | 0;
+      var w12 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w12 >>> 26) | 0;
+      w12 &= 67108863;
+      lo = Math.imul(al9, bl4);
+      mid = Math.imul(al9, bh4);
+      mid = mid + Math.imul(ah9, bl4) | 0;
+      hi = Math.imul(ah9, bh4);
+      lo = lo + Math.imul(al8, bl5) | 0;
+      mid = mid + Math.imul(al8, bh5) | 0;
+      mid = mid + Math.imul(ah8, bl5) | 0;
+      hi = hi + Math.imul(ah8, bh5) | 0;
+      lo = lo + Math.imul(al7, bl6) | 0;
+      mid = mid + Math.imul(al7, bh6) | 0;
+      mid = mid + Math.imul(ah7, bl6) | 0;
+      hi = hi + Math.imul(ah7, bh6) | 0;
+      lo = lo + Math.imul(al6, bl7) | 0;
+      mid = mid + Math.imul(al6, bh7) | 0;
+      mid = mid + Math.imul(ah6, bl7) | 0;
+      hi = hi + Math.imul(ah6, bh7) | 0;
+      lo = lo + Math.imul(al5, bl8) | 0;
+      mid = mid + Math.imul(al5, bh8) | 0;
+      mid = mid + Math.imul(ah5, bl8) | 0;
+      hi = hi + Math.imul(ah5, bh8) | 0;
+      lo = lo + Math.imul(al4, bl9) | 0;
+      mid = mid + Math.imul(al4, bh9) | 0;
+      mid = mid + Math.imul(ah4, bl9) | 0;
+      hi = hi + Math.imul(ah4, bh9) | 0;
+      var w13 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w13 >>> 26) | 0;
+      w13 &= 67108863;
+      lo = Math.imul(al9, bl5);
+      mid = Math.imul(al9, bh5);
+      mid = mid + Math.imul(ah9, bl5) | 0;
+      hi = Math.imul(ah9, bh5);
+      lo = lo + Math.imul(al8, bl6) | 0;
+      mid = mid + Math.imul(al8, bh6) | 0;
+      mid = mid + Math.imul(ah8, bl6) | 0;
+      hi = hi + Math.imul(ah8, bh6) | 0;
+      lo = lo + Math.imul(al7, bl7) | 0;
+      mid = mid + Math.imul(al7, bh7) | 0;
+      mid = mid + Math.imul(ah7, bl7) | 0;
+      hi = hi + Math.imul(ah7, bh7) | 0;
+      lo = lo + Math.imul(al6, bl8) | 0;
+      mid = mid + Math.imul(al6, bh8) | 0;
+      mid = mid + Math.imul(ah6, bl8) | 0;
+      hi = hi + Math.imul(ah6, bh8) | 0;
+      lo = lo + Math.imul(al5, bl9) | 0;
+      mid = mid + Math.imul(al5, bh9) | 0;
+      mid = mid + Math.imul(ah5, bl9) | 0;
+      hi = hi + Math.imul(ah5, bh9) | 0;
+      var w14 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w14 >>> 26) | 0;
+      w14 &= 67108863;
+      lo = Math.imul(al9, bl6);
+      mid = Math.imul(al9, bh6);
+      mid = mid + Math.imul(ah9, bl6) | 0;
+      hi = Math.imul(ah9, bh6);
+      lo = lo + Math.imul(al8, bl7) | 0;
+      mid = mid + Math.imul(al8, bh7) | 0;
+      mid = mid + Math.imul(ah8, bl7) | 0;
+      hi = hi + Math.imul(ah8, bh7) | 0;
+      lo = lo + Math.imul(al7, bl8) | 0;
+      mid = mid + Math.imul(al7, bh8) | 0;
+      mid = mid + Math.imul(ah7, bl8) | 0;
+      hi = hi + Math.imul(ah7, bh8) | 0;
+      lo = lo + Math.imul(al6, bl9) | 0;
+      mid = mid + Math.imul(al6, bh9) | 0;
+      mid = mid + Math.imul(ah6, bl9) | 0;
+      hi = hi + Math.imul(ah6, bh9) | 0;
+      var w15 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w15 >>> 26) | 0;
+      w15 &= 67108863;
+      lo = Math.imul(al9, bl7);
+      mid = Math.imul(al9, bh7);
+      mid = mid + Math.imul(ah9, bl7) | 0;
+      hi = Math.imul(ah9, bh7);
+      lo = lo + Math.imul(al8, bl8) | 0;
+      mid = mid + Math.imul(al8, bh8) | 0;
+      mid = mid + Math.imul(ah8, bl8) | 0;
+      hi = hi + Math.imul(ah8, bh8) | 0;
+      lo = lo + Math.imul(al7, bl9) | 0;
+      mid = mid + Math.imul(al7, bh9) | 0;
+      mid = mid + Math.imul(ah7, bl9) | 0;
+      hi = hi + Math.imul(ah7, bh9) | 0;
+      var w16 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w16 >>> 26) | 0;
+      w16 &= 67108863;
+      lo = Math.imul(al9, bl8);
+      mid = Math.imul(al9, bh8);
+      mid = mid + Math.imul(ah9, bl8) | 0;
+      hi = Math.imul(ah9, bh8);
+      lo = lo + Math.imul(al8, bl9) | 0;
+      mid = mid + Math.imul(al8, bh9) | 0;
+      mid = mid + Math.imul(ah8, bl9) | 0;
+      hi = hi + Math.imul(ah8, bh9) | 0;
+      var w17 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w17 >>> 26) | 0;
+      w17 &= 67108863;
+      lo = Math.imul(al9, bl9);
+      mid = Math.imul(al9, bh9);
+      mid = mid + Math.imul(ah9, bl9) | 0;
+      hi = Math.imul(ah9, bh9);
+      var w18 = (c + lo | 0) + ((mid & 8191) << 13) | 0;
+      c = (hi + (mid >>> 13) | 0) + (w18 >>> 26) | 0;
+      w18 &= 67108863;
+      o[0] = w0;
+      o[1] = w1;
+      o[2] = w2;
+      o[3] = w3;
+      o[4] = w4;
+      o[5] = w5;
+      o[6] = w6;
+      o[7] = w7;
+      o[8] = w8;
+      o[9] = w9;
+      o[10] = w10;
+      o[11] = w11;
+      o[12] = w12;
+      o[13] = w13;
+      o[14] = w14;
+      o[15] = w15;
+      o[16] = w16;
+      o[17] = w17;
+      o[18] = w18;
+      if (c !== 0) {
+        o[19] = c;
+        out.length++;
+      }
+      return out;
+    };
+    if (!Math.imul) {
+      comb10MulTo = smallMulTo;
+    }
+    function bigMulTo(self2, num, out) {
+      out.negative = num.negative ^ self2.negative;
+      out.length = self2.length + num.length;
+      var carry = 0;
+      var hncarry = 0;
+      for (var k = 0; k < out.length - 1; k++) {
+        var ncarry = hncarry;
+        hncarry = 0;
+        var rword = carry & 67108863;
+        var maxJ = Math.min(k, num.length - 1);
+        for (var j = Math.max(0, k - self2.length + 1); j <= maxJ; j++) {
+          var i = k - j;
+          var a = self2.words[i] | 0;
+          var b = num.words[j] | 0;
+          var r2 = a * b;
+          var lo = r2 & 67108863;
+          ncarry = ncarry + (r2 / 67108864 | 0) | 0;
+          lo = lo + rword | 0;
+          rword = lo & 67108863;
+          ncarry = ncarry + (lo >>> 26) | 0;
+          hncarry += ncarry >>> 26;
+          ncarry &= 67108863;
+        }
+        out.words[k] = rword;
+        carry = ncarry;
+        ncarry = hncarry;
+      }
+      if (carry !== 0) {
+        out.words[k] = carry;
+      } else {
+        out.length--;
+      }
+      return out.strip();
+    }
+    function jumboMulTo(self2, num, out) {
+      var fftm = new FFTM();
+      return fftm.mulp(self2, num, out);
+    }
+    BN.prototype.mulTo = function mulTo(num, out) {
+      var res;
+      var len = this.length + num.length;
+      if (this.length === 10 && num.length === 10) {
+        res = comb10MulTo(this, num, out);
+      } else if (len < 63) {
+        res = smallMulTo(this, num, out);
+      } else if (len < 1024) {
+        res = bigMulTo(this, num, out);
+      } else {
+        res = jumboMulTo(this, num, out);
+      }
+      return res;
+    };
+    function FFTM(x, y) {
+      this.x = x;
+      this.y = y;
+    }
+    FFTM.prototype.makeRBT = function makeRBT(N2) {
+      var t = new Array(N2);
+      var l = BN.prototype._countBits(N2) - 1;
+      for (var i = 0; i < N2; i++) {
+        t[i] = this.revBin(i, l, N2);
+      }
+      return t;
+    };
+    FFTM.prototype.revBin = function revBin(x, l, N2) {
+      if (x === 0 || x === N2 - 1)
+        return x;
+      var rb = 0;
+      for (var i = 0; i < l; i++) {
+        rb |= (x & 1) << l - i - 1;
+        x >>= 1;
+      }
+      return rb;
+    };
+    FFTM.prototype.permute = function permute(rbt, rws, iws, rtws, itws, N2) {
+      for (var i = 0; i < N2; i++) {
+        rtws[i] = rws[rbt[i]];
+        itws[i] = iws[rbt[i]];
+      }
+    };
+    FFTM.prototype.transform = function transform(rws, iws, rtws, itws, N2, rbt) {
+      this.permute(rbt, rws, iws, rtws, itws, N2);
+      for (var s22 = 1; s22 < N2; s22 <<= 1) {
+        var l = s22 << 1;
+        var rtwdf = Math.cos(2 * Math.PI / l);
+        var itwdf = Math.sin(2 * Math.PI / l);
+        for (var p = 0; p < N2; p += l) {
+          var rtwdf_ = rtwdf;
+          var itwdf_ = itwdf;
+          for (var j = 0; j < s22; j++) {
+            var re = rtws[p + j];
+            var ie = itws[p + j];
+            var ro = rtws[p + j + s22];
+            var io = itws[p + j + s22];
+            var rx = rtwdf_ * ro - itwdf_ * io;
+            io = rtwdf_ * io + itwdf_ * ro;
+            ro = rx;
+            rtws[p + j] = re + ro;
+            itws[p + j] = ie + io;
+            rtws[p + j + s22] = re - ro;
+            itws[p + j + s22] = ie - io;
+            if (j !== l) {
+              rx = rtwdf * rtwdf_ - itwdf * itwdf_;
+              itwdf_ = rtwdf * itwdf_ + itwdf * rtwdf_;
+              rtwdf_ = rx;
+            }
+          }
+        }
+      }
+    };
+    FFTM.prototype.guessLen13b = function guessLen13b(n, m) {
+      var N2 = Math.max(m, n) | 1;
+      var odd = N2 & 1;
+      var i = 0;
+      for (N2 = N2 / 2 | 0; N2; N2 = N2 >>> 1) {
+        i++;
+      }
+      return 1 << i + 1 + odd;
+    };
+    FFTM.prototype.conjugate = function conjugate(rws, iws, N2) {
+      if (N2 <= 1)
+        return;
+      for (var i = 0; i < N2 / 2; i++) {
+        var t = rws[i];
+        rws[i] = rws[N2 - i - 1];
+        rws[N2 - i - 1] = t;
+        t = iws[i];
+        iws[i] = -iws[N2 - i - 1];
+        iws[N2 - i - 1] = -t;
+      }
+    };
+    FFTM.prototype.normalize13b = function normalize13b(ws, N2) {
+      var carry = 0;
+      for (var i = 0; i < N2 / 2; i++) {
+        var w = Math.round(ws[2 * i + 1] / N2) * 8192 + Math.round(ws[2 * i] / N2) + carry;
+        ws[i] = w & 67108863;
+        if (w < 67108864) {
+          carry = 0;
+        } else {
+          carry = w / 67108864 | 0;
+        }
+      }
+      return ws;
+    };
+    FFTM.prototype.convert13b = function convert13b(ws, len, rws, N2) {
+      var carry = 0;
+      for (var i = 0; i < len; i++) {
+        carry = carry + (ws[i] | 0);
+        rws[2 * i] = carry & 8191;
+        carry = carry >>> 13;
+        rws[2 * i + 1] = carry & 8191;
+        carry = carry >>> 13;
+      }
+      for (i = 2 * len; i < N2; ++i) {
+        rws[i] = 0;
+      }
+      assert2(carry === 0);
+      assert2((carry & ~8191) === 0);
+    };
+    FFTM.prototype.stub = function stub(N2) {
+      var ph = new Array(N2);
+      for (var i = 0; i < N2; i++) {
+        ph[i] = 0;
+      }
+      return ph;
+    };
+    FFTM.prototype.mulp = function mulp(x, y, out) {
+      var N2 = 2 * this.guessLen13b(x.length, y.length);
+      var rbt = this.makeRBT(N2);
+      var _ = this.stub(N2);
+      var rws = new Array(N2);
+      var rwst = new Array(N2);
+      var iwst = new Array(N2);
+      var nrws = new Array(N2);
+      var nrwst = new Array(N2);
+      var niwst = new Array(N2);
+      var rmws = out.words;
+      rmws.length = N2;
+      this.convert13b(x.words, x.length, rws, N2);
+      this.convert13b(y.words, y.length, nrws, N2);
+      this.transform(rws, _, rwst, iwst, N2, rbt);
+      this.transform(nrws, _, nrwst, niwst, N2, rbt);
+      for (var i = 0; i < N2; i++) {
+        var rx = rwst[i] * nrwst[i] - iwst[i] * niwst[i];
+        iwst[i] = rwst[i] * niwst[i] + iwst[i] * nrwst[i];
+        rwst[i] = rx;
+      }
+      this.conjugate(rwst, iwst, N2);
+      this.transform(rwst, iwst, rmws, _, N2, rbt);
+      this.conjugate(rmws, _, N2);
+      this.normalize13b(rmws, N2);
+      out.negative = x.negative ^ y.negative;
+      out.length = x.length + y.length;
+      return out.strip();
+    };
+    BN.prototype.mul = function mul3(num) {
+      var out = new BN(null);
+      out.words = new Array(this.length + num.length);
+      return this.mulTo(num, out);
+    };
+    BN.prototype.mulf = function mulf(num) {
+      var out = new BN(null);
+      out.words = new Array(this.length + num.length);
+      return jumboMulTo(this, num, out);
+    };
+    BN.prototype.imul = function imul(num) {
+      return this.clone().mulTo(num, this);
+    };
+    BN.prototype.imuln = function imuln(num) {
+      assert2(typeof num === "number");
+      assert2(num < 67108864);
+      var carry = 0;
+      for (var i = 0; i < this.length; i++) {
+        var w = (this.words[i] | 0) * num;
+        var lo = (w & 67108863) + (carry & 67108863);
+        carry >>= 26;
+        carry += w / 67108864 | 0;
+        carry += lo >>> 26;
+        this.words[i] = lo & 67108863;
+      }
+      if (carry !== 0) {
+        this.words[i] = carry;
+        this.length++;
+      }
+      return this;
+    };
+    BN.prototype.muln = function muln(num) {
+      return this.clone().imuln(num);
+    };
+    BN.prototype.sqr = function sqr() {
+      return this.mul(this);
+    };
+    BN.prototype.isqr = function isqr() {
+      return this.imul(this.clone());
+    };
+    BN.prototype.pow = function pow(num) {
+      var w = toBitArray(num);
+      if (w.length === 0)
+        return new BN(1);
+      var res = this;
+      for (var i = 0; i < w.length; i++, res = res.sqr()) {
+        if (w[i] !== 0)
+          break;
+      }
+      if (++i < w.length) {
+        for (var q = res.sqr(); i < w.length; i++, q = q.sqr()) {
+          if (w[i] === 0)
+            continue;
+          res = res.mul(q);
+        }
+      }
+      return res;
+    };
+    BN.prototype.iushln = function iushln(bits) {
+      assert2(typeof bits === "number" && bits >= 0);
+      var r2 = bits % 26;
+      var s22 = (bits - r2) / 26;
+      var carryMask = 67108863 >>> 26 - r2 << 26 - r2;
+      var i;
+      if (r2 !== 0) {
+        var carry = 0;
+        for (i = 0; i < this.length; i++) {
+          var newCarry = this.words[i] & carryMask;
+          var c = (this.words[i] | 0) - newCarry << r2;
+          this.words[i] = c | carry;
+          carry = newCarry >>> 26 - r2;
+        }
+        if (carry) {
+          this.words[i] = carry;
+          this.length++;
+        }
+      }
+      if (s22 !== 0) {
+        for (i = this.length - 1; i >= 0; i--) {
+          this.words[i + s22] = this.words[i];
+        }
+        for (i = 0; i < s22; i++) {
+          this.words[i] = 0;
+        }
+        this.length += s22;
+      }
+      return this.strip();
+    };
+    BN.prototype.ishln = function ishln(bits) {
+      assert2(this.negative === 0);
+      return this.iushln(bits);
+    };
+    BN.prototype.iushrn = function iushrn(bits, hint, extended) {
+      assert2(typeof bits === "number" && bits >= 0);
+      var h;
+      if (hint) {
+        h = (hint - hint % 26) / 26;
+      } else {
+        h = 0;
+      }
+      var r2 = bits % 26;
+      var s22 = Math.min((bits - r2) / 26, this.length);
+      var mask = 67108863 ^ 67108863 >>> r2 << r2;
+      var maskedWords = extended;
+      h -= s22;
+      h = Math.max(0, h);
+      if (maskedWords) {
+        for (var i = 0; i < s22; i++) {
+          maskedWords.words[i] = this.words[i];
+        }
+        maskedWords.length = s22;
+      }
+      if (s22 === 0)
+        ;
+      else if (this.length > s22) {
+        this.length -= s22;
+        for (i = 0; i < this.length; i++) {
+          this.words[i] = this.words[i + s22];
+        }
+      } else {
+        this.words[0] = 0;
+        this.length = 1;
+      }
+      var carry = 0;
+      for (i = this.length - 1; i >= 0 && (carry !== 0 || i >= h); i--) {
+        var word = this.words[i] | 0;
+        this.words[i] = carry << 26 - r2 | word >>> r2;
+        carry = word & mask;
+      }
+      if (maskedWords && carry !== 0) {
+        maskedWords.words[maskedWords.length++] = carry;
+      }
+      if (this.length === 0) {
+        this.words[0] = 0;
+        this.length = 1;
+      }
+      return this.strip();
+    };
+    BN.prototype.ishrn = function ishrn(bits, hint, extended) {
+      assert2(this.negative === 0);
+      return this.iushrn(bits, hint, extended);
+    };
+    BN.prototype.shln = function shln(bits) {
+      return this.clone().ishln(bits);
+    };
+    BN.prototype.ushln = function ushln(bits) {
+      return this.clone().iushln(bits);
+    };
+    BN.prototype.shrn = function shrn(bits) {
+      return this.clone().ishrn(bits);
+    };
+    BN.prototype.ushrn = function ushrn(bits) {
+      return this.clone().iushrn(bits);
+    };
+    BN.prototype.testn = function testn(bit) {
+      assert2(typeof bit === "number" && bit >= 0);
+      var r2 = bit % 26;
+      var s22 = (bit - r2) / 26;
+      var q = 1 << r2;
+      if (this.length <= s22)
+        return false;
+      var w = this.words[s22];
+      return !!(w & q);
+    };
+    BN.prototype.imaskn = function imaskn(bits) {
+      assert2(typeof bits === "number" && bits >= 0);
+      var r2 = bits % 26;
+      var s22 = (bits - r2) / 26;
+      assert2(this.negative === 0, "imaskn works only with positive numbers");
+      if (this.length <= s22) {
+        return this;
+      }
+      if (r2 !== 0) {
+        s22++;
+      }
+      this.length = Math.min(s22, this.length);
+      if (r2 !== 0) {
+        var mask = 67108863 ^ 67108863 >>> r2 << r2;
+        this.words[this.length - 1] &= mask;
+      }
+      return this.strip();
+    };
+    BN.prototype.maskn = function maskn(bits) {
+      return this.clone().imaskn(bits);
+    };
+    BN.prototype.iaddn = function iaddn(num) {
+      assert2(typeof num === "number");
+      assert2(num < 67108864);
+      if (num < 0)
+        return this.isubn(-num);
+      if (this.negative !== 0) {
+        if (this.length === 1 && (this.words[0] | 0) < num) {
+          this.words[0] = num - (this.words[0] | 0);
+          this.negative = 0;
+          return this;
+        }
+        this.negative = 0;
+        this.isubn(num);
+        this.negative = 1;
+        return this;
+      }
+      return this._iaddn(num);
+    };
+    BN.prototype._iaddn = function _iaddn(num) {
+      this.words[0] += num;
+      for (var i = 0; i < this.length && this.words[i] >= 67108864; i++) {
+        this.words[i] -= 67108864;
+        if (i === this.length - 1) {
+          this.words[i + 1] = 1;
+        } else {
+          this.words[i + 1]++;
+        }
+      }
+      this.length = Math.max(this.length, i + 1);
+      return this;
+    };
+    BN.prototype.isubn = function isubn(num) {
+      assert2(typeof num === "number");
+      assert2(num < 67108864);
+      if (num < 0)
+        return this.iaddn(-num);
+      if (this.negative !== 0) {
+        this.negative = 0;
+        this.iaddn(num);
+        this.negative = 1;
+        return this;
+      }
+      this.words[0] -= num;
+      if (this.length === 1 && this.words[0] < 0) {
+        this.words[0] = -this.words[0];
+        this.negative = 1;
+      } else {
+        for (var i = 0; i < this.length && this.words[i] < 0; i++) {
+          this.words[i] += 67108864;
+          this.words[i + 1] -= 1;
+        }
+      }
+      return this.strip();
+    };
+    BN.prototype.addn = function addn(num) {
+      return this.clone().iaddn(num);
+    };
+    BN.prototype.subn = function subn(num) {
+      return this.clone().isubn(num);
+    };
+    BN.prototype.iabs = function iabs() {
+      this.negative = 0;
+      return this;
+    };
+    BN.prototype.abs = function abs() {
+      return this.clone().iabs();
+    };
+    BN.prototype._ishlnsubmul = function _ishlnsubmul(num, mul3, shift) {
+      var len = num.length + shift;
+      var i;
+      this._expand(len);
+      var w;
+      var carry = 0;
+      for (i = 0; i < num.length; i++) {
+        w = (this.words[i + shift] | 0) + carry;
+        var right = (num.words[i] | 0) * mul3;
+        w -= right & 67108863;
+        carry = (w >> 26) - (right / 67108864 | 0);
+        this.words[i + shift] = w & 67108863;
+      }
+      for (; i < this.length - shift; i++) {
+        w = (this.words[i + shift] | 0) + carry;
+        carry = w >> 26;
+        this.words[i + shift] = w & 67108863;
+      }
+      if (carry === 0)
+        return this.strip();
+      assert2(carry === -1);
+      carry = 0;
+      for (i = 0; i < this.length; i++) {
+        w = -(this.words[i] | 0) + carry;
+        carry = w >> 26;
+        this.words[i] = w & 67108863;
+      }
+      this.negative = 1;
+      return this.strip();
+    };
+    BN.prototype._wordDiv = function _wordDiv(num, mode) {
+      var shift = this.length - num.length;
+      var a = this.clone();
+      var b = num;
+      var bhi = b.words[b.length - 1] | 0;
+      var bhiBits = this._countBits(bhi);
+      shift = 26 - bhiBits;
+      if (shift !== 0) {
+        b = b.ushln(shift);
+        a.iushln(shift);
+        bhi = b.words[b.length - 1] | 0;
+      }
+      var m = a.length - b.length;
+      var q;
+      if (mode !== "mod") {
+        q = new BN(null);
+        q.length = m + 1;
+        q.words = new Array(q.length);
+        for (var i = 0; i < q.length; i++) {
+          q.words[i] = 0;
+        }
+      }
+      var diff = a.clone()._ishlnsubmul(b, 1, m);
+      if (diff.negative === 0) {
+        a = diff;
+        if (q) {
+          q.words[m] = 1;
+        }
+      }
+      for (var j = m - 1; j >= 0; j--) {
+        var qj = (a.words[b.length + j] | 0) * 67108864 + (a.words[b.length + j - 1] | 0);
+        qj = Math.min(qj / bhi | 0, 67108863);
+        a._ishlnsubmul(b, qj, j);
+        while (a.negative !== 0) {
+          qj--;
+          a.negative = 0;
+          a._ishlnsubmul(b, 1, j);
+          if (!a.isZero()) {
+            a.negative ^= 1;
+          }
+        }
+        if (q) {
+          q.words[j] = qj;
+        }
+      }
+      if (q) {
+        q.strip();
+      }
+      a.strip();
+      if (mode !== "div" && shift !== 0) {
+        a.iushrn(shift);
+      }
+      return {
+        div: q || null,
+        mod: a
+      };
+    };
+    BN.prototype.divmod = function divmod(num, mode, positive) {
+      assert2(!num.isZero());
+      if (this.isZero()) {
+        return {
+          div: new BN(0),
+          mod: new BN(0)
+        };
+      }
+      var div, mod, res;
+      if (this.negative !== 0 && num.negative === 0) {
+        res = this.neg().divmod(num, mode);
+        if (mode !== "mod") {
+          div = res.div.neg();
+        }
+        if (mode !== "div") {
+          mod = res.mod.neg();
+          if (positive && mod.negative !== 0) {
+            mod.iadd(num);
+          }
+        }
+        return {
+          div,
+          mod
+        };
+      }
+      if (this.negative === 0 && num.negative !== 0) {
+        res = this.divmod(num.neg(), mode);
+        if (mode !== "mod") {
+          div = res.div.neg();
+        }
+        return {
+          div,
+          mod: res.mod
+        };
+      }
+      if ((this.negative & num.negative) !== 0) {
+        res = this.neg().divmod(num.neg(), mode);
+        if (mode !== "div") {
+          mod = res.mod.neg();
+          if (positive && mod.negative !== 0) {
+            mod.isub(num);
+          }
+        }
+        return {
+          div: res.div,
+          mod
+        };
+      }
+      if (num.length > this.length || this.cmp(num) < 0) {
+        return {
+          div: new BN(0),
+          mod: this
+        };
+      }
+      if (num.length === 1) {
+        if (mode === "div") {
+          return {
+            div: this.divn(num.words[0]),
+            mod: null
+          };
+        }
+        if (mode === "mod") {
+          return {
+            div: null,
+            mod: new BN(this.modn(num.words[0]))
+          };
+        }
+        return {
+          div: this.divn(num.words[0]),
+          mod: new BN(this.modn(num.words[0]))
+        };
+      }
+      return this._wordDiv(num, mode);
+    };
+    BN.prototype.div = function div(num) {
+      return this.divmod(num, "div", false).div;
+    };
+    BN.prototype.mod = function mod(num) {
+      return this.divmod(num, "mod", false).mod;
+    };
+    BN.prototype.umod = function umod(num) {
+      return this.divmod(num, "mod", true).mod;
+    };
+    BN.prototype.divRound = function divRound(num) {
+      var dm = this.divmod(num);
+      if (dm.mod.isZero())
+        return dm.div;
+      var mod = dm.div.negative !== 0 ? dm.mod.isub(num) : dm.mod;
+      var half = num.ushrn(1);
+      var r2 = num.andln(1);
+      var cmp = mod.cmp(half);
+      if (cmp < 0 || r2 === 1 && cmp === 0)
+        return dm.div;
+      return dm.div.negative !== 0 ? dm.div.isubn(1) : dm.div.iaddn(1);
+    };
+    BN.prototype.modn = function modn(num) {
+      assert2(num <= 67108863);
+      var p = (1 << 26) % num;
+      var acc = 0;
+      for (var i = this.length - 1; i >= 0; i--) {
+        acc = (p * acc + (this.words[i] | 0)) % num;
+      }
+      return acc;
+    };
+    BN.prototype.idivn = function idivn(num) {
+      assert2(num <= 67108863);
+      var carry = 0;
+      for (var i = this.length - 1; i >= 0; i--) {
+        var w = (this.words[i] | 0) + carry * 67108864;
+        this.words[i] = w / num | 0;
+        carry = w % num;
+      }
+      return this.strip();
+    };
+    BN.prototype.divn = function divn(num) {
+      return this.clone().idivn(num);
+    };
+    BN.prototype.egcd = function egcd(p) {
+      assert2(p.negative === 0);
+      assert2(!p.isZero());
+      var x = this;
+      var y = p.clone();
+      if (x.negative !== 0) {
+        x = x.umod(p);
+      } else {
+        x = x.clone();
+      }
+      var A = new BN(1);
+      var B = new BN(0);
+      var C = new BN(0);
+      var D = new BN(1);
+      var g = 0;
+      while (x.isEven() && y.isEven()) {
+        x.iushrn(1);
+        y.iushrn(1);
+        ++g;
+      }
+      var yp = y.clone();
+      var xp = x.clone();
+      while (!x.isZero()) {
+        for (var i = 0, im = 1; (x.words[0] & im) === 0 && i < 26; ++i, im <<= 1)
+          ;
+        if (i > 0) {
+          x.iushrn(i);
+          while (i-- > 0) {
+            if (A.isOdd() || B.isOdd()) {
+              A.iadd(yp);
+              B.isub(xp);
+            }
+            A.iushrn(1);
+            B.iushrn(1);
+          }
+        }
+        for (var j = 0, jm = 1; (y.words[0] & jm) === 0 && j < 26; ++j, jm <<= 1)
+          ;
+        if (j > 0) {
+          y.iushrn(j);
+          while (j-- > 0) {
+            if (C.isOdd() || D.isOdd()) {
+              C.iadd(yp);
+              D.isub(xp);
+            }
+            C.iushrn(1);
+            D.iushrn(1);
+          }
+        }
+        if (x.cmp(y) >= 0) {
+          x.isub(y);
+          A.isub(C);
+          B.isub(D);
+        } else {
+          y.isub(x);
+          C.isub(A);
+          D.isub(B);
+        }
+      }
+      return {
+        a: C,
+        b: D,
+        gcd: y.iushln(g)
+      };
+    };
+    BN.prototype._invmp = function _invmp(p) {
+      assert2(p.negative === 0);
+      assert2(!p.isZero());
+      var a = this;
+      var b = p.clone();
+      if (a.negative !== 0) {
+        a = a.umod(p);
+      } else {
+        a = a.clone();
+      }
+      var x1 = new BN(1);
+      var x2 = new BN(0);
+      var delta = b.clone();
+      while (a.cmpn(1) > 0 && b.cmpn(1) > 0) {
+        for (var i = 0, im = 1; (a.words[0] & im) === 0 && i < 26; ++i, im <<= 1)
+          ;
+        if (i > 0) {
+          a.iushrn(i);
+          while (i-- > 0) {
+            if (x1.isOdd()) {
+              x1.iadd(delta);
+            }
+            x1.iushrn(1);
+          }
+        }
+        for (var j = 0, jm = 1; (b.words[0] & jm) === 0 && j < 26; ++j, jm <<= 1)
+          ;
+        if (j > 0) {
+          b.iushrn(j);
+          while (j-- > 0) {
+            if (x2.isOdd()) {
+              x2.iadd(delta);
+            }
+            x2.iushrn(1);
+          }
+        }
+        if (a.cmp(b) >= 0) {
+          a.isub(b);
+          x1.isub(x2);
+        } else {
+          b.isub(a);
+          x2.isub(x1);
+        }
+      }
+      var res;
+      if (a.cmpn(1) === 0) {
+        res = x1;
+      } else {
+        res = x2;
+      }
+      if (res.cmpn(0) < 0) {
+        res.iadd(p);
+      }
+      return res;
+    };
+    BN.prototype.gcd = function gcd(num) {
+      if (this.isZero())
+        return num.abs();
+      if (num.isZero())
+        return this.abs();
+      var a = this.clone();
+      var b = num.clone();
+      a.negative = 0;
+      b.negative = 0;
+      for (var shift = 0; a.isEven() && b.isEven(); shift++) {
+        a.iushrn(1);
+        b.iushrn(1);
+      }
+      do {
+        while (a.isEven()) {
+          a.iushrn(1);
+        }
+        while (b.isEven()) {
+          b.iushrn(1);
+        }
+        var r2 = a.cmp(b);
+        if (r2 < 0) {
+          var t = a;
+          a = b;
+          b = t;
+        } else if (r2 === 0 || b.cmpn(1) === 0) {
+          break;
+        }
+        a.isub(b);
+      } while (true);
+      return b.iushln(shift);
+    };
+    BN.prototype.invm = function invm(num) {
+      return this.egcd(num).a.umod(num);
+    };
+    BN.prototype.isEven = function isEven() {
+      return (this.words[0] & 1) === 0;
+    };
+    BN.prototype.isOdd = function isOdd() {
+      return (this.words[0] & 1) === 1;
+    };
+    BN.prototype.andln = function andln(num) {
+      return this.words[0] & num;
+    };
+    BN.prototype.bincn = function bincn(bit) {
+      assert2(typeof bit === "number");
+      var r2 = bit % 26;
+      var s22 = (bit - r2) / 26;
+      var q = 1 << r2;
+      if (this.length <= s22) {
+        this._expand(s22 + 1);
+        this.words[s22] |= q;
+        return this;
+      }
+      var carry = q;
+      for (var i = s22; carry !== 0 && i < this.length; i++) {
+        var w = this.words[i] | 0;
+        w += carry;
+        carry = w >>> 26;
+        w &= 67108863;
+        this.words[i] = w;
+      }
+      if (carry !== 0) {
+        this.words[i] = carry;
+        this.length++;
+      }
+      return this;
+    };
+    BN.prototype.isZero = function isZero() {
+      return this.length === 1 && this.words[0] === 0;
+    };
+    BN.prototype.cmpn = function cmpn(num) {
+      var negative = num < 0;
+      if (this.negative !== 0 && !negative)
+        return -1;
+      if (this.negative === 0 && negative)
+        return 1;
+      this.strip();
+      var res;
+      if (this.length > 1) {
+        res = 1;
+      } else {
+        if (negative) {
+          num = -num;
+        }
+        assert2(num <= 67108863, "Number is too big");
+        var w = this.words[0] | 0;
+        res = w === num ? 0 : w < num ? -1 : 1;
+      }
+      if (this.negative !== 0)
+        return -res | 0;
+      return res;
+    };
+    BN.prototype.cmp = function cmp(num) {
+      if (this.negative !== 0 && num.negative === 0)
+        return -1;
+      if (this.negative === 0 && num.negative !== 0)
+        return 1;
+      var res = this.ucmp(num);
+      if (this.negative !== 0)
+        return -res | 0;
+      return res;
+    };
+    BN.prototype.ucmp = function ucmp(num) {
+      if (this.length > num.length)
+        return 1;
+      if (this.length < num.length)
+        return -1;
+      var res = 0;
+      for (var i = this.length - 1; i >= 0; i--) {
+        var a = this.words[i] | 0;
+        var b = num.words[i] | 0;
+        if (a === b)
+          continue;
+        if (a < b) {
+          res = -1;
+        } else if (a > b) {
+          res = 1;
+        }
+        break;
+      }
+      return res;
+    };
+    BN.prototype.gtn = function gtn(num) {
+      return this.cmpn(num) === 1;
+    };
+    BN.prototype.gt = function gt(num) {
+      return this.cmp(num) === 1;
+    };
+    BN.prototype.gten = function gten(num) {
+      return this.cmpn(num) >= 0;
+    };
+    BN.prototype.gte = function gte(num) {
+      return this.cmp(num) >= 0;
+    };
+    BN.prototype.ltn = function ltn(num) {
+      return this.cmpn(num) === -1;
+    };
+    BN.prototype.lt = function lt(num) {
+      return this.cmp(num) === -1;
+    };
+    BN.prototype.lten = function lten(num) {
+      return this.cmpn(num) <= 0;
+    };
+    BN.prototype.lte = function lte(num) {
+      return this.cmp(num) <= 0;
+    };
+    BN.prototype.eqn = function eqn(num) {
+      return this.cmpn(num) === 0;
+    };
+    BN.prototype.eq = function eq4(num) {
+      return this.cmp(num) === 0;
+    };
+    BN.red = function red(num) {
+      return new Red(num);
+    };
+    BN.prototype.toRed = function toRed(ctx) {
+      assert2(!this.red, "Already a number in reduction context");
+      assert2(this.negative === 0, "red works only with positives");
+      return ctx.convertTo(this)._forceRed(ctx);
+    };
+    BN.prototype.fromRed = function fromRed() {
+      assert2(this.red, "fromRed works only with numbers in reduction context");
+      return this.red.convertFrom(this);
+    };
+    BN.prototype._forceRed = function _forceRed(ctx) {
+      this.red = ctx;
+      return this;
+    };
+    BN.prototype.forceRed = function forceRed(ctx) {
+      assert2(!this.red, "Already a number in reduction context");
+      return this._forceRed(ctx);
+    };
+    BN.prototype.redAdd = function redAdd(num) {
+      assert2(this.red, "redAdd works only with red numbers");
+      return this.red.add(this, num);
+    };
+    BN.prototype.redIAdd = function redIAdd(num) {
+      assert2(this.red, "redIAdd works only with red numbers");
+      return this.red.iadd(this, num);
+    };
+    BN.prototype.redSub = function redSub(num) {
+      assert2(this.red, "redSub works only with red numbers");
+      return this.red.sub(this, num);
+    };
+    BN.prototype.redISub = function redISub(num) {
+      assert2(this.red, "redISub works only with red numbers");
+      return this.red.isub(this, num);
+    };
+    BN.prototype.redShl = function redShl(num) {
+      assert2(this.red, "redShl works only with red numbers");
+      return this.red.shl(this, num);
+    };
+    BN.prototype.redMul = function redMul(num) {
+      assert2(this.red, "redMul works only with red numbers");
+      this.red._verify2(this, num);
+      return this.red.mul(this, num);
+    };
+    BN.prototype.redIMul = function redIMul(num) {
+      assert2(this.red, "redMul works only with red numbers");
+      this.red._verify2(this, num);
+      return this.red.imul(this, num);
+    };
+    BN.prototype.redSqr = function redSqr() {
+      assert2(this.red, "redSqr works only with red numbers");
+      this.red._verify1(this);
+      return this.red.sqr(this);
+    };
+    BN.prototype.redISqr = function redISqr() {
+      assert2(this.red, "redISqr works only with red numbers");
+      this.red._verify1(this);
+      return this.red.isqr(this);
+    };
+    BN.prototype.redSqrt = function redSqrt() {
+      assert2(this.red, "redSqrt works only with red numbers");
+      this.red._verify1(this);
+      return this.red.sqrt(this);
+    };
+    BN.prototype.redInvm = function redInvm() {
+      assert2(this.red, "redInvm works only with red numbers");
+      this.red._verify1(this);
+      return this.red.invm(this);
+    };
+    BN.prototype.redNeg = function redNeg() {
+      assert2(this.red, "redNeg works only with red numbers");
+      this.red._verify1(this);
+      return this.red.neg(this);
+    };
+    BN.prototype.redPow = function redPow(num) {
+      assert2(this.red && !num.red, "redPow(normalNum)");
+      this.red._verify1(this);
+      return this.red.pow(this, num);
+    };
+    var primes = {
+      k256: null,
+      p224: null,
+      p192: null,
+      p25519: null
+    };
+    function MPrime(name2, p) {
+      this.name = name2;
+      this.p = new BN(p, 16);
+      this.n = this.p.bitLength();
+      this.k = new BN(1).iushln(this.n).isub(this.p);
+      this.tmp = this._tmp();
+    }
+    MPrime.prototype._tmp = function _tmp() {
+      var tmp = new BN(null);
+      tmp.words = new Array(Math.ceil(this.n / 13));
+      return tmp;
+    };
+    MPrime.prototype.ireduce = function ireduce(num) {
+      var r2 = num;
+      var rlen;
+      do {
+        this.split(r2, this.tmp);
+        r2 = this.imulK(r2);
+        r2 = r2.iadd(this.tmp);
+        rlen = r2.bitLength();
+      } while (rlen > this.n);
+      var cmp = rlen < this.n ? -1 : r2.ucmp(this.p);
+      if (cmp === 0) {
+        r2.words[0] = 0;
+        r2.length = 1;
+      } else if (cmp > 0) {
+        r2.isub(this.p);
+      } else {
+        if (r2.strip !== void 0) {
+          r2.strip();
+        } else {
+          r2._strip();
+        }
+      }
+      return r2;
+    };
+    MPrime.prototype.split = function split(input, out) {
+      input.iushrn(this.n, 0, out);
+    };
+    MPrime.prototype.imulK = function imulK(num) {
+      return num.imul(this.k);
+    };
+    function K256() {
+      MPrime.call(this, "k256", "ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff fffffffe fffffc2f");
+    }
+    inherits(K256, MPrime);
+    K256.prototype.split = function split(input, output) {
+      var mask = 4194303;
+      var outLen = Math.min(input.length, 9);
+      for (var i = 0; i < outLen; i++) {
+        output.words[i] = input.words[i];
+      }
+      output.length = outLen;
+      if (input.length <= 9) {
+        input.words[0] = 0;
+        input.length = 1;
+        return;
+      }
+      var prev = input.words[9];
+      output.words[output.length++] = prev & mask;
+      for (i = 10; i < input.length; i++) {
+        var next = input.words[i] | 0;
+        input.words[i - 10] = (next & mask) << 4 | prev >>> 22;
+        prev = next;
+      }
+      prev >>>= 22;
+      input.words[i - 10] = prev;
+      if (prev === 0 && input.length > 10) {
+        input.length -= 10;
+      } else {
+        input.length -= 9;
+      }
+    };
+    K256.prototype.imulK = function imulK(num) {
+      num.words[num.length] = 0;
+      num.words[num.length + 1] = 0;
+      num.length += 2;
+      var lo = 0;
+      for (var i = 0; i < num.length; i++) {
+        var w = num.words[i] | 0;
+        lo += w * 977;
+        num.words[i] = lo & 67108863;
+        lo = w * 64 + (lo / 67108864 | 0);
+      }
+      if (num.words[num.length - 1] === 0) {
+        num.length--;
+        if (num.words[num.length - 1] === 0) {
+          num.length--;
+        }
+      }
+      return num;
+    };
+    function P224() {
+      MPrime.call(this, "p224", "ffffffff ffffffff ffffffff ffffffff 00000000 00000000 00000001");
+    }
+    inherits(P224, MPrime);
+    function P192() {
+      MPrime.call(this, "p192", "ffffffff ffffffff ffffffff fffffffe ffffffff ffffffff");
+    }
+    inherits(P192, MPrime);
+    function P25519() {
+      MPrime.call(this, "25519", "7fffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffed");
+    }
+    inherits(P25519, MPrime);
+    P25519.prototype.imulK = function imulK(num) {
+      var carry = 0;
+      for (var i = 0; i < num.length; i++) {
+        var hi = (num.words[i] | 0) * 19 + carry;
+        var lo = hi & 67108863;
+        hi >>>= 26;
+        num.words[i] = lo;
+        carry = hi;
+      }
+      if (carry !== 0) {
+        num.words[num.length++] = carry;
+      }
+      return num;
+    };
+    BN._prime = function prime(name2) {
+      if (primes[name2])
+        return primes[name2];
+      var prime2;
+      if (name2 === "k256") {
+        prime2 = new K256();
+      } else if (name2 === "p224") {
+        prime2 = new P224();
+      } else if (name2 === "p192") {
+        prime2 = new P192();
+      } else if (name2 === "p25519") {
+        prime2 = new P25519();
+      } else {
+        throw new Error("Unknown prime " + name2);
+      }
+      primes[name2] = prime2;
+      return prime2;
+    };
+    function Red(m) {
+      if (typeof m === "string") {
+        var prime = BN._prime(m);
+        this.m = prime.p;
+        this.prime = prime;
+      } else {
+        assert2(m.gtn(1), "modulus must be greater than 1");
+        this.m = m;
+        this.prime = null;
+      }
+    }
+    Red.prototype._verify1 = function _verify1(a) {
+      assert2(a.negative === 0, "red works only with positives");
+      assert2(a.red, "red works only with red numbers");
+    };
+    Red.prototype._verify2 = function _verify2(a, b) {
+      assert2((a.negative | b.negative) === 0, "red works only with positives");
+      assert2(a.red && a.red === b.red, "red works only with red numbers");
+    };
+    Red.prototype.imod = function imod(a) {
+      if (this.prime)
+        return this.prime.ireduce(a)._forceRed(this);
+      return a.umod(this.m)._forceRed(this);
+    };
+    Red.prototype.neg = function neg3(a) {
+      if (a.isZero()) {
+        return a.clone();
+      }
+      return this.m.sub(a)._forceRed(this);
+    };
+    Red.prototype.add = function add3(a, b) {
+      this._verify2(a, b);
+      var res = a.add(b);
+      if (res.cmp(this.m) >= 0) {
+        res.isub(this.m);
+      }
+      return res._forceRed(this);
+    };
+    Red.prototype.iadd = function iadd(a, b) {
+      this._verify2(a, b);
+      var res = a.iadd(b);
+      if (res.cmp(this.m) >= 0) {
+        res.isub(this.m);
+      }
+      return res;
+    };
+    Red.prototype.sub = function sub(a, b) {
+      this._verify2(a, b);
+      var res = a.sub(b);
+      if (res.cmpn(0) < 0) {
+        res.iadd(this.m);
+      }
+      return res._forceRed(this);
+    };
+    Red.prototype.isub = function isub(a, b) {
+      this._verify2(a, b);
+      var res = a.isub(b);
+      if (res.cmpn(0) < 0) {
+        res.iadd(this.m);
+      }
+      return res;
+    };
+    Red.prototype.shl = function shl(a, num) {
+      this._verify1(a);
+      return this.imod(a.ushln(num));
+    };
+    Red.prototype.imul = function imul(a, b) {
+      this._verify2(a, b);
+      return this.imod(a.imul(b));
+    };
+    Red.prototype.mul = function mul3(a, b) {
+      this._verify2(a, b);
+      return this.imod(a.mul(b));
+    };
+    Red.prototype.isqr = function isqr(a) {
+      return this.imul(a, a.clone());
+    };
+    Red.prototype.sqr = function sqr(a) {
+      return this.mul(a, a);
+    };
+    Red.prototype.sqrt = function sqrt(a) {
+      if (a.isZero())
+        return a.clone();
+      var mod3 = this.m.andln(3);
+      assert2(mod3 % 2 === 1);
+      if (mod3 === 3) {
+        var pow = this.m.add(new BN(1)).iushrn(2);
+        return this.pow(a, pow);
+      }
+      var q = this.m.subn(1);
+      var s22 = 0;
+      while (!q.isZero() && q.andln(1) === 0) {
+        s22++;
+        q.iushrn(1);
+      }
+      assert2(!q.isZero());
+      var one = new BN(1).toRed(this);
+      var nOne = one.redNeg();
+      var lpow = this.m.subn(1).iushrn(1);
+      var z = this.m.bitLength();
+      z = new BN(2 * z * z).toRed(this);
+      while (this.pow(z, lpow).cmp(nOne) !== 0) {
+        z.redIAdd(nOne);
+      }
+      var c = this.pow(z, q);
+      var r2 = this.pow(a, q.addn(1).iushrn(1));
+      var t = this.pow(a, q);
+      var m = s22;
+      while (t.cmp(one) !== 0) {
+        var tmp = t;
+        for (var i = 0; tmp.cmp(one) !== 0; i++) {
+          tmp = tmp.redSqr();
+        }
+        assert2(i < m);
+        var b = this.pow(c, new BN(1).iushln(m - i - 1));
+        r2 = r2.redMul(b);
+        c = b.redSqr();
+        t = t.redMul(c);
+        m = i;
+      }
+      return r2;
+    };
+    Red.prototype.invm = function invm(a) {
+      var inv = a._invmp(this.m);
+      if (inv.negative !== 0) {
+        inv.negative = 0;
+        return this.imod(inv).redNeg();
+      } else {
+        return this.imod(inv);
+      }
+    };
+    Red.prototype.pow = function pow(a, num) {
+      if (num.isZero())
+        return new BN(1).toRed(this);
+      if (num.cmpn(1) === 0)
+        return a.clone();
+      var windowSize = 4;
+      var wnd = new Array(1 << windowSize);
+      wnd[0] = new BN(1).toRed(this);
+      wnd[1] = a;
+      for (var i = 2; i < wnd.length; i++) {
+        wnd[i] = this.mul(wnd[i - 1], a);
+      }
+      var res = wnd[0];
+      var current = 0;
+      var currentLen = 0;
+      var start = num.bitLength() % 26;
+      if (start === 0) {
+        start = 26;
+      }
+      for (i = num.length - 1; i >= 0; i--) {
+        var word = num.words[i];
+        for (var j = start - 1; j >= 0; j--) {
+          var bit = word >> j & 1;
+          if (res !== wnd[0]) {
+            res = this.sqr(res);
+          }
+          if (bit === 0 && current === 0) {
+            currentLen = 0;
+            continue;
+          }
+          current <<= 1;
+          current |= bit;
+          currentLen++;
+          if (currentLen !== windowSize && (i !== 0 || j !== 0))
+            continue;
+          res = this.mul(res, wnd[current]);
+          currentLen = 0;
+          current = 0;
+        }
+        start = 26;
+      }
+      return res;
+    };
+    Red.prototype.convertTo = function convertTo(num) {
+      var r2 = num.umod(this.m);
+      return r2 === num ? r2.clone() : r2;
+    };
+    Red.prototype.convertFrom = function convertFrom(num) {
+      var res = num.clone();
+      res.red = null;
+      return res;
+    };
+    BN.mont = function mont(num) {
+      return new Mont(num);
+    };
+    function Mont(m) {
+      Red.call(this, m);
+      this.shift = this.m.bitLength();
+      if (this.shift % 26 !== 0) {
+        this.shift += 26 - this.shift % 26;
+      }
+      this.r = new BN(1).iushln(this.shift);
+      this.r2 = this.imod(this.r.sqr());
+      this.rinv = this.r._invmp(this.m);
+      this.minv = this.rinv.mul(this.r).isubn(1).div(this.m);
+      this.minv = this.minv.umod(this.r);
+      this.minv = this.r.sub(this.minv);
+    }
+    inherits(Mont, Red);
+    Mont.prototype.convertTo = function convertTo(num) {
+      return this.imod(num.ushln(this.shift));
+    };
+    Mont.prototype.convertFrom = function convertFrom(num) {
+      var r2 = this.imod(num.mul(this.rinv));
+      r2.red = null;
+      return r2;
+    };
+    Mont.prototype.imul = function imul(a, b) {
+      if (a.isZero() || b.isZero()) {
+        a.words[0] = 0;
+        a.length = 1;
+        return a;
+      }
+      var t = a.imul(b);
+      var c = t.maskn(this.shift).mul(this.minv).imaskn(this.shift).mul(this.m);
+      var u = t.isub(c).iushrn(this.shift);
+      var res = u;
+      if (u.cmp(this.m) >= 0) {
+        res = u.isub(this.m);
+      } else if (u.cmpn(0) < 0) {
+        res = u.iadd(this.m);
+      }
+      return res._forceRed(this);
+    };
+    Mont.prototype.mul = function mul3(a, b) {
+      if (a.isZero() || b.isZero())
+        return new BN(0)._forceRed(this);
+      var t = a.mul(b);
+      var c = t.maskn(this.shift).mul(this.minv).imaskn(this.shift).mul(this.m);
+      var u = t.isub(c).iushrn(this.shift);
+      var res = u;
+      if (u.cmp(this.m) >= 0) {
+        res = u.isub(this.m);
+      } else if (u.cmpn(0) < 0) {
+        res = u.iadd(this.m);
+      }
+      return res._forceRed(this);
+    };
+    Mont.prototype.invm = function invm(a) {
+      var res = this.imod(a._invmp(this.m).mul(this.r2));
+      return res._forceRed(this);
+    };
+  })(module2, commonjsGlobal);
+});
 var minimalisticAssert$1 = assert$6;
 function assert$6(val, msg) {
   if (!val)
@@ -30177,7 +33832,7 @@ function handleNumber(value) {
   if (value === "0x") {
     return Zero$1;
   }
-  return BigNumber.from(value);
+  return import_bignumber.BigNumber.from(value);
 }
 var transactionFields = [
   {name: "nonce", maxLength: 32, numeric: true},
@@ -30204,7 +33859,7 @@ function recoverAddress(digest17, signature2) {
   return computeAddress(recoverPublicKey(arrayify(digest17), signature2));
 }
 function formatNumber(value, name2) {
-  const result = stripZeros(BigNumber.from(value).toHexString());
+  const result = stripZeros(import_bignumber.BigNumber.from(value).toHexString());
   if (result.length > 32) {
     logger$f.throwArgumentError("invalid length for " + name2, "transaction:" + name2, value);
   }
@@ -30394,14 +34049,14 @@ function _parse(rawTransaction) {
     return tx;
   }
   try {
-    tx.v = BigNumber.from(transaction[6]).toNumber();
+    tx.v = import_bignumber.BigNumber.from(transaction[6]).toNumber();
   } catch (error2) {
     console.log(error2);
     return tx;
   }
   tx.r = hexZeroPad(transaction[7], 32);
   tx.s = hexZeroPad(transaction[8], 32);
-  if (BigNumber.from(tx.r).isZero() && BigNumber.from(tx.s).isZero()) {
+  if (import_bignumber.BigNumber.from(tx.r).isZero() && import_bignumber.BigNumber.from(tx.s).isZero()) {
     tx.chainId = tx.v;
     tx.v = 0;
   } else {
@@ -30550,13 +34205,13 @@ function populateTransaction(contract, fragment, args) {
     };
     const ro = resolved.overrides;
     if (ro.nonce != null) {
-      tx.nonce = BigNumber.from(ro.nonce).toNumber();
+      tx.nonce = import_bignumber.BigNumber.from(ro.nonce).toNumber();
     }
     if (ro.gasLimit != null) {
-      tx.gasLimit = BigNumber.from(ro.gasLimit);
+      tx.gasLimit = import_bignumber.BigNumber.from(ro.gasLimit);
     }
     if (ro.gasPrice != null) {
-      tx.gasPrice = BigNumber.from(ro.gasPrice);
+      tx.gasPrice = import_bignumber.BigNumber.from(ro.gasPrice);
     }
     if (ro.from != null) {
       tx.from = ro.from;
@@ -30576,10 +34231,10 @@ function populateTransaction(contract, fragment, args) {
           intrinsic += 64;
         }
       }
-      tx.gasLimit = BigNumber.from(fragment.gas).add(intrinsic);
+      tx.gasLimit = import_bignumber.BigNumber.from(fragment.gas).add(intrinsic);
     }
     if (ro.value) {
-      const roValue = BigNumber.from(ro.value);
+      const roValue = import_bignumber.BigNumber.from(ro.value);
       if (!roValue.isZero() && !fragment.payable) {
         logger$e.throwError("non-payable method cannot override value", Logger.errors.UNSUPPORTED_OPERATION, {
           operation: "overrides.value",
@@ -33290,7 +36945,7 @@ var wordlists = {
 };
 var version$6 = "hdnode/5.1.0";
 var logger$b = new Logger(version$6);
-var N = BigNumber.from("0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141");
+var N = import_bignumber.BigNumber.from("0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141");
 var MasterSecret = toUtf8Bytes("Bitcoin seed");
 var HardenedBit = 2147483648;
 function getUpperMask(bits) {
@@ -33396,7 +37051,7 @@ var HDNode = class {
     let ki = null;
     let Ki = null;
     if (this.privateKey) {
-      ki = bytes32(BigNumber.from(IL).add(this.privateKey).mod(N));
+      ki = bytes32(import_bignumber.BigNumber.from(IL).add(this.privateKey).mod(N));
     } else {
       const ek = new SigningKey(hexlify(IL));
       Ki = ek._addPoint(this.publicKey);
@@ -34547,10 +38202,10 @@ var Formatter = class {
     if (number === "0x") {
       return 0;
     }
-    return BigNumber.from(number).toNumber();
+    return import_bignumber.BigNumber.from(number).toNumber();
   }
   bigNumber(value) {
-    return BigNumber.from(value);
+    return import_bignumber.BigNumber.from(value);
   }
   boolean(value) {
     if (typeof value === "boolean") {
@@ -34624,7 +38279,7 @@ var Formatter = class {
     if (value == null) {
       return null;
     }
-    const v = BigNumber.from(value);
+    const v = import_bignumber.BigNumber.from(value);
     try {
       return v.toNumber();
     } catch (error2) {
@@ -34656,7 +38311,7 @@ var Formatter = class {
     if (transaction.gas != null && transaction.gasLimit == null) {
       transaction.gasLimit = transaction.gas;
     }
-    if (transaction.to && BigNumber.from(transaction.to).isZero()) {
+    if (transaction.to && import_bignumber.BigNumber.from(transaction.to).isZero()) {
       transaction.to = "0x0000000000000000000000000000000000000000";
     }
     if (transaction.input != null && transaction.data == null) {
@@ -34672,7 +38327,7 @@ var Formatter = class {
     if (transaction.chainId != null) {
       let chainId = transaction.chainId;
       if (isHexString(chainId)) {
-        chainId = BigNumber.from(chainId).toNumber();
+        chainId = import_bignumber.BigNumber.from(chainId).toNumber();
       }
       result.chainId = chainId;
     } else {
@@ -34681,7 +38336,7 @@ var Formatter = class {
         chainId = transaction.chainId;
       }
       if (isHexString(chainId)) {
-        chainId = BigNumber.from(chainId).toNumber();
+        chainId = import_bignumber.BigNumber.from(chainId).toNumber();
       }
       if (typeof chainId !== "number" && result.v != null) {
         chainId = (result.v - 35) / 2;
@@ -34710,7 +38365,7 @@ var Formatter = class {
     const result = Formatter.check(this.formats.receipt, value);
     if (result.root != null) {
       if (result.root.length <= 4) {
-        const value2 = BigNumber.from(result.root).toNumber();
+        const value2 = import_bignumber.BigNumber.from(result.root).toNumber();
         if (value2 === 0 || value2 === 1) {
           if (result.status != null && result.status !== value2) {
             logger$7.throwArgumentError("alt-root-status/status mismatch", "value", {root: result.root, status: result.status});
@@ -34959,7 +38614,7 @@ var coinInfos = {
   "700": {symbol: "xdai", ilk: "eth"}
 };
 function bytes32ify(value) {
-  return hexZeroPad(BigNumber.from(value).toHexString(), 32);
+  return hexZeroPad(import_bignumber.BigNumber.from(value).toHexString(), 32);
 }
 function base58Encode(data2) {
   return Base58.encode(concat([data2, hexDataSlice(sha256$1(sha256$1(data2)), 0, 4)]));
@@ -34980,8 +38635,8 @@ var Resolver = class {
       if (result === "0x") {
         return null;
       }
-      const offset = BigNumber.from(hexDataSlice(result, 0, 32)).toNumber();
-      const length = BigNumber.from(hexDataSlice(result, offset, offset + 32)).toNumber();
+      const offset = import_bignumber.BigNumber.from(hexDataSlice(result, 0, 32)).toNumber();
+      const length = import_bignumber.BigNumber.from(hexDataSlice(result, offset, offset + 32)).toNumber();
       return hexDataSlice(result, offset + 32, offset + 32 + length);
     });
   }
@@ -35216,7 +38871,7 @@ var BaseProvider = class extends Provider {
           throw networkError;
         }
         const respTime = getTime();
-        blockNumber = BigNumber.from(blockNumber).toNumber();
+        blockNumber = import_bignumber.BigNumber.from(blockNumber).toNumber();
         if (blockNumber < this._maxInternalBlockNumber) {
           blockNumber = this._maxInternalBlockNumber;
         }
@@ -35499,7 +39154,7 @@ var BaseProvider = class extends Provider {
       yield this.getNetwork();
       const result = yield this.perform("getGasPrice", {});
       try {
-        return BigNumber.from(result);
+        return import_bignumber.BigNumber.from(result);
       } catch (error2) {
         return logger$6.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
           method: "getGasPrice",
@@ -35518,7 +39173,7 @@ var BaseProvider = class extends Provider {
       });
       const result = yield this.perform("getBalance", params);
       try {
-        return BigNumber.from(result);
+        return import_bignumber.BigNumber.from(result);
       } catch (error2) {
         return logger$6.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
           method: "getBalance",
@@ -35538,7 +39193,7 @@ var BaseProvider = class extends Provider {
       });
       const result = yield this.perform("getTransactionCount", params);
       try {
-        return BigNumber.from(result).toNumber();
+        return import_bignumber.BigNumber.from(result).toNumber();
       } catch (error2) {
         return logger$6.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
           method: "getTransactionCount",
@@ -35647,7 +39302,7 @@ var BaseProvider = class extends Provider {
         if (values[key2] == null) {
           return;
         }
-        tx[key2] = Promise.resolve(values[key2]).then((v) => v ? BigNumber.from(v) : null);
+        tx[key2] = Promise.resolve(values[key2]).then((v) => v ? import_bignumber.BigNumber.from(v) : null);
       });
       ["type"].forEach((key2) => {
         if (values[key2] == null) {
@@ -35717,7 +39372,7 @@ var BaseProvider = class extends Provider {
       });
       const result = yield this.perform("estimateGas", params);
       try {
-        return BigNumber.from(result);
+        return import_bignumber.BigNumber.from(result);
       } catch (error2) {
         return logger$6.throwError("bad result from backend", Logger.errors.SERVER_ERROR, {
           method: "estimateGas",
@@ -35953,14 +39608,14 @@ var BaseProvider = class extends Provider {
         to: resolverAddress,
         data: "0x691f3431" + namehash(reverseName).substring(2)
       }));
-      if (bytes.length < 32 || !BigNumber.from(bytes.slice(0, 32)).eq(32)) {
+      if (bytes.length < 32 || !import_bignumber.BigNumber.from(bytes.slice(0, 32)).eq(32)) {
         return null;
       }
       bytes = bytes.slice(32);
       if (bytes.length < 32) {
         return null;
       }
-      const length = BigNumber.from(bytes.slice(0, 32)).toNumber();
+      const length = import_bignumber.BigNumber.from(bytes.slice(0, 32)).toNumber();
       bytes = bytes.slice(32);
       if (length > bytes.length) {
         return null;
@@ -36394,7 +40049,7 @@ var JsonRpcProvider = class extends BaseProvider {
       if (chainId != null) {
         const getNetwork2 = getStatic(this.constructor, "getNetwork");
         try {
-          return getNetwork2(BigNumber.from(chainId).toNumber());
+          return getNetwork2(import_bignumber.BigNumber.from(chainId).toNumber());
         } catch (error2) {
           return logger$5.throwError("could not detect network", Logger.errors.NETWORK_ERROR, {
             chainId,
@@ -36791,7 +40446,7 @@ var WebSocketProvider = class extends JsonRpcProvider {
     switch (event.type) {
       case "block":
         this._subscribe("block", ["newHeads"], (result) => {
-          const blockNumber = BigNumber.from(result.number).toNumber();
+          const blockNumber = import_bignumber.BigNumber.from(result.number).toNumber();
           this._emitted.block = blockNumber;
           this.emit("block", blockNumber);
         });
@@ -37137,7 +40792,7 @@ function _pack(type, value, isArray) {
     if (isArray) {
       size = 256;
     }
-    value = BigNumber.from(value).toTwos(size);
+    value = import_bignumber.BigNumber.from(value).toTwos(size);
     return zeroPad(value, size / 8);
   }
   match = type.match(regexBytes);
@@ -37240,7 +40895,7 @@ function formatUnits(value, unitName) {
       unitName = 3 * index2;
     }
   }
-  return formatFixed(value, unitName != null ? unitName : 18);
+  return (0, import_bignumber.formatFixed)(value, unitName != null ? unitName : 18);
 }
 function parseUnits(value, unitName) {
   if (typeof value !== "string") {
@@ -37252,7 +40907,7 @@ function parseUnits(value, unitName) {
       unitName = 3 * index2;
     }
   }
-  return parseFixed(value, unitName != null ? unitName : 18);
+  return (0, import_bignumber.parseFixed)(value, unitName != null ? unitName : 18);
 }
 function formatEther(wei) {
   return formatUnits(wei, 18);
@@ -37548,7 +41203,7 @@ var _EthHelper = class {
     this.contract.on("Deposited", callback);
   }
   static newBigNumber(value) {
-    return BigNumber.from(value);
+    return import_bignumber.BigNumber.from(value);
   }
 };
 var EthHelper = _EthHelper;
