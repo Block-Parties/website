@@ -25,7 +25,6 @@
         margin: 32px;
 
         width: calc(100% - 64px);
-        height: 56px;
 
         .page-row {
             display: flex;
