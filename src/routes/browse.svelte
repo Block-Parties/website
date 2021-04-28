@@ -52,7 +52,7 @@
             rgba(53, 22, 242, 0.26) 49.74%,
             rgba(119, 47, 210, 0.26) 93.01%
         );
-        filter: blur(250px);
+        filter: blur(56px);
         border-radius: 332px;
     }
 
@@ -73,7 +73,7 @@
         justify-content: space-between;
         align-items: center;
         max-width: 1200px;
-        margin: 5vh auto;
+        margin: 2vh auto;
         padding: 0 32px;
 
         h1 {

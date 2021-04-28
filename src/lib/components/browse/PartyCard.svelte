@@ -53,7 +53,7 @@
     .outer {
         position: relative;
         width: 320px;
-        height: 500px;
+        height: 480px;
 
         background: white;
         padding: 32px;

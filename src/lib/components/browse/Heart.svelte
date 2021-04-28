@@ -17,6 +17,7 @@
 
 <style lang="scss">
     div {
+        cursor: pointer;
         display: flex;
         align-items: center;
     }
