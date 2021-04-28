@@ -1,5 +1,10 @@
 <nav>
-    <h1>NAV BAR</h1>
+    <div class="page-row">
+        <h3>Home</h3>
+        <h3>Profile</h3>
+    </div>
+
+    <img src="images/dark_mode.svg" alt="toggle dark mode" />
 </nav>
 
 <svelte:head>
@@ -14,9 +19,27 @@
         top: 0;
         z-index: 99;
 
-        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        // max-width: 1200px;
+        margin: 32px;
+
+        width: calc(100% - 64px);
         height: 56px;
-        // background: #371164;
-        background: #231845;
+
+        .page-row {
+            display: flex;
+
+            h3 {
+                cursor: pointer;
+                color: black;
+                margin-right: 32px;
+                font-weight: 300;
+            }
+        }
+
+        img {
+            cursor: pointer;
+        }
     }
 </style>

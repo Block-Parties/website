@@ -11,10 +11,9 @@
 
     $: {
         if (bar != undefined && value != undefined && total != undefined) {
-            console.log("v: " + eth.utils.formatEther(value) + " t: " + total.toString() + " w: " + value.div(total))
+            // console.log("v: " + eth.utils.formatEther(value) + " t: " + total.toString() + " w: " + value.div(total))
             // console.log("TOTAL" + total.toString())
             // console.log("WOAH " + value.div(total))
-
             bar.style.width = fraction(value, total) + "%"
         }
     }
@@ -45,23 +44,25 @@
 <div class="progress-bar">
     <div class="progress-bar-fill" bind:this={bar} />
 
-    {#if value && total}
+    <!-- {#if value && total}
         <p>{eth.utils.formatEther(value)} / {eth.utils.formatEther(total)} ETH</p>
-    {/if}
+    {/if} -->
 </div>
 
 <style lang="scss">
     .progress-bar {
-        height: 24px;
+        height: 16px;
         width: 100%;
-        background: #161616cc;
+        background: #dcdcdc;
+        border-radius: 8px;
+        overflow: hidden;
 
         .progress-bar-fill {
             transition: 0.5s all;
 
             height: 100%;
             width: 0%;
-            background: green;
+            background: #7148c8;
         }
 
         p {

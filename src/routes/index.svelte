@@ -108,7 +108,7 @@
 
 <div class="sign-up">
     <div class="custom-button" style="background-image: url({'images/button_background.svg'})">
-        <h1>Join 569 more people in the waitlist</h1>
+        <h1>Join 100+ people in the waitlist</h1>
 
         <div class="form">
             <input placeholder="Your email address" />
@@ -145,10 +145,6 @@
                 #785191 99.99%
             );
         mix-blend-mode: soft-light;
-    }
-
-    :global(nav) {
-        display: none;
     }
 
     h1,
@@ -418,5 +414,9 @@
 
         mix-blend-mode: overlay;
         opacity: 0.1;
+    }
+
+    :global(nav) {
+        display: none !important;
     }
 </style>

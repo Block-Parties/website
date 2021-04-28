@@ -1,0 +1,108 @@
+<script>
+    import { BigNumber } from "@ethersproject/bignumber"
+
+    import ProgressBar from "../ProgressBar.svelte"
+    import Heart from "./Heart.svelte"
+</script>
+
+<div class="outer">
+    <div class="img-container">
+        <img
+            src="https://lh3.googleusercontent.com/ZNozFHViHaobS-ifGkSSlXkqoIbW6Z-ExZIpbvTkMkNHdM8H66loXZwAWZ7XdXZSI0gb1LBUtVcLeLvkxy0VHmHYPIbMRmMSl7KqOw=s0"
+            alt="asset"
+        />
+    </div>
+    <div class="details">
+        <div class="title-row">
+            <div>
+                <p><b>ASCII Punk #70 </b></p>
+                <p class="type">ASCII Punks</p>
+            </div>
+            <img class="opensea-logo" src="images/opensea-logo.webp" alt="view on opensea" />
+        </div>
+
+        <div class="progress-bar">
+            <ProgressBar value={BigNumber.from(60)} total={BigNumber.from(100)} />
+        </div>
+
+        <p><b>0.15 ETH</b> <span class="usd-amount">| $400.12</span></p>
+    </div>
+
+    <div class="bottom-row">
+        <Heart partyId={"123"} />
+    </div>
+</div>
+
+<style lang="scss">
+    $purple: #6838d0;
+
+    :global(body) {
+        background: #f1f1f1;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p {
+        color: black;
+    }
+
+    .outer {
+        position: relative;
+        width: 320px;
+        height: 500px;
+
+        background: white;
+        padding: 32px;
+
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .details {
+        .title-row {
+            display: flex;
+            justify-content: space-between;
+
+            .type {
+                color: #65635f;
+                font-weight: 600;
+                font-size: 14px;
+            }
+
+            .opensea-logo {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        .usd-amount {
+            color: #65635f;
+            font-weight: 300;
+        }
+
+        .progress-bar {
+            margin: 12px 0 4px 0;
+        }
+    }
+
+    .img-container {
+        height: 60%;
+        padding: 16px 0;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+
+    .bottom-row {
+        position: absolute;
+        bottom: 24px;
+        right: 36px;
+        // padding: 0 32px;
+    }
+</style>
