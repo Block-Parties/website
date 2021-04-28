@@ -117,8 +117,10 @@
 
     .card-row {
         display: flex;
-        width: 100%;
         overflow-x: scroll;
+        width: 100%;
+
+        margin-top: 36px;
 
         .card {
             margin: 0 32px;

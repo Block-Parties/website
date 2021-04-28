@@ -52,8 +52,8 @@
 
     .outer {
         position: relative;
-        width: 320px;
-        height: 480px;
+        width: 272px;
+        height: 400px;
 
         background: white;
         padding: 32px;
