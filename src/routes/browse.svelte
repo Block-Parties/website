@@ -1,8 +1,48 @@
 <script lang="ts">
+    import {onMount} from "svelte"
     import PartyCard from "$lib/components/browse/PartyCard.svelte"
     import Scrollbar from "$lib/components/common/Scrollbar.svelte"
 
     let cardRow: HTMLElement
+
+    let parties = []
+
+    onMount(async () => {
+        let p = await (await fetch("http://3.143.138.224:8000/parties")).json()
+        p = p.slice(-20)
+        // p = p.slice(5, )
+
+        let tokenPairs = p.map((item) => [item.tokenContract, item.tokenId])
+        console.log(tokenPairs)
+
+        let searchParams = new URLSearchParams({})
+        tokenPairs.forEach((item) => {
+            if (item[0] != undefined && item[1] != undefined) {
+                searchParams.append("asset_contract_addresses", item[0])
+                searchParams.append("token_ids", item[1])
+            }
+        })
+
+        console.log(searchParams.toString())
+
+        // return await res.json()
+
+        const response = await (await fetch("https://rinkeby-api.opensea.io/api/v1/assets?" + searchParams)).json()
+        const assets: any[] = response["assets"]
+        console.log(assets)
+
+        parties = p
+            .map((p) => {
+                p = {
+                    ...p,
+                    asset: assets.find(
+                        (asset) => p.tokenId == asset.token_id && p.tokenContract == asset.asset_contract["address"]
+                    ),
+                }
+                return p
+            })
+            .filter((p) => p.asset != null)
+    })
 </script>
 
 <div class="spot mid-left" />
@@ -27,9 +67,9 @@
         </div>
 
         <div bind:this={cardRow} class="card-row">
-            {#each [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as _}
+            {#each parties as party}
                 <div class="card">
-                    <PartyCard />
+                    <PartyCard {party}/>
                 </div>
             {/each}
         </div>

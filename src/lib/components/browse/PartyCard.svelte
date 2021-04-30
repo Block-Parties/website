@@ -3,29 +3,30 @@
 
     import ProgressBar from "../ProgressBar.svelte"
     import Heart from "./Heart.svelte"
+
+    export let party
 </script>
 
 <div class="outer">
     <div class="img-container">
         <img
-            src="https://lh3.googleusercontent.com/ZNozFHViHaobS-ifGkSSlXkqoIbW6Z-ExZIpbvTkMkNHdM8H66loXZwAWZ7XdXZSI0gb1LBUtVcLeLvkxy0VHmHYPIbMRmMSl7KqOw=s0"
+            src={party.asset.image_preview_url}
             alt="asset"
         />
     </div>
     <div class="details">
         <div class="title-row">
             <div>
-                <p><b>ASCII Punk #70 </b></p>
-                <p class="type">ASCII Punks</p>
+                <p><b>{party.asset.name ? party.asset.name : "Unnamed Asset"}</b></p>
+                <p class="type">{party.asset.description ? party.asset.description : "No description available."}</p>
             </div>
             <img class="opensea-logo" src="images/opensea-logo.webp" alt="view on opensea" />
         </div>
 
-        <div class="progress-bar">
+        <!-- <div class="progress-bar">
             <ProgressBar value={BigNumber.from(60)} total={BigNumber.from(100)} />
         </div>
-
-        <p><b>0.15 ETH</b> <span class="usd-amount">| $400.12</span></p>
+        <p><b>0.15 ETH</b> <span class="usd-amount">| $400.12</span></p> -->
     </div>
 
     <div class="bottom-row">
