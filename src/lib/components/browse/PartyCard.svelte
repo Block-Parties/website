@@ -9,10 +9,7 @@
 
 <div class="outer">
     <div class="img-container">
-        <img
-            src={party.asset.image_preview_url}
-            alt="asset"
-        />
+        <img src={party.asset.image_preview_url} alt="asset" />
     </div>
     <div class="details">
         <div class="title-row">
@@ -20,7 +17,12 @@
                 <p><b>{party.asset.name ? party.asset.name : "Unnamed Asset"}</b></p>
                 <p class="type">{party.asset.description ? party.asset.description : "No description available."}</p>
             </div>
-            <img class="opensea-logo" src="images/opensea-logo.webp" alt="view on opensea" />
+            <img
+                on:click={() => open(party.url, "blank")}
+                class="opensea-logo"
+                src="images/opensea-logo.webp"
+                alt="view on opensea"
+            />
         </div>
 
         <!-- <div class="progress-bar">
@@ -30,7 +32,7 @@
     </div>
 
     <div class="bottom-row">
-        <Heart partyId={"123"} />
+        <Heart partyId={"123"} likes={party.hearts ? party.hearts.length : 0} />
     </div>
 </div>
 
@@ -74,6 +76,7 @@
             }
 
             .opensea-logo {
+                cursor: pointer;
                 width: 36px;
                 height: 36px;
             }

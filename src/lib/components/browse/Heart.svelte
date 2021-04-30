@@ -1,11 +1,21 @@
 <script lang="ts">
     export let partyId: string
+    export let likes = 0
 
     let liked = false
-    let likes = 0
 
-    function toggle() {
+    async function toggle() {
         liked = !liked
+
+        const request = await fetch(`http://3.143.138.224:8000/parties/${partyId}/heart`, {
+            method: "POST",
+            // body: ""
+            headers: {
+                Authorization: "Bearer TODO",
+            },
+        })
+        console.log(request.status)
+
         likes = liked ? likes + 1 : likes - 1
     }
 </script>

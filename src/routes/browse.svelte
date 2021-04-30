@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {onMount} from "svelte"
+    import { onMount } from "svelte"
     import PartyCard from "$lib/components/browse/PartyCard.svelte"
     import Scrollbar from "$lib/components/common/Scrollbar.svelte"
 
@@ -66,18 +66,18 @@
             </div>
         </div>
 
-        <div bind:this={cardRow} class="card-row">
+        <div bind:this={cardRow} class="card-grid">
             {#each parties as party}
                 <div class="card">
-                    <PartyCard {party}/>
+                    <PartyCard {party} />
                 </div>
             {/each}
         </div>
     </div>
 
-    <div class="scrollbar">
+    <!-- <div class="scrollbar">
         <Scrollbar container={cardRow} />
-    </div>
+    </div> -->
 </div>
 
 <style lang="scss">
@@ -155,15 +155,16 @@
         }
     }
 
-    .card-row {
+    .card-grid {
         display: flex;
+        flex-flow: row wrap;
         overflow-x: scroll;
         width: 100%;
 
         margin-top: 36px;
 
         .card {
-            margin: 0 32px;
+            margin: 0 32px 64px 32px;
         }
     }
 
