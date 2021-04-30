@@ -11,17 +11,17 @@
 <div>
     <div>
         <div class="header">
-            <h1>Browse Parties</h1>
+            <h1>Browse Waitlist</h1>
 
             <div>
                 <!-- <h3>Search</h3> -->
                 <div>
                     <input placeholder="Search" />
-                    <select>
+                    <!-- <select>
                         <option value="public">Public</option>
                         <option value="private">Private</option>
                         <option value="waitlist">Waitlist</option>
-                    </select>
+                    </select> -->
                 </div>
             </div>
         </div>

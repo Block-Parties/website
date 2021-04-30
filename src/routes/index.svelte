@@ -6,7 +6,7 @@
     }
 
     function showParties() {
-        location.href = "/parties"
+        location.href = "/browse"
     }
 
     function scrollDown() {
