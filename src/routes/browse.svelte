@@ -10,10 +10,11 @@
     onMount(async () => {
         let p = await (await fetch("http://3.143.138.224:8000/parties")).json()
         p = p.slice(-20)
+        console.log(p)
         // p = p.slice(5, )
 
         let tokenPairs = p.map((item) => [item.tokenContract, item.tokenId])
-        console.log(tokenPairs)
+        // console.log(tokenPairs)
 
         let searchParams = new URLSearchParams({})
         tokenPairs.forEach((item) => {

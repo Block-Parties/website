@@ -156,7 +156,7 @@
     a,
     button,
     input {
-        font-family: Poppins, sans-serif;
+        // font-family: Poppins, sans-serif;
     }
 
     a {

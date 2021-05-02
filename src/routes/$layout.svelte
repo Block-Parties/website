@@ -1,6 +1,15 @@
+<script lang="ts">
+    import Auth from "$lib/utils/auth"
+    import { onMount } from "svelte"
+
+    onMount(() => {
+        Auth.init()
+    })
+</script>
+
 <nav>
     <div class="page-row">
-        <h3 on:click={() => location.href = "/"}>Home</h3>
+        <h3 on:click={() => (location.href = "/")}>Home</h3>
         <h3>Profile</h3>
     </div>
 

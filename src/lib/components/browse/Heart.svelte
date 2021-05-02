@@ -1,4 +1,6 @@
 <script lang="ts">
+    import Auth from "$lib/utils/auth"
+
     export let partyId: string
     export let likes = 0
 
@@ -7,11 +9,15 @@
     async function toggle() {
         liked = !liked
 
-        const request = await fetch(`http://3.143.138.224:8000/parties/${partyId}/heart`, {
+        const url = `http://3.143.138.224:8000/parties/${partyId}/heart`
+        // const url = `http://localhost:8000/parties/${partyId}/heart`
+
+        console.log(url)
+        const request = await fetch(url, {
             method: "POST",
             // body: ""
             headers: {
-                Authorization: "Bearer TODO",
+                Authorization: await Auth.getToken(),
             },
         })
         console.log(request.status)
