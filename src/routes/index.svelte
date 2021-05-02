@@ -13,6 +13,22 @@
         const elem = window.document.getElementsByClassName("how-it-works")[0]
         scrollTo({ top: elem.getClientRects().item(0).top, behavior: "smooth" })
     }
+
+    let email: string
+    async function signUp() {
+        await fetch("http://3.143.138.224:8000/join-beta", {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email: email,
+                createdAt: new Date(),
+            }),
+        })
+
+        alert("Thank you for signing up!")
+    }
 </script>
 
 <div class="noise">
@@ -111,8 +127,8 @@
         <h1>Join 100+ people in the waitlist</h1>
 
         <div class="form">
-            <input placeholder="Your email address" />
-            <button>Join the waitlist</button>
+            <input bind:value={email} placeholder="Your email address" />
+            <button on:click={signUp}>Join the waitlist</button>
         </div>
     </div>
 </div>
