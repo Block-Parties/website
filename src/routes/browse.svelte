@@ -8,7 +8,7 @@
     let parties = []
 
     onMount(async () => {
-        let p = await (await fetch("http://3.143.138.224:8000/parties")).json()
+        let p = await (await fetch("https://api2.blockparties.io/parties")).json()
         p = p.slice(-20)
         console.log(p)
         // p = p.slice(5, )
@@ -46,8 +46,8 @@
     })
 </script>
 
-<div class="spot mid-left" />
-<div class="spot bottom-right" />
+<!-- <div class="spot mid-left" />
+<div class="spot bottom-right" /> -->
 
 <div>
     <div>

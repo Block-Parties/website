@@ -16,7 +16,7 @@
 
     let email: string
     async function signUp() {
-        await fetch("http://3.143.138.224:8000/join-beta", {
+        await fetch("https://api2.blockparties.io/join-beta", {
             method: "post",
             headers: {
                 "Content-Type": "application/json",

@@ -10,10 +10,11 @@
 <nav>
     <div class="page-row">
         <h3 on:click={() => (location.href = "/")}>Home</h3>
-        <h3>Profile</h3>
+        <h3 on:click={() => (location.href = "/browse")}>Waitlist</h3>
+        <!-- <h3>Profile</h3> -->
     </div>
 
-    <img src="images/dark_mode.svg" alt="toggle dark mode" />
+    <!-- <img src="images/dark_mode.svg" alt="toggle dark mode" /> -->
 </nav>
 
 <svelte:head>
@@ -24,9 +25,9 @@
 
 <style lang="scss">
     nav {
-        position: sticky;
-        top: 0;
-        z-index: 99;
+        // position: sticky;
+        // top: 0;
+        // z-index: 99;
 
         display: flex;
         justify-content: space-between;

@@ -7,7 +7,7 @@
     let parties = []
 
     onMount(async () => {
-        let p = await (await fetch("http://3.143.138.224:8000/parties")).json()
+        let p = await (await fetch("https://api2.blockparties.io/parties")).json()
         p = p.slice(-20)
         // p = p.slice(5, )
 
