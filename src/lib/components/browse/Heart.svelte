@@ -9,7 +9,7 @@
     async function toggle() {
         liked = !liked
 
-        const url = `http://3.143.138.224:8000/parties/${partyId}/heart`
+        const url = `https://api2.blockparties.io/parties/${partyId}/heart`
         // const url = `http://localhost:8000/parties/${partyId}/heart`
 
         console.log(url)
