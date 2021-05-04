@@ -9,12 +9,7 @@
 
     onMount(async () => {
         let p = await (await fetch("https://api2.blockparties.io/parties")).json()
-        p = p.slice(-20)
-        console.log(p)
-        // p = p.slice(5, )
-
         let tokenPairs = p.map((item) => [item.tokenContract, item.tokenId])
-        // console.log(tokenPairs)
 
         let searchParams = new URLSearchParams({})
         tokenPairs.forEach((item) => {

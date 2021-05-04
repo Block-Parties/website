@@ -56,6 +56,7 @@
     }
 
     .outer {
+        transition: 0.5s all;
         position: relative;
         width: 272px;
         height: 400px;
@@ -64,6 +65,10 @@
         padding: 32px;
 
         box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.08);
+
+        &:hover {
+            transform: scale(1.05);
+        }
     }
 
     .details {
