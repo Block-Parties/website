@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { BigNumber } from "@ethersproject/bignumber"
 
     import ProgressBar from "../ProgressBar.svelte"
@@ -15,7 +15,9 @@
         <div class="title-row">
             <div>
                 <p><b>{party.asset.name ? party.asset.name : "Unnamed Asset"}</b></p>
-                <p class="type">{party.asset.description ? party.asset.description : "No description available."}</p>
+                <p class="type">{party.asset.collection.name}</p>
+                <p />
+                <!-- <p class="type">{party.asset.description ? party.asset.description : "No description available."}</p> -->
             </div>
             <img
                 on:click={() => open(party.url, "blank")}
