@@ -47,7 +47,7 @@ export module Auth {
     }
 
     export function getId(): string | undefined {
-        return user.uid
+        return user ? user.uid : null
     }
 }
 

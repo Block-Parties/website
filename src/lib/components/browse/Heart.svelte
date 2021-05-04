@@ -9,7 +9,7 @@
 
     onMount(() => {
         likes = party.hearts ? party.hearts.length : 0
-        if (likes > 0) liked = party.hearts.includes(Auth.getId())
+        if (likes > 0) liked = party.hearts.includes(Auth.getId() ?? '')
     })
 
     async function toggle() {
