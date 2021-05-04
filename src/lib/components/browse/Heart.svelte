@@ -9,13 +9,13 @@
 
     onMount(() => {
         likes = party.hearts ? party.hearts.length : 0
-        if (likes > 0) liked = party.hearts.includes(Auth.getId() ?? '')
+        if (likes > 0) liked = party.hearts.includes(Auth.getId() ?? "")
     })
 
     async function toggle() {
         liked = !liked
 
-        const url = `https://api2.blockparties.io/parties/${party.id}/heart`
+        const url = `https://api2.blockparties.io/parties/${party._id}/heart`
         // const url = `http://localhost:8000/parties/${partyId}/heart`
 
         console.log(url)
