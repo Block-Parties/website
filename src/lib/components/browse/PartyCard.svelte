@@ -32,7 +32,7 @@
     </div>
 
     <div class="bottom-row">
-        <Heart partyId={party._id} likes={party.hearts ? party.hearts.length : 0} />
+        <Heart {party} />
     </div>
 </div>
 

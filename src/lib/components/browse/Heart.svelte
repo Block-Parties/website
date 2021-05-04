@@ -1,15 +1,21 @@
 <script lang="ts">
     import Auth from "$lib/utils/auth"
+    import { onMount } from "svelte"
 
-    export let partyId: string
-    export let likes = 0
+    export let party
 
+    let likes
     let liked = false
+
+    onMount(() => {
+        likes = party.hearts ? party.hearts.length : 0
+        if (likes > 0) liked = party.hearts.includes(Auth.getId())
+    })
 
     async function toggle() {
         liked = !liked
 
-        const url = `https://api2.blockparties.io/parties/${partyId}/heart`
+        const url = `https://api2.blockparties.io/parties/${party.id}/heart`
         // const url = `http://localhost:8000/parties/${partyId}/heart`
 
         console.log(url)

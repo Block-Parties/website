@@ -45,6 +45,10 @@ export module Auth {
 
         return user.getIdToken()
     }
+
+    export function getId(): string | undefined {
+        return user.uid
+    }
 }
 
 export default Auth
