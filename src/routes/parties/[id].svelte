@@ -28,7 +28,7 @@
                 <img
                     on:click={() => open(party.url, "blank")}
                     class="opensea-logo"
-                    src="images/opensea-logo.webp"
+                    src="/images/opensea-logo.webp"
                     alt="view on opensea"
                 />
                 <Heart {party} />
@@ -68,6 +68,7 @@
     .header {
         max-width: 1200px;
         margin: auto;
+        padding: 32px;
 
         h4 {
             color: #646464;

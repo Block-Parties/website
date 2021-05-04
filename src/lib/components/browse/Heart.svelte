@@ -36,7 +36,7 @@
 </script>
 
 <div on:click={toggle}>
-    <img src={liked ? "images/heart_filled.svg" : "images/heart_outline.svg"} alt={liked ? "unlike" : "like"} />
+    <img src={liked ? "/images/heart_filled.svg" : "/images/heart_outline.svg"} alt={liked ? "unlike" : "like"} />
     <p>{likes}</p>
 </div>
 

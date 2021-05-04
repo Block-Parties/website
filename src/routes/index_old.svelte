@@ -44,7 +44,7 @@
 
 <div class="section one full-height">
     <div class="content">
-        <img src="images/full_logo.svg" class="logo" alt="Block Parties" />
+        <img src="/images/full_logo.svg" class="logo" alt="Block Parties" />
 
         <!-- <p>Block Parties</p> -->
 

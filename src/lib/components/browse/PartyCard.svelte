@@ -27,7 +27,7 @@
             <img
                 on:click={() => open(party.url, "blank")}
                 class="opensea-logo"
-                src="images/opensea-logo.webp"
+                src="/images/opensea-logo.webp"
                 alt="view on opensea"
             />
         </div>

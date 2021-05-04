@@ -9,7 +9,7 @@
 
 <nav>
     <div class="logo">
-        <img src="images/logo_black.svg" alt="logo" />
+        <img src="/images/logo_black.svg" alt="logo" />
         <h4>Block Parties</h4>
     </div>
 
@@ -21,7 +21,7 @@
         <!-- <h3>Profile</h3> -->
     </div>
 
-    <!-- <img src="images/dark_mode.svg" alt="toggle dark mode" /> -->
+    <!-- <img src="/images/dark_mode.svg" alt="toggle dark mode" /> -->
 </nav>
 
 <svelte:head>
@@ -35,8 +35,8 @@
 
     <div class="row">
         <p>get in touch</p>
-        <img src="images/discord.png" alt="discord" />
-        <img src="images/twitter.png" alt="twitter" />
+        <img src="/images/discord.png" alt="discord" />
+        <img src="/images/twitter.png" alt="twitter" />
     </div>
 </footer>
 

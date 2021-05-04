@@ -50,7 +50,7 @@
             </div>
 
             <div>
-                <img src="images/people_circle.svg" alt="" />
+                <img src="/images/people_circle.svg" alt="" />
             </div>
         </div>
     </div>
@@ -93,7 +93,7 @@
             </div>
 
             <div class="img-container">
-                <img src="images/shapes2.svg" alt="" />
+                <img src="/images/shapes2.svg" alt="" />
             </div>
         </div>
     </div>
@@ -107,7 +107,7 @@
         class="article"
         on:click={() => open("https://medium.com/block-parties/introducing-block-parties-821d755a68ca", "blank")}
     >
-        <img src="images/article.png" alt="article" />
+        <img src="/images/article.png" alt="article" />
         <h2>Introducing Block Parties</h2>
     </div>
 </div>
@@ -302,7 +302,7 @@
             align-items: center;
 
             position: relative;
-            background-image: url("images/button_background.svg");
+            background-image: url("/images/button_background.svg");
             background-repeat: no-repeat;
             background-position: center;
             background-size: cover;

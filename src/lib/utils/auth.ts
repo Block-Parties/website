@@ -6,6 +6,8 @@ export module Auth {
     let user: firebase.User
 
     export function init() {
+        if (initialized) return
+
         firebase.initializeApp({
             apiKey: "AIzaSyC0bmtQdbPeEpvDvmRuiSnOKmCxkiynuUM",
             authDomain: "blockparties.firebaseapp.com",
