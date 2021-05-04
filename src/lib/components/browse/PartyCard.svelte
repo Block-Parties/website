@@ -1,5 +1,6 @@
 <script lang="ts">
     import { BigNumber } from "@ethersproject/bignumber"
+    import { stop_propagation } from "svelte/internal"
 
     import ProgressBar from "../ProgressBar.svelte"
     import Heart from "./Heart.svelte"
@@ -25,7 +26,10 @@
                 <!-- <p class="type">{party.asset.description ? party.asset.description : "No description available."}</p> -->
             </div>
             <img
-                on:click={() => open(party.url, "blank")}
+                on:click={(event) => {
+                    open(party.url, "blank")
+                    event.stopPropagation()
+                }}
                 class="opensea-logo"
                 src="/images/opensea-logo.webp"
                 alt="view on opensea"

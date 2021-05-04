@@ -1,6 +1,7 @@
 <script lang="ts">
     import Auth from "$lib/utils/auth"
     import { onMount } from "svelte"
+    import { stop_propagation } from "svelte/internal"
 
     export let party
 
@@ -35,7 +36,12 @@
     }
 </script>
 
-<div on:click={toggle}>
+<div
+    on:click={(event) => {
+        toggle()
+        event.stopPropagation()
+    }}
+>
     <img src={liked ? "/images/heart_filled.svg" : "/images/heart_outline.svg"} alt={liked ? "unlike" : "like"} />
     <p>{likes}</p>
 </div>
