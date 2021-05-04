@@ -5,9 +5,14 @@
     import Heart from "./Heart.svelte"
 
     export let party
+
+    function show() {
+        localStorage.setItem("party", JSON.stringify(party))
+        location.href = `/parties/${party._id}`
+    }
 </script>
 
-<div class="outer">
+<div class="outer" on:click={show}>
     <div class="img-container">
         <img src={party.asset.image_preview_url} alt="asset" />
     </div>
@@ -56,7 +61,9 @@
     }
 
     .outer {
+        cursor: pointer;
         transition: 0.5s all;
+
         position: relative;
         width: 272px;
         height: 400px;

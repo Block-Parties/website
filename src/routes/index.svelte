@@ -84,7 +84,7 @@
 
             <div>
                 <h5>Buy</h5>
-                <p>Join a public party off the waitlist by buying part of an NFT</p>
+                <p>Buy part of an NFT by joining a public party or creating your own private party with friends</p>
             </div>
 
             <div>
