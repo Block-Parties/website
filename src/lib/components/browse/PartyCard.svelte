@@ -1,16 +1,23 @@
 <script lang="ts">
     import { BigNumber } from "@ethersproject/bignumber"
-    import { stop_propagation } from "svelte/internal"
+    import { onMount, stop_propagation } from "svelte/internal"
 
     import ProgressBar from "../ProgressBar.svelte"
     import Heart from "./Heart.svelte"
 
     export let party
 
+    let eth
+
     function show() {
         localStorage.setItem("party", JSON.stringify(party))
         location.href = `/parties/${party._id}`
     }
+
+    onMount(async () => {
+        const module = await import("$lib/api/eth")
+        eth = module.EthHelper
+    })
 </script>
 
 <div class="outer" on:click={show}>
@@ -20,8 +27,8 @@
     <div class="details">
         <div class="title-row">
             <div>
-                <p><b>{party.asset.name ? party.asset.name : "Unnamed Asset"}</b></p>
-                <p class="type">{party.asset.collection.name}</p>
+                <p class="title"><b>{party.asset.name ? party.asset.name : "Unnamed Asset"}</b></p>
+                <p class="collection">{party.asset.collection.name}</p>
                 <p />
                 <!-- <p class="type">{party.asset.description ? party.asset.description : "No description available."}</p> -->
             </div>
@@ -43,16 +50,21 @@
     </div>
 
     <div class="bottom-row">
+        <div class="data-detail">
+            <h5>RESALE PRICE</h5>
+            <div>
+                {#if eth}
+                    <p><span>{eth.utils.formatEther(party.resalePrice)} ETH</span> <!-- | $123 --></p>
+                {/if}
+            </div>
+        </div>
+
         <Heart {party} />
     </div>
 </div>
 
 <style lang="scss">
     $purple: #6838d0;
-
-    :global(body) {
-        background: #f1f1f1;
-    }
 
     h1,
     h2,
@@ -70,12 +82,12 @@
 
         position: relative;
         width: 272px;
-        height: 400px;
+        height: 380px;
 
         background: white;
         padding: 32px;
 
-        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.08);
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.08);
 
         &:hover {
             transform: scale(1.05);
@@ -87,10 +99,14 @@
             display: flex;
             justify-content: space-between;
 
-            .type {
-                color: #65635f;
-                font-weight: 600;
-                font-size: 14px;
+            .title {
+                font-size: 20px;
+            }
+
+            .collection {
+                color: #1f204177;
+                font-weight: 500;
+                font-size: 16px;
             }
 
             .opensea-logo {
@@ -111,7 +127,7 @@
     }
 
     .img-container {
-        height: 60%;
+        height: 65%;
         padding: 16px 0;
 
         img {
@@ -124,7 +140,25 @@
     .bottom-row {
         position: absolute;
         bottom: 24px;
+        left: 32px;
         right: 36px;
-        // padding: 0 32px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        h5 {
+            margin: 0 0 0 0;
+            color: #1f204188;
+            font-weight: 800;
+            font-size: 12px;
+            font-family: Montserrat sans-serif;
+        }
+
+        p {
+            font-weight: 200;
+            font-size: 16px;
+            color: #1f204188;
+        }
     }
 </style>

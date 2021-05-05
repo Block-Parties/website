@@ -33,7 +33,7 @@
                 }
                 return p
             })
-            .filter((p) => p.asset != null)
+            .filter((p) => p.asset != null && p.asset.num_sales > 0)
     })
 
     async function search(term: string) {
