@@ -57,7 +57,7 @@
                 <div class="data-detail">
                     <h5>ORIGINAL PRICE</h5>
                     <div>
-                        <p><span>{eth.utils.formatEther(party.resalePrice)} ETH</span> <!-- | $123 --></p>
+                        <p><span>{eth.utils.formatEther(party.buyPrice)} ETH</span> <!-- | $123 --></p>
                     </div>
                 </div>
             {/if}
