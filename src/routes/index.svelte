@@ -380,7 +380,7 @@
     }
 
     .explanation-section {
-        max-width: 1080px;
+        max-width: 1200px;
         margin: auto;
         padding: 32px;
         h2 {
