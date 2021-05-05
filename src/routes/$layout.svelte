@@ -8,7 +8,7 @@
 </script>
 
 <nav>
-    <div class="logo">
+    <div class="logo" on:click={() => (location.href = "/")}>
         <img src="/images/logo_black.svg" alt="logo" />
         <h4>Block Parties</h4>
     </div>
@@ -35,16 +35,12 @@
 
     <div class="row">
         <p>get in touch</p>
-        <img src="/images/discord.png" alt="discord" />
-        <img src="/images/twitter.png" alt="twitter" />
+        <img src="/images/discord.svg" alt="discord" />
+        <img src="/images/twitter.svg" alt="twitter" />
     </div>
 </footer>
 
 <style lang="scss">
-    :global(html) {
-        // min-height: 100vh;
-    }
-
     :global(body) {
         margin: 0;
         background: #eeeef0;

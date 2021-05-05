@@ -342,7 +342,7 @@
                     border-radius: 0px 6px 6px 0px;
                     border: none;
 
-                    padding: 12px 24px;
+                    padding: 13px 24px;
                     font-weight: 600;
                 }
             }
