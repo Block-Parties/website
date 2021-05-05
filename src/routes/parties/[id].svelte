@@ -1,9 +1,10 @@
 <script lang="ts">
     import Heart from "$lib/components/browse/Heart.svelte"
     import { onMount } from "svelte"
-    // import Heart from  Heart.svelte"
 
     let party
+
+    let eth
 
     onMount(async () => {
         const localData = JSON.parse(localStorage.getItem("party"))
@@ -12,6 +13,9 @@
         // TODO: COMPARE URL PARTY WITH SAVED PARTY.
 
         party = localData
+
+        const module = await import("$lib/api/eth")
+        eth = module.EthHelper
     })
 </script>
 
@@ -32,29 +36,31 @@
                     alt="view on opensea"
                 />
                 <Heart {party} />
-                <p>Share</p>
+                <!-- <p>Share</p> -->
             </div>
         </div>
 
         <div class="info">
-            <a href="/browse">BACK</a>
+            <a href="/browse">🠔 BACK</a>
 
             <h2>{party.asset.name}</h2>
             <h4>{party.asset.collection.name}</h4>
 
-            <div class="data-detail">
-                <h5>RESALE PRICE</h5>
-                <div>
-                    <p>4 ETH | <span>$123</span></p>
+            {#if eth}
+                <div class="data-detail">
+                    <h5>RESALE PRICE</h5>
+                    <div>
+                        <p><span>{eth.utils.formatEther(party.resalePrice)} ETH</span> <!-- | $123 --></p>
+                    </div>
                 </div>
-            </div>
 
-            <div class="data-detail">
-                <h5>ORIGINAL PRICE</h5>
-                <div>
-                    <p>4 ETH | <span>$123</span></p>
+                <div class="data-detail">
+                    <h5>ORIGINAL PRICE</h5>
+                    <div>
+                        <p><span>{eth.utils.formatEther(party.resalePrice)} ETH</span> <!-- | $123 --></p>
+                    </div>
                 </div>
-            </div>
+            {/if}
 
             <hr />
 
@@ -72,8 +78,9 @@
 
         h4 {
             color: #646464;
-            font-weight: 500;
+            font-weight: 600;
             font-family: Montserrat sans-serif;
+            font-size: 16px;
         }
     }
 
@@ -89,6 +96,8 @@
         background: white;
         padding: 32px;
         margin-right: 32px;
+
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.06);
 
         img {
             width: 100%;
@@ -110,6 +119,11 @@
 
     .info {
         flex: 2;
+
+        a {
+            color: black;
+            text-decoration: none;
+        }
 
         h2 {
             font-size: 32px;
@@ -138,6 +152,10 @@
 
         .data-detail {
             margin-bottom: 32px;
+
+            span {
+                color: black;
+            }
         }
     }
 </style>

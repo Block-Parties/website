@@ -1,11 +1,11 @@
 <script lang="ts">
     import { onMount } from "svelte"
     import PartyCard from "$lib/components/browse/PartyCard.svelte"
-    import Scrollbar from "$lib/components/common/Scrollbar.svelte"
-
-    let cardRow: HTMLElement
 
     let parties = []
+    let searchTerm: string
+
+    $: search(searchTerm)
 
     onMount(async () => {
         let p = await (await fetch("https://api2.blockparties.io/parties")).json()
@@ -18,10 +18,6 @@
                 searchParams.append("token_ids", item[1])
             }
         })
-
-        console.log(searchParams.toString())
-
-        // return await res.json()
 
         const response = await (await fetch("https://api.opensea.io/api/v1/assets?" + searchParams)).json()
         const assets: any[] = response["assets"]
@@ -39,6 +35,10 @@
             })
             .filter((p) => p.asset != null)
     })
+
+    async function search(term: string) {
+        console.log(term)
+    }
 </script>
 
 <!-- <div class="spot mid-left" />
@@ -52,7 +52,7 @@
             <div>
                 <!-- <h3>Search</h3> -->
                 <div>
-                    <input placeholder="Search" />
+                    <input bind:value={searchTerm} placeholder="Search" />
                     <!-- <select>
                         <option value="public">Public</option>
                         <option value="private">Private</option>
@@ -62,7 +62,7 @@
             </div>
         </div>
 
-        <div bind:this={cardRow} class="card-grid">
+        <div class="card-grid">
             {#each parties as party}
                 <div class="card">
                     <PartyCard {party} />
