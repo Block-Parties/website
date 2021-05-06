@@ -33,10 +33,10 @@
 <footer>
     <p>copyright blockparties 2021</p>
 
-    <div class="row">
+    <div>
         <p>get in touch</p>
-        <img src="/images/discord.svg" alt="discord" />
-        <img src="/images/twitter.svg" alt="twitter" />
+        <a href="http://discord.gg/6mXxa2sX"><img src="/images/discord.svg" alt="discord" /></a>
+        <a href="https://twitter.com/block_parties"><img src="/images/twitter.svg" alt="twitter" /></a>
     </div>
 </footer>
 
@@ -101,6 +101,11 @@
 
         img {
             margin-left: 16px;
+        }
+
+        div {
+            display: flex;
+            align-items: center;
         }
     }
 </style>
