@@ -27,7 +27,10 @@
 
     <div class="content">
         <div class="card">
-            <img src={party.asset.image_preview_url} alt="nft" />
+            <img
+                src={party.asset.image_original_url ? party.asset.image_original_url : party.asset.image_preview_url}
+                alt="nft"
+            />
             <div class="footer">
                 <img
                     on:click={() => open(party.url, "blank")}
