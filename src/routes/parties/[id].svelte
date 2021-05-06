@@ -26,20 +26,23 @@
     </div>
 
     <div class="content">
-        <div class="card">
-            <img
-                src={party.asset.image_original_url ? party.asset.image_original_url : party.asset.image_preview_url}
-                alt="nft"
-            />
-            <div class="footer">
+        <div class="card-wrapper">
+            <div class="card">
                 <img
-                    on:click={() => open(party.url, "blank")}
-                    class="opensea-logo"
-                    src="/images/opensea-logo.webp"
-                    alt="view on opensea"
+                    src={party.asset.image_original_url
+                        ? party.asset.image_original_url
+                        : party.asset.image_preview_url}
+                    alt="nft"
                 />
-                <Heart {party} />
-                <!-- <p>Share</p> -->
+                <div class="footer">
+                    <img
+                        on:click={() => open(party.url, "blank")}
+                        class="opensea-logo"
+                        src="/images/opensea-logo.webp"
+                        alt="view on opensea"
+                    />
+                    <Heart {party} />
+                </div>
             </div>
         </div>
 
@@ -94,29 +97,34 @@
         margin: auto;
     }
 
-    .card {
+    .card-wrapper {
         flex: 3;
-        background: white;
-        padding: 32px;
         margin-right: 32px;
 
-        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.06);
+        .card {
+            width: fit-content;
+            margin: auto;
+            background: white;
+            padding: 32px;
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.06);
 
-        img {
-            width: 100%;
-            object-fit: contain;
-        }
+            img {
+                // width: 100%;
+                max-height: 480px;
+                object-fit: contain;
+            }
 
-        .opensea-logo {
-            cursor: pointer;
-            width: 36px;
-            height: 36px;
-        }
+            .opensea-logo {
+                cursor: pointer;
+                width: 36px;
+                height: 36px;
+            }
 
-        .footer {
-            display: flex;
-            justify-content: space-between;
-            margin: 16px 0;
+            .footer {
+                display: flex;
+                justify-content: space-between;
+                margin: 16px 0;
+            }
         }
     }
 
