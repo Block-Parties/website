@@ -9,7 +9,7 @@
     $: search(searchTerm)
 
     onMount(async () => {
-        parties = await getAssets()
+        parties = await getAssets("sort_by=createdAt")
     })
 
     async function getAssets(params: string = "") {
@@ -46,8 +46,6 @@
     }
 
     async function sort(method: string) {
-        console.log(method)
-
         switch (method) {
             case "FEATURED":
                 parties = await getAssets("featured=true")

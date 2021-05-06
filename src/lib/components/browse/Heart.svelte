@@ -1,38 +1,27 @@
 <script lang="ts">
     import Auth from "$lib/utils/auth"
-    import { onMount } from "svelte"
-    import { stop_propagation } from "svelte/internal"
 
     export let party
 
-    let likes
-    let liked = false
-
-    onMount(() => {
-        likes = party.hearts ? party.hearts.length : 0
-
-        setTimeout(() => {
-            if (likes > 0) liked = party.hearts.includes(Auth.getId() ?? "")
-        }, 250)
-    })
+    // The delay exists because of Firebase auth. This is used instead of onMount beacuse
+    // onMount is called inconsistently.
+    $: setTimeout(() => {
+        if (party.numHearts > 0) party.liked = party.hearts.includes(Auth.getId() ?? "")
+    }, 250)
 
     async function toggle() {
-        liked = !liked
+        party.liked = !party.liked
 
-        const url = `https://api2.blockparties.io/parties/${party._id}/heart`
-        // const url = `http://localhost:8000/parties/${partyId}/heart`
+        const url = `https://api2.blockparties.io/parties/${party._id}/` + (party.liked ? "heart" : "unheart")
 
         console.log(url)
         const request = await fetch(url, {
             method: "POST",
-            // body: ""
-            headers: {
-                Authorization: await Auth.getToken(),
-            },
+            headers: { Authorization: await Auth.getToken() },
         })
         console.log(request.status)
 
-        likes = liked ? likes + 1 : likes - 1
+        party.numHearts += party.liked ? 1 : -1
     }
 </script>
 
@@ -42,8 +31,11 @@
         event.stopPropagation()
     }}
 >
-    <img src={liked ? "/images/heart_filled.svg" : "/images/heart_outline.svg"} alt={liked ? "unlike" : "like"} />
-    <p>{likes}</p>
+    <img
+        src={party.liked ? "/images/heart_filled.svg" : "/images/heart_outline.svg"}
+        alt={party.liked ? "unlike" : "like"}
+    />
+    <p>{party.numHearts}</p>
 </div>
 
 <style lang="scss">
