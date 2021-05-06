@@ -150,9 +150,9 @@
         h5 {
             margin: 0 0 0 0;
             color: #1f204188;
-            font-weight: 800;
+            font-weight: 700;
             font-size: 12px;
-            font-family: "Montserrat" sans-serif;
+            font-family: "Montserrat", sans-serif;
         }
 
         p {
