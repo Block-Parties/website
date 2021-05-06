@@ -85,7 +85,7 @@
         h4 {
             color: #646464;
             font-weight: 600;
-            font-family: Montserrat sans-serif;
+            font-family: "Montserrat" sans-serif;
             font-size: 16px;
         }
     }
@@ -143,7 +143,7 @@
 
         h4 {
             font-weight: 400;
-            font-family: Montserrat sans-serif;
+            font-family: "Montserrat" sans-serif;
             color: #1f204177;
             margin-bottom: 32px;
         }
@@ -152,11 +152,11 @@
             margin: 0 0 6px 0;
             color: #1f204188;
             font-weight: 800;
-            font-family: Montserrat sans-serif;
+            font-family: "Montserrat" sans-serif;
         }
 
         p {
-            font-family: Montserrat sans-serif;
+            font-family: "Montserrat" sans-serif;
             font-weight: 200;
             color: #1f204177;
         }

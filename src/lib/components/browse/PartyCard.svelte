@@ -152,7 +152,7 @@
             color: #1f204188;
             font-weight: 800;
             font-size: 12px;
-            font-family: Montserrat sans-serif;
+            font-family: "Montserrat" sans-serif;
         }
 
         p {
