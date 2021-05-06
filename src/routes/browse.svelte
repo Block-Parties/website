@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte"
     import PartyCard from "$lib/components/browse/PartyCard.svelte"
+    import Dropdown from "$lib/components/common/Dropdown.svelte"
 
     let parties = []
     let searchTerm: string
@@ -8,7 +9,11 @@
     $: search(searchTerm)
 
     onMount(async () => {
-        let p = await (await fetch("https://api2.blockparties.io/parties")).json()
+        parties = await getAssets()
+    })
+
+    async function getAssets(params: string = "") {
+        let p = await (await fetch(`https://api2.blockparties.io/parties?${params}`)).json()
         let tokenPairs = p.map((item) => [item.tokenContract, item.tokenId])
 
         let searchParams = new URLSearchParams({})
@@ -23,7 +28,7 @@
         const assets: any[] = response["assets"]
         console.log(assets)
 
-        parties = p
+        return p
             .map((p) => {
                 p = {
                     ...p,
@@ -33,11 +38,29 @@
                 }
                 return p
             })
-            .filter((p) => p.asset != null && p.asset.num_sales > 0)
-    })
+            .filter((p) => p.asset != null && p.asset.sell_orders.length > 0)
+    }
 
     async function search(term: string) {
         console.log(term)
+    }
+
+    async function sort(method: string) {
+        console.log(method)
+
+        switch (method) {
+            case "FEATURED":
+                parties = await getAssets("featured=true")
+                break
+
+            case "POPULAR":
+                parties = await getAssets("sort_by=hearts")
+                break
+
+            case "NEWEST":
+                parties = await getAssets("sort_by=createdAt")
+                break
+        }
     }
 </script>
 
@@ -50,14 +73,14 @@
             <h1>Browse Waitlist</h1>
 
             <div>
-                <!-- <h3>Search</h3> -->
-                <div>
+                <div class="controls">
+                    <Dropdown
+                        prefix={"Sort By "}
+                        options={["FEATURED", "POPULAR", "NEWEST"]}
+                        onSelect={sort}
+                        selection="Newest"
+                    />
                     <input bind:value={searchTerm} placeholder="Search" />
-                    <!-- <select>
-                        <option value="public">Public</option>
-                        <option value="private">Private</option>
-                        <option value="waitlist">Waitlist</option>
-                    </select> -->
                 </div>
             </div>
         </div>
@@ -164,12 +187,12 @@
         }
     }
 
-    ::-webkit-scrollbar {
-        display: none;
-    }
+    .controls {
+        display: flex;
+        align-items: center;
 
-    .scrollbar {
-        margin: auto;
-        margin-top: 48px;
+        input {
+            margin-left: 32px;
+        }
     }
 </style>
