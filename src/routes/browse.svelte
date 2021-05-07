@@ -46,6 +46,8 @@
     }
 
     async function sort(method: string) {
+        parties = []
+
         switch (method) {
             case "FEATURED":
                 parties = await getAssets("featured=true")

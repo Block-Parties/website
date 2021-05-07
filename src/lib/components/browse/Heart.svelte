@@ -1,27 +1,41 @@
 <script lang="ts">
     import Auth from "$lib/utils/auth"
+    import { onMount } from "svelte"
 
     export let party
 
     // The delay exists because of Firebase auth. This is used instead of onMount beacuse
     // onMount is called inconsistently.
-    $: setTimeout(() => {
-        if (party.numHearts > 0) party.liked = party.hearts.includes(Auth.getId() ?? "")
-    }, 250)
+    // $: setTimeout(() => {
+    //     if (party.numHearts > 0) {
+    //         console.log(party.hearts)
+    //         liked = party.hearts.includes(Auth.getId() ?? "")
+    //         party.liked = liked
+    //     }
+    // }, 250)
+
+    // $: {
+    //     console.log(party.liked)
+    //     party.liked = party.hearts.includes(Auth.getId())
+    // }
+
+    onMount(() => {
+        console.log("MONT")
+        setTimeout(() => {
+            party.liked = party.hearts.includes(Auth.getId() ?? "")
+        }, 300)
+    })
 
     async function toggle() {
         party.liked = !party.liked
+        party.numHearts += party.liked ? 1 : -1
 
         const url = `https://api2.blockparties.io/parties/${party._id}/` + (party.liked ? "heart" : "unheart")
 
-        console.log(url)
-        const request = await fetch(url, {
+        await fetch(url, {
             method: "POST",
             headers: { Authorization: await Auth.getToken() },
         })
-        console.log(request.status)
-
-        party.numHearts += party.liked ? 1 : -1
     }
 </script>
 
