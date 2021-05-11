@@ -1,7 +1,9 @@
 <script lang="ts">
     function showExtension() {
-        // open("https://google.com", "blank")
-        alert("Coming soon!")
+        open(
+            "https://chrome.google.com/webstore/detail/block-parties/hmegkklckdgpchnemcedgolheiolmogn?hl=en&authuser=0",
+            "blank"
+        )
     }
 
     function showParties() {
