@@ -35,7 +35,7 @@
 
     <div>
         <p>get in touch</p>
-        <a href="http://discord.gg/6mXxa2sX"><img src="/images/discord.svg" alt="discord" /></a>
+        <a href="https://discord.gg/MG73GUKDyW"><img src="/images/discord.svg" alt="discord" /></a>
         <a href="https://twitter.com/block_parties"><img src="/images/twitter.svg" alt="twitter" /></a>
     </div>
 </footer>
