@@ -7,12 +7,12 @@
     let eth
 
     onMount(async () => {
-        const localData = JSON.parse(localStorage.getItem("party"))
-        console.log(localData)
+        const id = location.href.split("/").reverse()[0]
 
-        // TODO: COMPARE URL PARTY WITH SAVED PARTY.
-
-        party = localData
+        party = await (await fetch(`https://api2.blockparties.io/parties/${id}`)).json()
+        party.asset = await (
+            await fetch(`https://api.opensea.io/api/v1/asset/${party.tokenContract}/${party.tokenId}`)
+        ).json()
 
         const module = await import("$lib/api/eth")
         eth = module.EthHelper

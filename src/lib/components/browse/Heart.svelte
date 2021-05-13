@@ -31,7 +31,6 @@
         party.numHearts += party.liked ? 1 : -1
 
         const url = `https://api2.blockparties.io/parties/${party._id}/` + (party.liked ? "heart" : "unheart")
-
         await fetch(url, {
             method: "POST",
             headers: { Authorization: await Auth.getToken() },

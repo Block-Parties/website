@@ -5,6 +5,7 @@
 
     let parties = []
     let searchTerm: string
+    let sortBy: string = "createdAt"
 
     $: search(searchTerm)
 
@@ -13,36 +14,16 @@
     })
 
     async function getAssets(params: string = "") {
-        let p = await (await fetch(`https://api2.blockparties.io/parties?${params}`)).json()
-        let tokenPairs = p.map((item) => [item.tokenContract, item.tokenId])
-
-        let searchParams = new URLSearchParams({})
-        tokenPairs.forEach((item) => {
-            if (item[0] != undefined && item[1] != undefined) {
-                searchParams.append("asset_contract_addresses", item[0])
-                searchParams.append("token_ids", item[1])
-            }
-        })
-
-        const response = await (await fetch("https://api.opensea.io/api/v1/assets?" + searchParams)).json()
-        const assets: any[] = response["assets"]
-        console.log(assets)
-
-        return p
-            .map((p) => {
-                p = {
-                    ...p,
-                    asset: assets.find(
-                        (asset) => p.tokenId == asset.token_id && p.tokenContract == asset.asset_contract["address"]
-                    ),
-                }
-                return p
-            })
-            .filter((p) => p.asset != null && p.asset.sell_orders.length > 0)
+        return await (await fetch(`https://api2.blockparties.io/parties?${params}`)).json()
     }
 
     async function search(term: string) {
-        console.log(term)
+        parties = await getAssets(
+            new URLSearchParams({
+                sort_by: sortBy,
+                search: searchTerm,
+            }).toString()
+        )
     }
 
     async function sort(method: string) {
@@ -54,10 +35,12 @@
                 break
 
             case "POPULAR":
+                sortBy = "hearts"
                 parties = await getAssets("sort_by=hearts")
                 break
 
             case "NEWEST":
+                sortBy = "createdAt"
                 parties = await getAssets("sort_by=createdAt")
                 break
         }

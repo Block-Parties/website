@@ -22,13 +22,13 @@
 
 <div class="outer" on:click={show}>
     <div class="img-container">
-        <img src={party.asset.image_preview_url} alt="asset" />
+        <img src={party.asset.previewImage} alt="asset" />
     </div>
     <div class="details">
         <div class="title-row">
             <div>
                 <p class="title"><b>{party.asset.name ? party.asset.name : "Unnamed Asset"}</b></p>
-                <p class="collection">{party.asset.collection.name}</p>
+                <p class="collection">{party.asset.collection}</p>
                 <p />
                 <!-- <p class="type">{party.asset.description ? party.asset.description : "No description available."}</p> -->
             </div>
