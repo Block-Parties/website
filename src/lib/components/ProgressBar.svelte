@@ -2,12 +2,14 @@
     import type { BigNumber } from "@ethersproject/bignumber"
     import { onMount } from "svelte"
 
-    export let value: BigNumber
-    export let total: BigNumber
+    export let party
+
+    let value: BigNumber
+    let total: BigNumber
 
     let bar: HTMLDivElement
 
-    let eth
+    let eth: EthHelper
 
     $: {
         if (bar != undefined && value != undefined && total != undefined) {
@@ -23,7 +25,17 @@
     onMount(async () => {
         const module = await import("$lib/api/eth")
         eth = module.EthHelper
+
+        load()
+
+        console.log(value)
+        console.log(total)
     })
+
+    async function load() {
+        value = await eth.fetchContributions(party._id)
+        total = await eth.fetchTarget(party._id)
+    }
 
     function fraction(num: BigNumber, den: BigNumber) {
         let digitsDen = den.toString().length
@@ -43,11 +55,11 @@
 
 <div class="progress-bar">
     <div class="progress-bar-fill" bind:this={bar} />
-
-    <!-- {#if value && total}
-        <p>{eth.utils.formatEther(value)} / {eth.utils.formatEther(total)} ETH</p>
-    {/if} -->
 </div>
+
+{#if value && total}
+    <p>{eth.utils.formatEther(value)} / {eth.utils.formatEther(total)} ETH</p>
+{/if}
 
 <style lang="scss">
     .progress-bar {
@@ -66,10 +78,11 @@
         }
 
         p {
-            position: relative;
-            top: -22px;
-            left: 16px;
+            // position: relative;
+            // top: 0px;
+            // left: 16px;
 
+            font-family: "Montserrat", sans-serif;
             font-size: 14px;
             font-weight: 600;
         }

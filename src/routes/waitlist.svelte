@@ -14,7 +14,6 @@
     })
 
     async function getAssets(params: string = "") {
-        params += "&onChain=true"
         return await (await fetch(`https://api2.blockparties.io/parties?${params}`)).json()
     }
 
@@ -54,7 +53,7 @@
 <div>
     <div>
         <div class="header">
-            <h1>Browse Parties</h1>
+            <h1>Browse Waitlist</h1>
 
             <div>
                 <div class="controls">

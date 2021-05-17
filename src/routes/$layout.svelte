@@ -16,7 +16,9 @@
     <div class="page-row">
         <h3 on:click={() => (location.href = "/")}>HOME</h3>
         <!-- <h3 on:click={() => (location.href = "/browse")}>Browse</h3> -->
-        <h3 on:click={() => (location.href = "/browse")}>WAITLIST</h3>
+        <h3 on:click={() => (location.href = "/browse")}>BROWSE</h3>
+        <h3 on:click={() => (location.href = "/waitlist")}>WAITLIST</h3>
+
         <!-- <h3 on:click={() => (location.href = "/profile")}>Profile</h3> -->
         <!-- <h3>Profile</h3> -->
     </div>

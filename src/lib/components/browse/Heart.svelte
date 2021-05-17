@@ -21,9 +21,11 @@
 
     onMount(() => {
         console.log("MONT")
-        setTimeout(() => {
-            party.liked = party.hearts.includes(Auth.getId() ?? "")
-        }, 300)
+        if (party.hearts) {
+            setTimeout(() => {
+                party.liked = party.hearts.includes(Auth.getId() ?? "")
+            }, 300)
+        }
     })
 
     async function toggle() {

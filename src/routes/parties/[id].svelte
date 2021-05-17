@@ -1,22 +1,34 @@
 <script lang="ts">
     import Heart from "$lib/components/browse/Heart.svelte"
+    import ProgressBar from "$lib/components/ProgressBar.svelte"
     import { onMount } from "svelte"
 
     let party
 
+    let investmentAmount
     let eth
 
     onMount(async () => {
         const id = location.href.split("/").reverse()[0]
 
         party = await (await fetch(`https://api2.blockparties.io/parties/${id}`)).json()
-        party.asset = await (
-            await fetch(`https://api.opensea.io/api/v1/asset/${party.tokenContract}/${party.tokenId}`)
-        ).json()
+
+        let url = `api.opensea.io/api/v1/asset/${party.tokenContract}/${party.tokenId}`
+        if (party.network == "rinkeby") {
+            url = "rinkeby-" + url
+        }
+
+        url = "https://" + url
+        console.log(url)
+        party.asset = await (await fetch(url)).json()
 
         const module = await import("$lib/api/eth")
         eth = module.EthHelper
     })
+
+    async function invest() {
+        eth.invest(party._id, investmentAmount)
+    }
 </script>
 
 {#if party}
@@ -68,10 +80,21 @@
                 </div>
             {/if}
 
+            {#if party.onChain}
+                <div class="progress-bar">
+                    <ProgressBar {party} />
+                </div>
+
+                <div class="invest-container">
+                    <input bind:value={investmentAmount} placeholder="0.0 ETH" />
+                    <button on:click={invest}>Invest</button>
+                </div>
+            {/if}
+
             <hr />
 
             <h5>DESCRIPTION</h5>
-            <p>{party.asset.description ? party.asset.description : "No description available."}</p>
+            <p class="description">{party.asset.description ? party.asset.description : "No description available."}</p>
         </div>
     </div>
 {/if}
@@ -161,12 +184,42 @@
             color: #1f204177;
         }
 
+        .description {
+            font-size: 12px;
+        }
+
         .data-detail {
             margin-bottom: 32px;
 
             span {
                 color: black;
             }
+        }
+    }
+
+    .progress-bar {
+        width: 248px;
+        margin-bottom: 16px;
+    }
+
+    .invest-container {
+        margin-bottom: 16px;
+
+        input {
+            padding: 6px;
+            border-radius: 4px 0 0 4px;
+            border: 2px solid rgb(158, 158, 158);
+        }
+
+        button {
+            margin-left: -8px;
+            background: #6838d0;
+            border: none;
+            border-radius: 0 4px 4px 0;
+
+            color: white;
+            font-weight: 600;
+            padding: 8px 24px;
         }
     }
 </style>
